@@ -13,6 +13,16 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      fontFamily: {
+        chesna: ["var(--font-ChesnaGrotesk)"]
+      },
+      fontWeight: {
+        light: '100',
+        regular: '200',
+        medium: '300',
+        semibold: '400',
+        bold: '500',
+      },
     },
   },
   plugins: [],
