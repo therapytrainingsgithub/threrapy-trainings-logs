@@ -68,7 +68,7 @@ const Table: React.FC<TableProps> = ({ headers = [], data = [] }) => {
                 </td>
               ))}
               <td className="px-6 py-4 whitespace-nowrap">
-                <Dropdown />
+                {/* <Dropdown /> */}
               </td>
             </tr>
           ))}

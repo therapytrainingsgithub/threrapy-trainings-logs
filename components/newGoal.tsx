@@ -1,9 +1,16 @@
+import { useUserContext } from "@/app/context/userContext";
 import React, { useState } from "react";
 
-const NewGoal = () => {
+interface NewGoalsProps {
+  closePopup: () => void;
+}
+
+const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
+  const { userID } = useUserContext();
   const [formData, setFormData] = useState({
-    clinicalHoursGoal: "",
-    supervisionHoursGoal: "",
+    clinical_Hours: "",
+    supervision_Hours: "",
+    week: "",
   });
 
   const handleChange = (
@@ -16,9 +23,28 @@ const NewGoal = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+    try {
+      const response = await fetch("/api/goals/post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...formData, user_Id: userID }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        console.log("Data inserted successfully:", result);
+        closePopup();
+      } else {
+        console.error("Failed to insert data:", result.error);
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+    }
   };
 
   return (
@@ -30,33 +56,43 @@ const NewGoal = () => {
             onSubmit={handleSubmit}
             className="flex flex-col items-center space-y-6"
           >
-            {/* Direct Hours Input */}
+            {/* Week Input */}
             <div className="flex flex-col space-y-1 w-[50%]">
-              <label htmlFor="clinicalHoursGoal">Clinical Hours Goal</label>
+              <label htmlFor="week">Week</label>
               <input
                 className="rounded-md px-5 py-2"
-                type="text"
-                id="clinicalHoursGoal"
-                name="clinicalHoursGoal"
-                placeholder="Enter Clinical Goal"
-                value={formData.clinicalHoursGoal}
+                type="week"
+                id="week"
+                name="week"
+                value={formData.week}
                 onChange={handleChange}
                 required
               />
             </div>
 
-            {/* Indirect Hours Input */}
             <div className="flex flex-col space-y-1 w-[50%]">
-              <label htmlFor="supervisionHoursGoal">
-                Supervision Hours Goal
-              </label>
+              <label htmlFor="clinical_Hours">Clinical Hours Goal</label>
               <input
                 className="rounded-md px-5 py-2"
                 type="text"
-                id="supervisionHoursGoal"
-                name="supervisionHoursGoal"
+                id="clinical_Hours"
+                name="clinical_Hours"
+                placeholder="Enter Clinical Goal"
+                value={formData.clinical_Hours}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="flex flex-col space-y-1 w-[50%]">
+              <label htmlFor="supervision_Hours">Supervision Hours Goal</label>
+              <input
+                className="rounded-md px-5 py-2"
+                type="text"
+                id="supervision_Hours"
+                name="supervision_Hours"
                 placeholder="Enter Supervision Goal"
-                value={formData.supervisionHoursGoal}
+                value={formData.supervision_Hours}
                 onChange={handleChange}
                 required
               />

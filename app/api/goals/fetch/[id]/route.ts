@@ -11,7 +11,7 @@ export const GET = async (
     const { data, error } = await supabase
       .from('goals')
       .select('*')
-      .eq('user_id', id)
+      .eq('user_Id', id)
 
     if (error) {
       console.error('Error fetching session:', error);

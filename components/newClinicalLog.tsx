@@ -1,10 +1,17 @@
 import React, { useState } from "react";
+import { useUserContext } from "@/app/context/userContext";
 
-const NewClinicalLog = () => {
+interface NewClinicalLogProps {
+  closePopup: () => void;
+}
+
+const NewClinicalLog: React.FC<NewClinicalLogProps> = ({ closePopup }) => {
+  const { userID } = useUserContext();
+
   const [formData, setFormData] = useState({
     week: "",
-    directHours: "",
-    indirectHours: "",
+    direct_Hours: "",
+    indirect_Hours: "",
     site: "",
     supervisor: "",
   });
@@ -19,19 +26,35 @@ const NewClinicalLog = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
-    // Handle the form submission logic here
+
+    try {
+      const response = await fetch("/api/clinicalHours/post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...formData, user_Id: userID }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        console.log("Data inserted successfully:", result);
+        closePopup();
+      } else {
+        console.error("Failed to insert data:", result.error);
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+    }
   };
 
   return (
     <main className="py-5 px-10 font-chesna space-y-10">
       {/* form */}
-      <div
-        className="py-8 px-5 rounded-xl flex flex-col items-center space-y-10"
-      >
-
+      <div className="py-8 px-5 rounded-xl flex flex-col items-center space-y-10">
         <div className="w-full">
           <form
             onSubmit={handleSubmit}
@@ -53,14 +76,14 @@ const NewClinicalLog = () => {
 
             {/* Direct Hours Input */}
             <div className="flex flex-col space-y-1 w-[50%]">
-              <label htmlFor="directHours">Direct Hours</label>
+              <label htmlFor="direct_Hours">Direct Hours</label>
               <input
                 className="rounded-md px-5 py-2"
                 type="text"
-                id="directHours"
-                name="directHours"
+                id="direct_Hours"
+                name="direct_Hours"
                 placeholder="Enter direct hours"
-                value={formData.directHours}
+                value={formData.direct_Hours}
                 onChange={handleChange}
                 required
               />
@@ -68,14 +91,14 @@ const NewClinicalLog = () => {
 
             {/* Indirect Hours Input */}
             <div className="flex flex-col space-y-1 w-[50%]">
-              <label htmlFor="indirectHours">Indirect Hours</label>
+              <label htmlFor="indirect_Hours">Indirect Hours</label>
               <input
                 className="rounded-md px-5 py-2"
                 type="text"
-                id="indirectHours"
-                name="indirectHours"
+                id="indirect_Hours"
+                name="indirect_Hours"
                 placeholder="Enter indirect hours"
-                value={formData.indirectHours}
+                value={formData.indirect_Hours}
                 onChange={handleChange}
                 required
               />

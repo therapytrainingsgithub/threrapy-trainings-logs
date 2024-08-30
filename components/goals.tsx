@@ -1,24 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Table from "./table";
 import NewGoal from "./newGoal";
+import { useGoalsContext } from "@/app/context/goalsContext";
+import { useClinicalLogsContext } from "@/app/context/clinicalContext";
+import { useSupervisionLogsContext } from "@/app/context/supervisionContext";
 
-interface Log {
-  id: number;
-  created_at: string;
-  week: string;
-  user_id: string;
-  direct_Hours: string;
-  indirect_Hours: string;
-  supervision_Hours: string;
-  source: string;
-}
-
-interface OverviewProps {
-  logs: Log[];
-}
-
-const Goals: React.FC<OverviewProps> = ({ logs }) => {
+const Goals: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  // Use the context hook to access goals
+  const { goals } = useGoalsContext();
+  const { clinicalLogs } = useClinicalLogsContext();
+  const { supervisionLogs } = useSupervisionLogsContext();
 
   const openPopup = () => {
     setIsPopupOpen(true);
@@ -28,18 +21,51 @@ const Goals: React.FC<OverviewProps> = ({ logs }) => {
     setIsPopupOpen(false);
   };
 
-  const headersOne = [
+  const headersClinicalHours = [
     "Week Logged",
     "Direct Hours",
     "Indirect Hours",
     "Remaining",
   ];
-  const headersTwo = [
+  const headersSupervisionHours = [
     "Week Logged",
     "Supervision Hours",
     "Remaining",
     "Status",
   ];
+
+  const uniqueWeeks = Array.from(new Set(goals.map((goal) => goal.week)));
+
+  const dataClinicalHours = uniqueWeeks.map((week) => {
+    let totalDirectHours = clinicalLogs
+      .filter((log) => log.week === week)
+      .reduce((total, log) => total + parseFloat(log.direct_Hours), 0);
+    let totalIndirectHours = clinicalLogs
+      .filter((log) => log.week === week)
+      .reduce((total, log) => total + parseFloat(log.indirect_Hours), 0);
+    const goal = goals.find((goal) => goal.week === week);
+    const clinicalHours = goal ? goal.clinical_Hours : 0;
+    return {
+      weekLogged: week,
+      directHours: totalDirectHours,
+      indirectHours: totalIndirectHours,
+      remaining: totalDirectHours + totalIndirectHours - clinicalHours,
+    };
+  });
+
+  const dataSupervisionHours = uniqueWeeks.map((week) => {
+    let totalSupervisionHours = supervisionLogs
+      .filter((log) => log.week === week)
+      .reduce((total, log) => total + log.supervision_Hours, 0);
+    const goal = goals.find((goal) => goal.week === week);
+    const supervisionHours = goal ? goal.supervision_Hours : 0;
+
+    return {
+      weekLogged: week,
+      supervisionHours: totalSupervisionHours,
+      remaining: totalSupervisionHours - supervisionHours,
+    };
+  });
 
   return (
     <main className="space-y-5">
@@ -66,11 +92,14 @@ const Goals: React.FC<OverviewProps> = ({ logs }) => {
       <div className="bg-[#FCFEF2] p-10 rounded-xl border space-y-10">
         <div>
           <h3>Clinical Hours</h3>
-          <Table headers={headersOne} />
+          <Table headers={headersClinicalHours} data={dataClinicalHours} />
         </div>
         <div>
           <h3>Supervision Hours</h3>
-          <Table headers={headersTwo} />
+          <Table
+            headers={headersSupervisionHours}
+            data={dataSupervisionHours}
+          />
         </div>
       </div>
 
@@ -84,7 +113,7 @@ const Goals: React.FC<OverviewProps> = ({ logs }) => {
             }}
           >
             <h2 className="text-2xl mb-4 text-[#709D50]">Set New Goals</h2>
-            <NewGoal />
+            <NewGoal closePopup={closePopup} />
             <button
               onClick={closePopup}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"

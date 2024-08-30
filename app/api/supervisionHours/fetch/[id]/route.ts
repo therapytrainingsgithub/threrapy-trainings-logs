@@ -9,9 +9,9 @@ export const GET = async (
 
   try {
     const { data, error } = await supabase
-      .from('supervision_Hours')
+      .from('supervision_Logs')
       .select('*')
-      .eq('user_id', id)
+      .eq('user_Id', id)
 
     if (error) {
       console.error('Error fetching session:', error);

@@ -1,9 +1,15 @@
+import { useUserContext } from "@/app/context/userContext";
 import React, { useState } from "react";
 
-const NewSupervisionLog = () => {
+interface NewSupervisionLogProps {
+  closePopup: () => void;
+}
+
+const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({ closePopup }) => {
+    const { userID } = useUserContext();
   const [formData, setFormData] = useState({
     week: "",
-    supervisionHours: ""
+    supervision_Hours: ""
   });
 
   const handleChange = (
@@ -16,9 +22,28 @@ const NewSupervisionLog = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log(formData);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+        const response = await fetch("/api/supervisionHours/post", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...formData, user_Id: userID }),
+        });
+  
+        const result = await response.json();
+  
+        if (response.ok) {
+          console.log("Data inserted successfully:", result);
+          closePopup();
+        } else {
+          console.error("Failed to insert data:", result.error);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+      }
   };
 
   return (
@@ -46,14 +71,14 @@ const NewSupervisionLog = () => {
 
             {/* Direct Hours Input */}
             <div className="flex flex-col space-y-1 w-[50%]">
-              <label htmlFor="supervisionHours">Supervision Hours</label>
+              <label htmlFor="supervision_Hours">Supervision Hours</label>
               <input
                 className="rounded-md px-5 py-2"
                 type="text"
-                id="supervisionHours"
-                name="supervisionHours"
+                id="supervision_Hours"
+                name="supervision_Hours"
                 placeholder="Enter supervision hours"
-                value={formData.supervisionHours}
+                value={formData.supervision_Hours}
                 onChange={handleChange}
                 required
               />

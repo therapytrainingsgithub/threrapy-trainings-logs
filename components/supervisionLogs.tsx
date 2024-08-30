@@ -1,22 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Table from "./table";
 import NewSupervisionLog from "./newSupervisionLog";
+import { useSupervisionLogsContext } from "@/app/context/supervisionContext";
 
-interface Log {
-  id: number;
-  created_at: string;
-  week: string;
-  user_id: string;
-  supervision_Hours: string;
-  // other properties as needed
-}
-
-interface OverviewProps {
-  logs: Log[];
-}
-
-const SupervisionLogs: React.FC<OverviewProps> = ({ logs }) => {
+const SupervisionLogs = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  const { supervisionLogs } = useSupervisionLogsContext();
 
   const openPopup = () => {
     setIsPopupOpen(true);
@@ -26,7 +16,16 @@ const SupervisionLogs: React.FC<OverviewProps> = ({ logs }) => {
     setIsPopupOpen(false);
   };
 
-  const headers = ["Week Logged", "Supervision Hours", "Action"];
+  const headers = ["Date", "Week Logged", "Supervision Hours", "Action"];
+  const data = supervisionLogs.map((log) => ({
+    date: new Date(log.created_at).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }),
+    week: log.week,
+    supervision_Hours: log.supervision_Hours,
+  }));
 
   return (
     <main className="space-y-5">
@@ -53,7 +52,7 @@ const SupervisionLogs: React.FC<OverviewProps> = ({ logs }) => {
       </div>
 
       <div className="bg-[#FCFEF2] p-10 rounded-xl border">
-        <Table headers={headers} />
+        <Table headers={headers} data={data} />
       </div>
 
       {isPopupOpen && (
@@ -65,8 +64,10 @@ const SupervisionLogs: React.FC<OverviewProps> = ({ logs }) => {
               boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <h2 className="text-2xl mb-4 text-[#709D50]">Log New Supervision Hours</h2>
-            <NewSupervisionLog />
+            <h2 className="text-2xl mb-4 text-[#709D50]">
+              Log New Supervision Hours
+            </h2>
+            <NewSupervisionLog closePopup={closePopup} />
             <button
               onClick={closePopup}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"

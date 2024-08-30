@@ -1,26 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Table from "./table";
 import NewClinicalLog from "./newClinicalLog";
+import { useClinicalLogsContext } from "@/app/context/clinicalContext";
 
-interface Log {
-  id: number;
-  created_at: string;
-  week: string;
-  user_id: string;
-  direct_Hours: string;
-  indirect_Hours: string;
-  supervision_Hours: string;
-  source: string;
-}
-
-interface OverviewProps {
-  logs: Log[];
-}
-
-const ClinicalLogs: React.FC<OverviewProps> = ({ logs }) => {
+const ClinicalLogs = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
+  const { clinicalLogs } = useClinicalLogsContext();
+
   const headers = [
+    "Date",
     "Week Logged",
     "Direct Hours",
     "Indirect Hours",
@@ -30,10 +19,19 @@ const ClinicalLogs: React.FC<OverviewProps> = ({ logs }) => {
     "Action",
   ];
 
-  const data = [
-    { weekLogged: "Week 1", directHours: "10", indirectHours: "5" },
-    { weekLogged: "Week 2", directHours: "8", indirectHours: "6" },
-  ];
+  const data = clinicalLogs.map((log) => ({
+    date: new Date(log.created_at).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }),
+    weekLogged: log.week,
+    directHours: log.direct_Hours,
+    indirectHours: log.indirect_Hours,
+    site: log.site,
+    supervisor: "Unknown",
+    status: "Pending",
+  }));
 
   const openPopup = () => {
     setIsPopupOpen(true);
@@ -79,7 +77,7 @@ const ClinicalLogs: React.FC<OverviewProps> = ({ logs }) => {
             }}
           >
             <h2 className="text-2xl mb-4 text-[#709D50]">Log New Hours</h2>
-            <NewClinicalLog />
+            <NewClinicalLog closePopup={closePopup} />
             <button
               onClick={closePopup}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"
