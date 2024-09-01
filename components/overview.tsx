@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PieChart from "./piechart";
 import { useClinicalLogsContext } from "@/app/context/clinicalContext";
 import { useSupervisionLogsContext } from "@/app/context/supervisionContext";
@@ -15,32 +15,37 @@ const Overview = () => {
   const { supervisionLogs } = useSupervisionLogsContext();
 
   const uniqueWeeks = Array.from(new Set(goals.map((goal) => goal.week)));
+
   const dataClinicalHours = uniqueWeeks.map((week) => {
-    let totalDirectHours = clinicalLogs
+    const totalDirectHours = clinicalLogs
       .filter((log) => log.week === week)
       .reduce((total, log) => total + parseFloat(log.direct_Hours), 0);
-    let totalIndirectHours = clinicalLogs
+    const totalIndirectHours = clinicalLogs
       .filter((log) => log.week === week)
       .reduce((total, log) => total + parseFloat(log.indirect_Hours), 0);
     const goal = goals.find((goal) => goal.week === week);
     const clinicalHours = goal ? goal.clinical_Hours : 0;
+    const clinicalRemaining =
+      totalDirectHours + totalIndirectHours - clinicalHours;
+
     return {
       directHours: totalDirectHours,
       indirectHours: totalIndirectHours,
-      remaining: totalDirectHours + totalIndirectHours - clinicalHours,
+      remaining: clinicalRemaining,
     };
   });
 
   const dataSupervisionHours = uniqueWeeks.map((week) => {
-    let totalSupervisionHours = supervisionLogs
+    const totalSupervisionHours = supervisionLogs
       .filter((log) => log.week === week)
       .reduce((total, log) => total + log.supervision_Hours, 0);
     const goal = goals.find((goal) => goal.week === week);
     const supervisionHours = goal ? goal.supervision_Hours : 0;
+    const supervisionRemaining = totalSupervisionHours - supervisionHours;
 
     return {
       supervisionHours: totalSupervisionHours,
-      remaining: totalSupervisionHours - supervisionHours,
+      remaining: supervisionRemaining,
     };
   });
 
@@ -48,11 +53,15 @@ const Overview = () => {
     labels: ["Direct", "Indirect", "Remaining"],
     datasets: [
       {
-        data: [5, 5, 10], // Example data
+        data: [
+          dataClinicalHours.reduce((sum, item) => sum + item.directHours, 0),
+          dataClinicalHours.reduce((sum, item) => sum + item.indirectHours, 0),
+          dataClinicalHours.reduce((sum, item) => sum + item.remaining, 0),
+        ],
         backgroundColor: [
           "rgba(112, 157, 80)",
-          "rgba(0, 0, 0)",
           "rgba(112, 157, 80, 0.7)",
+          "rgba(0, 0, 0)",
         ],
       },
     ],
@@ -62,11 +71,14 @@ const Overview = () => {
     labels: ["Supervision", "Remaining"],
     datasets: [
       {
-        data: [10, 10], // Example data
-        backgroundColor: [
-          "rgba(112, 157, 80)",
-          "rgba(0, 0, 0)",
+        data: [
+          dataSupervisionHours.reduce(
+            (sum, item) => sum + item.supervisionHours,
+            0
+          ),
+          dataSupervisionHours.reduce((sum, item) => sum + item.remaining, 0),
         ],
+        backgroundColor: ["rgba(112, 157, 80)", "rgba(0, 0, 0)"],
       },
     ],
   };
