@@ -22,7 +22,7 @@ const PieChart: React.FC<PieChartProps> = ({ data }) => {
   };
 
   return (
-    <div style={{ position: 'relative', width: '300px', height: '300px' }}>
+    <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[400px]">
       <Pie data={data} options={options} />
     </div>
   );

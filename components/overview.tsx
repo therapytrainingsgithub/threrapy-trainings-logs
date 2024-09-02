@@ -84,12 +84,12 @@ const Overview = () => {
   };
 
   return (
-    <main className="space-y-5">
-      <div className="flex justify-between items-center">
+    <main className="space-y-5 p-4 md:p-8">
+      <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
         <div>
-          <h1 className="text-[24px] font-semibold">Overview</h1>
+          <h1 className="text-[20px] md:text-[24px] font-semibold">Overview</h1>
         </div>
-        <div className="flex space-x-5">
+        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-5">
           <div className="relative">
             <select
               className="bg-[#FCFEF2] p-2 rounded-md border border-gray-200 appearance-none pr-10"
@@ -136,9 +136,13 @@ const Overview = () => {
         </div>
       </div>
 
-      <div className="bg-[#FCFEF2] p-10 rounded-xl border flex justify-center">
-        <PieChart data={clinicalHoursChart} />
-        <PieChart data={supervisionHoursChart} />
+      <div className="bg-[#FCFEF2] p-6 md:p-10 rounded-xl border flex flex-col md:flex-row justify-center space-y-4 md:space-y-0">
+        <div className="w-full md:w-1/2">
+          <PieChart data={clinicalHoursChart} />
+        </div>
+        <div className="w-full md:w-1/2">
+          <PieChart data={supervisionHoursChart} />
+        </div>
       </div>
     </main>
   );

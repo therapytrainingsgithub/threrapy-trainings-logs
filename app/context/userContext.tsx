@@ -1,4 +1,10 @@
-import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect,
+} from "react";
 import { supabase } from "@/lib/supabase"; // Ensure this is the correct path
 
 interface UserContextType {
@@ -7,7 +13,9 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const UserProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [userID, setUserID] = useState<string | null>(null);
 
   useEffect(() => {
@@ -20,6 +28,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         console.error("Failed to fetch user");
         return;
       }
+
       setUserID(user.id);
     };
 

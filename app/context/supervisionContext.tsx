@@ -11,6 +11,7 @@ interface SupervisionLog {
 interface SupervisionLogsContextType {
   supervisionLogs: SupervisionLog[];
   setLogs: React.Dispatch<React.SetStateAction<SupervisionLog[]>>;
+  refreshLogs: () => void;
 }
 
 const SupervisionLogsContext = createContext<
@@ -41,12 +42,16 @@ export const SupervisionLogsProvider: React.FC<{
     }
   };
 
+  const refreshLogs = () => {
+    fetchSupervisionLogs();
+  };
+
   useEffect(() => {
     fetchSupervisionLogs();
-  }, [userID]); // Refetch if user changes
+  }, [userID]);
 
   return (
-    <SupervisionLogsContext.Provider value={{ supervisionLogs, setLogs }}>
+    <SupervisionLogsContext.Provider value={{ supervisionLogs, setLogs, refreshLogs }}>
       {children}
     </SupervisionLogsContext.Provider>
   );

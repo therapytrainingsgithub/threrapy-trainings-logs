@@ -48,19 +48,19 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
   };
 
   return (
-    <main className="py-5 px-10 font-chesna space-y-10">
+    <main className="py-5 px-4 sm:px-10 font-chesna space-y-6 sm:space-y-10">
       {/* form */}
-      <div className="py-8 px-5 rounded-xl flex flex-col items-center space-y-10">
+      <div className="py-8 px-5 rounded-xl flex flex-col items-center space-y-6 sm:space-y-10">
         <div className="w-full">
           <form
             onSubmit={handleSubmit}
             className="flex flex-col items-center space-y-6"
           >
             {/* Week Input */}
-            <div className="flex flex-col space-y-1 w-[50%]">
+            <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="week">Week</label>
               <input
-                className="rounded-md px-5 py-2"
+                className="rounded-md px-4 py-2 w-full"
                 type="week"
                 id="week"
                 name="week"
@@ -70,10 +70,11 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
               />
             </div>
 
-            <div className="flex flex-col space-y-1 w-[50%]">
+            {/* Clinical Hours Goal Input */}
+            <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="clinical_Hours">Clinical Hours Goal</label>
               <input
-                className="rounded-md px-5 py-2"
+                className="rounded-md px-4 py-2 w-full"
                 type="text"
                 id="clinical_Hours"
                 name="clinical_Hours"
@@ -84,10 +85,11 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
               />
             </div>
 
-            <div className="flex flex-col space-y-1 w-[50%]">
+            {/* Supervision Hours Goal Input */}
+            <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="supervision_Hours">Supervision Hours Goal</label>
               <input
-                className="rounded-md px-5 py-2"
+                className="rounded-md px-4 py-2 w-full"
                 type="text"
                 id="supervision_Hours"
                 name="supervision_Hours"
@@ -98,14 +100,14 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
               />
             </div>
 
-            <div className="w-[50%]">
+            <div className="w-full sm:w-[50%]">
               <button
                 type="submit"
                 style={{
                   background: "#8cbf68",
                   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                 }}
-                className="px-5 py-2 rounded-md text-white w-full"
+                className="px-4 py-2 rounded-md text-white w-full"
               >
                 Submit
               </button>
