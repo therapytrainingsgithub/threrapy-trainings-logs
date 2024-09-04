@@ -9,9 +9,8 @@ const ClinicalLogs: React.FC = () => {
 
   const { clinicalLogs, refreshLogs } = useClinicalLogsContext();
 
-  function capitalizeFirstLetter(string: string) {
-    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-  }
+  const capitalizeFirstLetter = (string: string) =>
+    string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 
   const deleteLog = async (id: string | number | undefined): Promise<void> => {
     try {
@@ -22,7 +21,6 @@ const ClinicalLogs: React.FC = () => {
         },
       });
 
-      // Handle non-JSON responses
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Failed to delete log:", errorText);
@@ -32,7 +30,6 @@ const ClinicalLogs: React.FC = () => {
       const result = await response.json();
       refreshLogs();
       console.log("Log deleted successfully:", result);
-      refreshLogs(); // Ensure the logs are refreshed after deletion
     } catch (err) {
       console.error("Unexpected error:", err);
     }
@@ -61,7 +58,29 @@ const ClinicalLogs: React.FC = () => {
     Site: log.site ?? "N/A",
     Supervisor: log.supervisor ?? "N/A",
     Status: capitalizeFirstLetter(log.status),
-    Action: <Dropdown status={log.status} id={log.id} deleteLog={deleteLog} />,
+    Action: (
+      <Dropdown
+        status={log.status}
+        id={log.id}
+        deleteLog={deleteLog}
+        PopupContent={({ closePopup }) => (
+          <NewClinicalLog
+            closePopup={closePopup}
+            refreshLogs={refreshLogs}
+            existingLog={{
+              id: log.id,
+              week: log.week,
+              direct_Hours: log.direct_Hours,
+              indirect_Hours: log.indirect_Hours,
+              site: log.site,
+              supervisor: log.supervisor,
+              status: log.status,
+            }}
+            mode="update"
+          />
+        )}
+      />
+    ),
   }));
 
   const openPopup = () => {
@@ -105,7 +124,7 @@ const ClinicalLogs: React.FC = () => {
             }}
           >
             <h2 className="text-2xl mb-4 text-[#709D50]">Log New Hours</h2>
-            <NewClinicalLog closePopup={closePopup} refreshLogs={refreshLogs} />
+            <NewClinicalLog closePopup={closePopup} refreshLogs={refreshLogs} mode="create" />
             <button
               onClick={closePopup}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"

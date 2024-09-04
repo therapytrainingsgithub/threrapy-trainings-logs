@@ -103,7 +103,24 @@ const SupervisionLogs: React.FC = () => {
     }),
     "Week Logged": log.week,
     "Supervision Hours": log.supervision_Hours,
-    Action: <Dropdown id={log.id} deleteLog={deleteLog} />,
+    Action: (
+      <Dropdown
+        id={log.id}
+        deleteLog={deleteLog}
+        PopupContent={({ closePopup }) => (
+          <NewSupervisionLog
+            refreshLogs={refreshLogs}
+            mode="update"
+            existingLog={{
+              id: log.id,
+              week: log.week,
+              supervision_Hours: log.supervision_Hours.toString(), // Convert to string
+            }}
+            closePopup={closePopup} // Pass closePopup function
+          />
+        )}
+      />
+    ),
   }));
 
   return (
@@ -144,6 +161,7 @@ const SupervisionLogs: React.FC = () => {
             <NewSupervisionLog
               closePopup={closePopup}
               refreshLogs={refreshLogs}
+              mode="create"
             />
             <button
               onClick={closePopup}

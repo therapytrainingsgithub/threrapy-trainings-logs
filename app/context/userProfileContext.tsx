@@ -1,8 +1,15 @@
-import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect,
+} from "react";
 import { useUserContext } from "./userContext";
 
 interface Profile {
   role: string;
+  name: string; // Add the name property here
 }
 
 interface User {
@@ -13,16 +20,22 @@ interface User {
 
 interface UserContextType {
   userRole: string | null;
+  userName: string | null; // Add userName to the context type
   allUsers: User[] | null;
   isLoading: boolean;
   error: string | null;
-  refreshUsers: () => void; // Add refreshUsers to the context type
+  refreshUsers: () => void;
 }
 
-const UserProfileContext = createContext<UserContextType | undefined>(undefined);
+const UserProfileContext = createContext<UserContextType | undefined>(
+  undefined
+);
 
-export const UserProfileProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const UserProfileProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null); // Add state for userName
   const [allUsers, setAllUsers] = useState<User[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,15 +49,15 @@ export const UserProfileProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
 
     try {
-      // Fetch user role
-      const roleResponse = await fetch(`/api/userProfile/fetch/${userID}`);
-      const roleResult = await roleResponse.json();
+      // Fetch user profile
+      const profileResponse = await fetch(`/api/userProfile/fetch/${userID}`);
+      const profileResult = await profileResponse.json();
 
-      if (!roleResponse.ok) {
-        throw new Error(roleResult.error || "Failed to fetch user profile");
+      if (!profileResponse.ok) {
+        throw new Error(profileResult.error || "Failed to fetch user profile");
       }
-
-      setUserRole(roleResult.role);
+      setUserRole(profileResult.role);
+      setUserName(profileResult.name);
 
       // Fetch all users
       const usersResponse = await fetch(`/api/userProfile/fetchAll`);
@@ -72,7 +85,9 @@ export const UserProfileProvider: React.FC<{ children: ReactNode }> = ({ childre
   }, [userID]);
 
   return (
-    <UserProfileContext.Provider value={{ userRole, allUsers, isLoading, error, refreshUsers }}>
+    <UserProfileContext.Provider
+      value={{ userRole, userName, allUsers, isLoading, error, refreshUsers }}
+    >
       {children}
     </UserProfileContext.Provider>
   );
@@ -81,7 +96,9 @@ export const UserProfileProvider: React.FC<{ children: ReactNode }> = ({ childre
 export const useUserProfileContext = () => {
   const context = useContext(UserProfileContext);
   if (context === undefined) {
-    throw new Error("useUserProfileContext must be used within a UserProfileProvider");
+    throw new Error(
+      "useUserProfileContext must be used within a UserProfileProvider"
+    );
   }
   return context;
 };

@@ -51,7 +51,7 @@ const Goals: React.FC = () => {
       "Clinical Goal": goal?.clinical_Hours,
       "Direct Hours Logged": totalDirectHours,
       "Indirect Hours Logged": totalIndirectHours,
-      Remaining: totalDirectHours + totalIndirectHours - clinicalHours,
+      Remaining: clinicalHours - (totalDirectHours + totalIndirectHours),
     };
   });
 
@@ -66,7 +66,7 @@ const Goals: React.FC = () => {
       "Week Logged": week,
       "Supervision Goal": goal?.supervision_Hours,
       "Supervision Hours Logged": totalSupervisionHours,
-      Remaining: totalSupervisionHours - supervisionHours,
+      Remaining: supervisionHours - totalSupervisionHours,
     };
   });
 

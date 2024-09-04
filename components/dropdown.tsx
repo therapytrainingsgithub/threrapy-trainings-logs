@@ -5,6 +5,7 @@ interface DropdownProps {
   id?: number;
   deleteLog?: (id: number) => void;
   updateLog?: (id: number) => void;
+  PopupContent?: React.FC<{ closePopup: () => void }>; // Ensure PopupContent is a React component
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -12,8 +13,11 @@ const Dropdown: React.FC<DropdownProps> = ({
   status,
   deleteLog,
   updateLog,
+  PopupContent,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => {
@@ -41,6 +45,14 @@ const Dropdown: React.FC<DropdownProps> = ({
     };
   }, []);
 
+  const handleUpdate = () => {
+    if (updateLog && typeof id === "number") {
+      updateLog(id);
+    }
+    setIsPopupOpen(true); // Open popup when update button is clicked
+    closeDropdown();
+  };
+
   const handleDelete = () => {
     if (deleteLog && typeof id === "number") {
       deleteLog(id);
@@ -48,11 +60,8 @@ const Dropdown: React.FC<DropdownProps> = ({
     closeDropdown();
   };
 
-  const handleUpdate = () => {
-    if (updateLog && typeof id === "number") {
-      updateLog(id);
-    }
-    closeDropdown();
+  const closePopup = () => {
+    setIsPopupOpen(false);
   };
 
   const isDisabled = status === "approved" || status === "denied";
@@ -89,6 +98,29 @@ const Dropdown: React.FC<DropdownProps> = ({
               }`}
             >
               Delete
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isPopupOpen && PopupContent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+          <div
+            className="p-5 rounded-md shadow-lg w-[90%]"
+            style={{
+              background: "linear-gradient(330deg, #709D50 0%, #FCFEF2 100%)",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            <h2 className="text-2xl mb-4 text-[#709D50]">
+              Update Your Hours
+            </h2>
+            <PopupContent closePopup={closePopup} />
+            <button
+              onClick={closePopup}
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"
+            >
+              Close
             </button>
           </div>
         </div>

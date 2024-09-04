@@ -1,10 +1,23 @@
 import React, { useEffect, useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import { useUserContext } from "@/app/context/userContext";
 import { useUserProfileContext } from "@/app/context/userProfileContext";
 
 interface NewClinicalLogProps {
   closePopup: () => void;
   refreshLogs: () => void;
+  existingLog?: {
+    id: string | number;
+    week: string;
+    direct_Hours: string;
+    indirect_Hours: string;
+    site: string;
+    supervisor: string;
+    supervisor_Id?: string;
+    status: string;
+  };
+  mode?: "create" | "update";
 }
 
 interface User {
@@ -13,9 +26,28 @@ interface User {
   role: string;
 }
 
+const validationSchema = Yup.object({
+  week: Yup.string().required("Week is required"),
+  direct_Hours: Yup.number()
+    .typeError("Direct Hours must be a number")
+    .required("Direct Hours is required")
+    .positive("Direct Hours must be positive")
+    .integer("Direct Hours must be an integer"),
+  indirect_Hours: Yup.number()
+    .typeError("Indirect Hours must be a number")
+    .required("Indirect Hours is required")
+    .positive("Indirect Hours must be positive")
+    .integer("Indirect Hours must be an integer"),
+  site: Yup.string().required("Site is required"),
+  supervisor: Yup.string().required("Supervisor is required"),
+  supervisor_Id: Yup.string().required("Supervisor ID is required"),
+});
+
 const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   closePopup,
   refreshLogs,
+  existingLog,
+  mode = "create",
 }) => {
   const { userID } = useUserContext();
   const { allUsers } = useUserProfileContext();
@@ -28,143 +60,170 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
       );
       setSupervisors(filteredSupervisors);
     }
-  }, [allUsers]);
+  }, [allUsers, userID]);
 
-  const [formData, setFormData] = useState({
-    week: "",
-    direct_Hours: "",
-    indirect_Hours: "",
-    site: "",
-    supervisor: "",
-    supervisor_Id: "",
-    status: "pending",
+  const formik = useFormik({
+    initialValues: {
+      week: existingLog?.week || "",
+      direct_Hours: existingLog?.direct_Hours || "",
+      indirect_Hours: existingLog?.indirect_Hours || "",
+      site: existingLog?.site || "",
+      supervisor: existingLog?.supervisor || "",
+      supervisor_Id: existingLog?.supervisor_Id || "",
+      status: existingLog?.status || "pending",
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+      const url =
+        mode === "create"
+          ? "/api/clinicalHours/post"
+          : `/api/clinicalHours/updateAll/${existingLog?.id}`;
+      const method = mode === "create" ? "POST" : "PUT";
+
+      try {
+        const response = await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...values, user_Id: userID }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          console.log("Data saved successfully:", result);
+          refreshLogs();
+          closePopup();
+        } else {
+          console.error("Failed to save data:", result.error);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+      }
+    },
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
+  useEffect(() => {
+    if (existingLog) {
+      const supervisorData = supervisors.find(
+        (supervisor) => supervisor.name === existingLog.supervisor
+      );
 
-    if (name === "supervisor") {
-      const [supervisorName, supervisorId] = value.split(",");
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        supervisor: supervisorName,
-        supervisor_Id: supervisorId,
-      }));
-    } else {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        [name]: value,
-      }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch("/api/clinicalHours/post", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...formData, user_Id: userID }),
+      formik.setValues({
+        week: existingLog.week,
+        direct_Hours: existingLog.direct_Hours,
+        indirect_Hours: existingLog.indirect_Hours,
+        site: existingLog.site,
+        supervisor: existingLog.supervisor,
+        supervisor_Id: supervisorData?.id || existingLog.supervisor_Id || "",
+        status: existingLog.status,
       });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        console.log("Data inserted successfully:", result);
-        refreshLogs();
-        closePopup();
-      } else {
-        console.error("Failed to insert data:", result.error);
-      }
-    } catch (err) {
-      console.error("Unexpected error:", err);
     }
-  };
+  }, [existingLog, supervisors]);
 
   return (
-    <main className="py-5 px-4 sm:px-6 md:px-10 font-chesna space-y-8">
-      <div className="py-6 sm:py-8 px-4 sm:px-5 rounded-xl flex flex-col items-center space-y-8 sm:space-y-10">
+    <main className="py-5 px-4 sm:px-10 font-chesna space-y-6 sm:space-y-10">
+      <div className="py-8 px-5 rounded-xl flex flex-col items-center space-y-6 sm:space-y-10">
         <div className="w-full">
           <form
-            onSubmit={handleSubmit}
-            className="flex flex-col items-center space-y-4 sm:space-y-6"
+            onSubmit={formik.handleSubmit}
+            className="flex flex-col items-center space-y-6"
           >
-            {/* Week Input */}
-            <div className="flex flex-col space-y-1 w-full sm:w-[75%] md:w-[50%]">
+            <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="week">Week</label>
               <input
-                className="rounded-md px-4 py-2"
+                className="rounded-md px-4 py-2 w-full"
                 type="week"
                 id="week"
                 name="week"
-                value={formData.week}
-                onChange={handleChange}
+                value={formik.values.week}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 required
               />
+              {formik.touched.week && formik.errors.week ? (
+                <div className="text-red-500 text-sm">{formik.errors.week}</div>
+              ) : null}
             </div>
 
-            {/* Direct Hours Input */}
-            <div className="flex flex-col space-y-1 w-full sm:w-[75%] md:w-[50%]">
+            <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="direct_Hours">Direct Hours</label>
               <input
-                className="rounded-md px-4 py-2"
+                className="rounded-md px-4 py-2 w-full"
                 type="text"
                 id="direct_Hours"
                 name="direct_Hours"
-                placeholder="Enter direct hours"
-                value={formData.direct_Hours}
-                onChange={handleChange}
+                placeholder="Enter Direct hours"
+                value={formik.values.direct_Hours}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 required
               />
+              {formik.touched.direct_Hours && formik.errors.direct_Hours ? (
+                <div className="text-red-500 text-sm">
+                  {formik.errors.direct_Hours}
+                </div>
+              ) : null}
             </div>
 
-            {/* Indirect Hours Input */}
-            <div className="flex flex-col space-y-1 w-full sm:w-[75%] md:w-[50%]">
+            <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="indirect_Hours">Indirect Hours</label>
               <input
-                className="rounded-md px-4 py-2"
+                className="rounded-md px-4 py-2 w-full"
                 type="text"
                 id="indirect_Hours"
                 name="indirect_Hours"
-                placeholder="Enter indirect hours"
-                value={formData.indirect_Hours}
-                onChange={handleChange}
+                placeholder="Enter Indirect hours"
+                value={formik.values.indirect_Hours}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 required
               />
+              {formik.touched.indirect_Hours && formik.errors.indirect_Hours ? (
+                <div className="text-red-500 text-sm">
+                  {formik.errors.indirect_Hours}
+                </div>
+              ) : null}
             </div>
 
-            {/* Site Input */}
-            <div className="flex flex-col space-y-1 w-full sm:w-[75%] md:w-[50%]">
+            <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="site">Site</label>
               <input
-                className="rounded-md px-4 py-2"
+                className="rounded-md px-4 py-2 w-full"
                 type="text"
                 id="site"
                 name="site"
-                placeholder="Enter site"
-                value={formData.site}
-                onChange={handleChange}
+                placeholder="Enter Site"
+                value={formik.values.site}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 required
               />
+              {formik.touched.site && formik.errors.site ? (
+                <div className="text-red-500 text-sm">{formik.errors.site}</div>
+              ) : null}
             </div>
 
-            {/* Supervisor Dropdown */}
-            <div className="flex flex-col space-y-1 w-full sm:w-[75%] md:w-[50%]">
+            <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="supervisor">Supervisor</label>
               <select
-                id="supervisor"
                 name="supervisor"
-                className="rounded-md px-4 py-2"
-                value={formData.supervisor + "," + formData.supervisor_Id}
-                onChange={handleChange}
-                required
+                value={
+                  formik.values.supervisor_Id
+                    ? `${formik.values.supervisor},${formik.values.supervisor_Id}`
+                    : ""
+                }
+                onChange={(e) => {
+                  const [supervisorName, supervisorId] =
+                    e.target.value.split(",");
+                  formik.setFieldValue("supervisor", supervisorName);
+                  formik.setFieldValue("supervisor_Id", supervisorId);
+                }}
+                onBlur={formik.handleBlur}
+                className="rounded-md px-4 py-2 w-full"
               >
-                <option value="" hidden>
+                <option value="" disabled hidden>
                   Select Supervisor
                 </option>
                 {supervisors.map((supervisor) => (
@@ -176,9 +235,14 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
                   </option>
                 ))}
               </select>
+              {formik.touched.supervisor && formik.errors.supervisor ? (
+                <div className="text-red-500 text-sm">
+                  {formik.errors.supervisor}
+                </div>
+              ) : null}
             </div>
 
-            <div className="w-full sm:w-[75%] md:w-[50%]">
+            <div className="w-full sm:w-[50%]">
               <button
                 type="submit"
                 style={{
@@ -187,7 +251,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
                 }}
                 className="px-4 py-2 rounded-md text-white w-full"
               >
-                Submit
+                {mode === "update" ? "Update" : "Submit"}
               </button>
             </div>
           </form>

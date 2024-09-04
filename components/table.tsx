@@ -5,6 +5,7 @@ interface TableProps {
   headers?: string[];
   data?: Record<string, React.ReactNode>[]; // Explicitly type data as an array of objects with string keys and React nodes as values
   onRowClick?: (rowData: Record<string, React.ReactNode>) => void; // Pass row data on row click
+  editable?: boolean;
 }
 
 // Table component
@@ -12,6 +13,7 @@ const Table: React.FC<TableProps> = ({
   headers = [],
   data = [],
   onRowClick,
+  editable = false,
 }) => {
   return (
     <main className="overflow-x-auto">
@@ -23,7 +25,8 @@ const Table: React.FC<TableProps> = ({
                 key={index}
                 className="px-4 py-2 sm:px-6 sm:py-3 text-left font-medium"
               >
-                {header.charAt(0).toUpperCase() + header.slice(1).replace(/([A-Z])/g, ' $1')}
+                {header.charAt(0).toUpperCase() +
+                  header.slice(1).replace(/([A-Z])/g, " $1")}
               </th>
             ))}
           </tr>
@@ -32,7 +35,9 @@ const Table: React.FC<TableProps> = ({
           {data.map((row, rowIndex) => (
             <tr
               key={rowIndex}
-              className="border-b border-gray-300 cursor-pointer hover:bg-gray-100"
+              className={`border-b border-gray-300 hover:bg-gray-100 ${
+                editable ? "cursor-pointer" : ""
+              }`}
               onClick={() => onRowClick?.(row)} // Pass the entire row data on click
             >
               {headers.map((header, cellIndex) => (
@@ -40,7 +45,7 @@ const Table: React.FC<TableProps> = ({
                   key={cellIndex}
                   className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap"
                 >
-                  {row[header] || '-'} {/* Render value if it exists */}
+                  {row[header] || "-"} {/* Render value if it exists */}
                 </td>
               ))}
               <td className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap">

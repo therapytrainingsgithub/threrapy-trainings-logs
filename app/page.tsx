@@ -12,11 +12,12 @@ import SupervisorUsers from "@/components/supervisorUsers";
 import SupervisorRequest from "@/components/supervisorRequest";
 import AdminUsers from "@/components/adminUsers";
 import AdminSupervisor from "@/components/adminSupervisor";
-import AddNewUser from "@/components/addNewUser";
+import { ToastContainer } from "react-toastify";
 
 export default function Home() {
   return (
     <AppProviders>
+      <ToastContainer />
       <HomeContent />
     </AppProviders>
   );
@@ -44,7 +45,6 @@ function HomeContent() {
       {userRole === "supervisor" && <SupervisorRequest />}
 
       {/* admin UI */}
-      {userRole === "admin" && <AddNewUser />}
       {userRole === "admin" && <AdminUsers />}
       {userRole === "admin" && <AdminSupervisor />}
     </main>

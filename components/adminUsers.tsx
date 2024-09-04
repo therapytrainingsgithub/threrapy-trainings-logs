@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Table from "./table";
 import { useUserProfileContext } from "@/app/context/userProfileContext";
 import AdminRequest from "./adminRequest";
+import AddNewUser from "./addNewUser";
 
 interface User {
   id: string;
@@ -48,10 +49,11 @@ const AdminUsers: React.FC = () => {
     <main className="space-y-5 p-4 md:p-10">
       <div className="flex justify-between items-center flex-wrap">
         <h1 className="text-[24px] text-[#709D50] mb-4 md:mb-0">Users</h1>
+        <AddNewUser />
       </div>
 
       <div className="bg-[#FCFEF2] p-4 md:p-10 rounded-xl border overflow-x-auto">
-        <Table headers={headers} data={data} onRowClick={openPopup} />
+        <Table headers={headers} data={data} onRowClick={openPopup} editable={true} />
       </div>
 
       {isPopupOpen && selectedUserData && (
