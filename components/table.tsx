@@ -23,7 +23,7 @@ const Table: React.FC<TableProps> = ({
                 key={index}
                 className="px-4 py-2 sm:px-6 sm:py-3 text-left font-medium"
               >
-                {header}
+                {header.charAt(0).toUpperCase() + header.slice(1).replace(/([A-Z])/g, ' $1')}
               </th>
             ))}
           </tr>
@@ -35,12 +35,12 @@ const Table: React.FC<TableProps> = ({
               className="border-b border-gray-300 cursor-pointer hover:bg-gray-100"
               onClick={() => onRowClick?.(row)} // Pass the entire row data on click
             >
-              {Object.values(row).map((cell, cellIndex) => (
+              {headers.map((header, cellIndex) => (
                 <td
                   key={cellIndex}
                   className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap"
                 >
-                  {cell}
+                  {row[header] || '-'} {/* Render value if it exists */}
                 </td>
               ))}
               <td className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap">

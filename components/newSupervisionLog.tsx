@@ -7,7 +7,8 @@ interface NewSupervisionLogProps {
 }
 
 const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
-  closePopup, refreshLogs
+  closePopup,
+  refreshLogs,
 }) => {
   const { userID } = useUserContext();
   const [formData, setFormData] = useState({

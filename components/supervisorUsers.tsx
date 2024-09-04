@@ -15,12 +15,6 @@ interface ClinicalLog {
   supervisor_Id: string;
 }
 
-interface User {
-  id: string;
-  role: string;
-  name: string;
-}
-
 const SupervisorUsers: React.FC = () => {
   const { allClinicalLogs } = useClinicalLogsContext();
   const { allUsers } = useUserProfileContext();
@@ -47,7 +41,7 @@ const SupervisorUsers: React.FC = () => {
       if (!uniqueNames.has(userName)) {
         uniqueNames.add(userName);
         return {
-          user: userName,
+          User: userName,
         };
       }
 
@@ -55,12 +49,10 @@ const SupervisorUsers: React.FC = () => {
     })
     .filter((entry) => entry !== null);
 
-  console.log(data);
-
   return (
     <main className="space-y-5 p-4 md:p-10">
       <div className="flex justify-between items-center flex-wrap">
-        <h1 className="text-[24px] text-[#709D50] mb-4 md:mb-0">Users</h1>
+        <h1 className="text-[24px] text-[#709D50] mb-4 md:mb-0">Users Under Supervision</h1>
       </div>
 
       <div className="bg-[#FCFEF2] p-4 md:p-10 rounded-xl border overflow-x-auto">

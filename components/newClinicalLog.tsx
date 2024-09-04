@@ -24,7 +24,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   useEffect(() => {
     if (allUsers) {
       const filteredSupervisors = allUsers.filter(
-        (user) => user.role === "supervisor"
+        (user) => user.role === "supervisor" && user.id !== userID
       );
       setSupervisors(filteredSupervisors);
     }
@@ -37,7 +37,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
     site: "",
     supervisor: "",
     supervisor_Id: "",
-    status: "pending"
+    status: "pending",
   });
 
   const handleChange = (

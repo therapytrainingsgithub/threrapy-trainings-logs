@@ -10,6 +10,9 @@ import AppProviders from "./context";
 import { useUserProfileContext } from "./context/userProfileContext";
 import SupervisorUsers from "@/components/supervisorUsers";
 import SupervisorRequest from "@/components/supervisorRequest";
+import AdminUsers from "@/components/adminUsers";
+import AdminSupervisor from "@/components/adminSupervisor";
+import AddNewUser from "@/components/addNewUser";
 
 export default function Home() {
   return (
@@ -33,8 +36,17 @@ function HomeContent() {
       {userRole === "user" && <Goals />}
 
       {/* supervisor UI */}
+      {userRole === "supervisor" && <Overview />}
+      {userRole === "supervisor" && <ClinicalLogs />}
+      {userRole === "supervisor" && <SupervisionLogs />}
+      {userRole === "supervisor" && <Goals />}
       {userRole === "supervisor" && <SupervisorUsers />}
       {userRole === "supervisor" && <SupervisorRequest />}
+
+      {/* admin UI */}
+      {userRole === "admin" && <AddNewUser />}
+      {userRole === "admin" && <AdminUsers />}
+      {userRole === "admin" && <AdminSupervisor />}
     </main>
   );
 }

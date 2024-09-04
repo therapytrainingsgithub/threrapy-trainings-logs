@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Table from "./table";
 import NewSupervisionLog from "./newSupervisionLog";
 import { useSupervisionLogsContext } from "@/app/context/supervisionContext";
+import Dropdown from "./dropdown";
 
 const SupervisionLogs: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -16,15 +17,93 @@ const SupervisionLogs: React.FC = () => {
     setIsPopupOpen(false);
   };
 
+  const updateLog = async (
+    id: number,
+    updatedFields: { [key: string]: any }
+  ): Promise<void> => {
+    try {
+      const response = await fetch(`/api/supervisionHours/update/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedFields),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Failed to update log:", errorText);
+        return;
+      }
+
+      const result = await response.json();
+      console.log("Log updated successfully:", result);
+      refreshLogs(); // Refresh the logs after updating
+    } catch (err) {
+      console.error("Unexpected error:", err);
+    }
+  };
+
+  const deleteLog = async (id: number): Promise<void> => {
+    try {
+      const response = await fetch(`/api/supervisionHours/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Failed to delete log:", errorText);
+        return;
+      }
+
+      const result = await response.json();
+      refreshLogs();
+      console.log("Log deleted successfully:", result);
+    } catch (err) {
+      console.error("Unexpected error:", err);
+    }
+  };
+
+  const submitLog = async (
+    formData: { week: string; supervision_Hours: string },
+    userID: string
+  ) => {
+    try {
+      const response = await fetch("/api/supervisionHours/post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...formData, user_Id: userID }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        console.log("Data inserted successfully:", result);
+        closePopup();
+        refreshLogs();
+      } else {
+        console.error("Failed to insert data:", result.error);
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+    }
+  };
+
   const headers = ["Date", "Week Logged", "Supervision Hours", "Action"];
   const data = supervisionLogs.map((log) => ({
-    date: new Date(log.created_at).toLocaleDateString("en-US", {
+    Date: new Date(log.created_at).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
     }),
-    week: log.week,
-    supervision_Hours: log.supervision_Hours,
+    "Week Logged": log.week,
+    "Supervision Hours": log.supervision_Hours,
+    Action: <Dropdown id={log.id} deleteLog={deleteLog} />,
   }));
 
   return (
@@ -33,7 +112,6 @@ const SupervisionLogs: React.FC = () => {
         <h1 className="text-[24px] text-[#709D50] mb-4 md:mb-0">
           Supervision Hours Logged
         </h1>
-
         <button
           style={{
             background: "#8cbf68",
@@ -63,7 +141,10 @@ const SupervisionLogs: React.FC = () => {
             <h2 className="text-2xl mb-4 text-[#709D50]">
               Log New Supervision Hours
             </h2>
-            <NewSupervisionLog closePopup={closePopup} refreshLogs={refreshLogs} />
+            <NewSupervisionLog
+              closePopup={closePopup}
+              refreshLogs={refreshLogs}
+            />
             <button
               onClick={closePopup}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"

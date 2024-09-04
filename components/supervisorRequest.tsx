@@ -6,6 +6,7 @@ import { useUserContext } from "@/app/context/userContext";
 import Request from "./request";
 
 interface ClinicalLog {
+  id: number;
   created_at: string;
   week: string;
   direct_Hours: string;
@@ -25,7 +26,7 @@ interface User {
 const SupervisorRequest: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedLogData, setSelectedLogData] = useState<Record<string, React.ReactNode> | null>(null);
-  const { allClinicalLogs } = useClinicalLogsContext();
+  const { allClinicalLogs, refreshLogs } = useClinicalLogsContext();
   const { allUsers } = useUserProfileContext();
   const { userID } = useUserContext();
 
@@ -56,17 +57,18 @@ const SupervisorRequest: React.FC = () => {
     const user = allUsers?.find((user) => user.id === log.user_Id);
 
     return {
-      date: new Date(log.created_at).toLocaleDateString("en-US", {
+      Log_Id: log.id,
+      Date: new Date(log.created_at).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
       }),
-      weekLogged: log.week,
-      user: user ? user.name : "Unknown", // Display user name
-      directHours: log.direct_Hours,
-      indirectHours: log.indirect_Hours,
-      site: log.site,
-      status: capitalizeFirstLetter(log.status),
+      "Week Logged": log.week,
+      User: user ? user.name : "Unknown", // Display user name
+      "Direct Hours": log.direct_Hours,
+      "Indirect Hours": log.indirect_Hours,
+      Site: log.site,
+      Status: capitalizeFirstLetter(log.status),
     };
   });
 
@@ -83,7 +85,7 @@ const SupervisorRequest: React.FC = () => {
   return (
     <main className="space-y-5 p-4 md:p-10">
       <div className="flex justify-between items-center flex-wrap">
-        <h1 className="text-[24px] text-[#709D50] mb-4 md:mb-0">Request</h1>
+        <h1 className="text-[24px] text-[#709D50] mb-4 md:mb-0">Request for Logged Hours</h1>
       </div>
 
       <div className="bg-[#FCFEF2] p-4 md:p-10 rounded-xl border overflow-x-auto">
@@ -101,7 +103,7 @@ const SupervisorRequest: React.FC = () => {
           >
             <h2 className="text-2xl mb-4 text-[#709D50]">Log Details</h2>
             {selectedLogData && (
-              <Request log={selectedLogData} />
+              <Request log={selectedLogData} closePopup={closePopup} refresh={refreshLogs} />
             )}
             <button
               onClick={closePopup}

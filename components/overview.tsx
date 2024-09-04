@@ -138,9 +138,11 @@ const Overview = () => {
 
       <div className="bg-[#FCFEF2] p-6 md:p-10 rounded-xl border flex flex-col md:flex-row justify-center space-y-4 md:space-y-0">
         <div className="w-full md:w-1/2">
+        <h3 className="text-lg font-semibold mb-2">Clinical Hours</h3>
           <PieChart data={clinicalHoursChart} />
         </div>
         <div className="w-full md:w-1/2">
+        <h3 className="text-lg font-semibold mb-2">Supervision Hours</h3>
           <PieChart data={supervisionHoursChart} />
         </div>
       </div>

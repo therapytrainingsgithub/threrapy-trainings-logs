@@ -23,13 +23,15 @@ const Goals: React.FC = () => {
 
   const headersClinicalHours = [
     "Week Logged",
-    "Direct Hours",
-    "Indirect Hours",
+    "Clinical Goal",
+    "Direct Hours Logged",
+    "Indirect Hours Logged",
     "Remaining",
   ];
   const headersSupervisionHours = [
     "Week Logged",
-    "Supervision Hours",
+    "Supervision Goal",
+    "Supervision Hours Logged",
     "Remaining",
   ];
 
@@ -45,10 +47,11 @@ const Goals: React.FC = () => {
     const goal = goals.find((goal) => goal.week === week);
     const clinicalHours = goal ? goal.clinical_Hours : 0;
     return {
-      weekLogged: week,
-      directHours: totalDirectHours,
-      indirectHours: totalIndirectHours,
-      remaining: totalDirectHours + totalIndirectHours - clinicalHours,
+      "Week Logged": week,
+      "Clinical Goal": goal?.clinical_Hours,
+      "Direct Hours Logged": totalDirectHours,
+      "Indirect Hours Logged": totalIndirectHours,
+      Remaining: totalDirectHours + totalIndirectHours - clinicalHours,
     };
   });
 
@@ -60,9 +63,10 @@ const Goals: React.FC = () => {
     const supervisionHours = goal ? goal.supervision_Hours : 0;
 
     return {
-      weekLogged: week,
-      supervisionHours: totalSupervisionHours,
-      remaining: totalSupervisionHours - supervisionHours,
+      "Week Logged": week,
+      "Supervision Goal": goal?.supervision_Hours,
+      "Supervision Hours Logged": totalSupervisionHours,
+      Remaining: totalSupervisionHours - supervisionHours,
     };
   });
 

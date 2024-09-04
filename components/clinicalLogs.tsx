@@ -2,11 +2,41 @@ import React, { useState } from "react";
 import Table from "./table";
 import NewClinicalLog from "./newClinicalLog";
 import { useClinicalLogsContext } from "@/app/context/clinicalContext";
+import Dropdown from "./dropdown";
 
-const ClinicalLogs = () => {
+const ClinicalLogs: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const { clinicalLogs, refreshLogs } = useClinicalLogsContext();
+
+  function capitalizeFirstLetter(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  }
+
+  const deleteLog = async (id: string | number | undefined): Promise<void> => {
+    try {
+      const response = await fetch(`/api/clinicalHours/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Handle non-JSON responses
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Failed to delete log:", errorText);
+        return;
+      }
+
+      const result = await response.json();
+      refreshLogs();
+      console.log("Log deleted successfully:", result);
+      refreshLogs(); // Ensure the logs are refreshed after deletion
+    } catch (err) {
+      console.error("Unexpected error:", err);
+    }
+  };
 
   const headers = [
     "Date",
@@ -20,17 +50,18 @@ const ClinicalLogs = () => {
   ];
 
   const data = clinicalLogs.map((log) => ({
-    date: new Date(log.created_at).toLocaleDateString("en-US", {
+    Date: new Date(log.created_at).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
     }),
-    weekLogged: log.week,
-    directHours: log.direct_Hours,
-    indirectHours: log.indirect_Hours,
-    site: log.site,
-    supervisor: log.supervisor,
-    status: log.status,
+    "Week Logged": log.week,
+    "Direct Hours": log.direct_Hours,
+    "Indirect Hours": log.indirect_Hours,
+    Site: log.site ?? "N/A",
+    Supervisor: log.supervisor ?? "N/A",
+    Status: capitalizeFirstLetter(log.status),
+    Action: <Dropdown status={log.status} id={log.id} deleteLog={deleteLog} />,
   }));
 
   const openPopup = () => {
