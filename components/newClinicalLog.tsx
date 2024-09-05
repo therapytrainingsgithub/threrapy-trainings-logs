@@ -96,6 +96,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
         if (response.ok) {
           toast.success("Data inserted successfully!");
           console.log("Data saved successfully:", result);
+          refreshLogs();
           closePopup();
         } else {
           toast.error("Unexpected error occurred. Please try again.");
