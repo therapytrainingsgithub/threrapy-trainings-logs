@@ -41,7 +41,7 @@ const Overview = () => {
       .reduce((total, log) => total + log.supervision_Hours, 0);
     const goal = goals.find((goal) => goal.week === week);
     const supervisionHours = goal ? goal.supervision_Hours : 0;
-    const supervisionRemaining = totalSupervisionHours - supervisionHours;
+    const supervisionRemaining = supervisionHours - totalSupervisionHours;
 
     return {
       supervisionHours: totalSupervisionHours,
