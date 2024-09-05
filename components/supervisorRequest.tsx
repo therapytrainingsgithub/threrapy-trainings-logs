@@ -35,10 +35,12 @@ const SupervisorRequest: React.FC = () => {
 
   const [supervisorsLogs, setSupervisorsLogs] = useState<ClinicalLog[]>([]);
 
+  // Capitalize first letter of status
   function capitalizeFirstLetter(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   }
 
+  // Filter logs by supervisor ID whenever logs are updated
   useEffect(() => {
     const logsForSupervisor = allClinicalLogs.filter(
       (log) => log.supervisor_Id === userID
@@ -83,7 +85,7 @@ const SupervisorRequest: React.FC = () => {
   const closePopup = () => {
     setIsPopupOpen(false);
     setSelectedLogData(null);
-    refreshLogs()
+    refreshLogs(); // Refresh the logs after closing the popup
   };
 
   return (
@@ -103,7 +105,7 @@ const SupervisorRequest: React.FC = () => {
         />
       </div>
 
-      {isPopupOpen && (
+      {isPopupOpen && selectedLogData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
           <div
             className="p-5 rounded-md shadow-lg w-[90%]"
@@ -113,13 +115,11 @@ const SupervisorRequest: React.FC = () => {
             }}
           >
             <h2 className="text-2xl mb-4 text-[#709D50]">Log Details</h2>
-            {selectedLogData && (
-              <Request
-                log={selectedLogData}
-                closePopup={closePopup}
-                refresh={refreshLogs}
-              />
-            )}
+            <Request
+              log={selectedLogData}
+              closePopup={closePopup}
+              refresh={refreshLogs} // Ensure logs are refreshed after update
+            />
             <button
               onClick={closePopup}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"

@@ -11,7 +11,7 @@ interface RequestProps {
   refresh: () => void;
 }
 
-const Request: React.FC<RequestProps> = ({ log, closePopup }) => {
+const Request: React.FC<RequestProps> = ({ log, closePopup, refresh }) => {
   const [clinicalLog, setClinicalLog] = useState<Record<string, any> | null>(
     null
   );
@@ -59,7 +59,7 @@ const Request: React.FC<RequestProps> = ({ log, closePopup }) => {
 
           if (response.ok) {
             toast.success("Status updated successfully!");
-            refreshLogs(); // Refresh logs
+            refresh();
             closePopup(); // Close the popup
           } else {
             toast.error(`Failed to update status: ${result.error}`);
