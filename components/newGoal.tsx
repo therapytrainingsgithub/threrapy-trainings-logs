@@ -4,6 +4,7 @@ import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useGoalsContext } from "@/app/context/goalsContext";
 
 interface NewGoalsProps {
   closePopup: () => void;
@@ -20,6 +21,7 @@ const validationSchema = Yup.object({
 
 const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
   const { userID } = useUserContext();
+  const { refreshGoals } = useGoalsContext();
 
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     try {
@@ -34,6 +36,7 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
       const result = await response.json();
 
       if (response.ok) {
+        refreshGoals()
         toast.success("Data inserted successfully!"); // Success message
         closePopup();
       } else {

@@ -16,6 +16,7 @@ interface Goal {
 interface GoalsContextType {
   goals: Goal[];
   setGoals: React.Dispatch<React.SetStateAction<Goal[]>>;
+  refreshGoals: () => void; // Add refreshGoals function
 }
 
 const GoalsContext = createContext<GoalsContextType | undefined>(undefined);
@@ -43,12 +44,17 @@ export const GoalsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  // Add the refreshGoals function
+  const refreshGoals = () => {
+    fetchGoals();
+  };
+
   useEffect(() => {
     fetchGoals();
   }, [userID]); // Refetch if user changes
 
   return (
-    <GoalsContext.Provider value={{ goals, setGoals }}>
+    <GoalsContext.Provider value={{ goals, setGoals, refreshGoals }}>
       {children}
     </GoalsContext.Provider>
   );
