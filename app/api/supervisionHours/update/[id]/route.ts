@@ -1,21 +1,22 @@
 import { supabase } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async (
+export const PUT = async (
   req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
   const { id } = params;
+  const updatedFields = await req.json(); // Get the entire object
 
   try {
     const { data, error } = await supabase
-      .from("user_profiles")
-      .select("*")
+      .from("supervision_Logs")
+      .update(updatedFields) // Update with the entire object
       .eq("id", id)
-      .single();
+      .select();
 
     if (error) {
-      console.error("Error fetching session:", error);
+      console.error("Error updating log:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import { useUserProfileContext } from "@/app/context/userProfileContext";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
+  const { userName } = useUserProfileContext();
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -21,7 +23,7 @@ const Header = () => {
 
   return (
     <main>
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
         <div>
           <img src="./images/logo.png" alt="logo" />
         </div>
@@ -29,7 +31,7 @@ const Header = () => {
           <img
             src="./images/profile.png"
             alt="profile"
-            className="cursor-pointer"
+            className="cursor-pointer w-8 h-8"
             onClick={toggleDropdown}
           />
           {dropdownOpen && (
@@ -63,7 +65,7 @@ const Header = () => {
         </div>
         <div className="relative z-10">
           <h1 className="text-[#709D50] text-[41px] font-bold">
-            Welcome Matt!
+            {`Welcome ${userName ? userName : "Guest"}!`}
           </h1>
           <p className="text-[24px] font-regular">
             Your Therapy Tracking portal.
