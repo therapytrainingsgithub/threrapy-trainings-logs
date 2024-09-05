@@ -118,7 +118,7 @@ const SupervisorRequest: React.FC = () => {
             <Request
               log={selectedLogData}
               closePopup={closePopup}
-              refresh={refreshLogs} // Ensure logs are refreshed after update
+              refresh={refreshLogs}
             />
             <button
               onClick={closePopup}

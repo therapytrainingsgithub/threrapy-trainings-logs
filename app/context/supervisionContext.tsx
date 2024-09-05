@@ -6,6 +6,7 @@ interface SupervisionLog {
   week: string;
   created_at: string;
   supervision_Hours: number;
+  user_Id : string
 }
 
 interface SupervisionLogsContextType {

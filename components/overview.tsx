@@ -5,59 +5,73 @@ import PieChart from "./piechart";
 import { useClinicalLogsContext } from "@/app/context/clinicalContext";
 import { useSupervisionLogsContext } from "@/app/context/supervisionContext";
 import { useGoalsContext } from "@/app/context/goalsContext";
+import { useUserContext } from "@/app/context/userContext";
 
 const Overview = () => {
-  const [range, setRange] = useState("");
-  const [selection, setSelection] = useState("");
+  const [week, setWeek] = useState("all");
 
   const { goals } = useGoalsContext();
   const { clinicalLogs } = useClinicalLogsContext();
   const { supervisionLogs } = useSupervisionLogsContext();
+  const { userID } = useUserContext(); // Get userID from the context
 
-  const uniqueWeeks = Array.from(new Set(goals.map((goal) => goal.week)));
+  // Filter clinical logs by userID
+  const userClinicalLogs = clinicalLogs.filter((log) => log.user_Id === userID);
 
-  const dataClinicalHours = uniqueWeeks.map((week) => {
-    const totalDirectHours = clinicalLogs
-      .filter((log) => log.week === week)
-      .reduce((total, log) => total + parseFloat(log.direct_Hours), 0);
-    const totalIndirectHours = clinicalLogs
-      .filter((log) => log.week === week)
-      .reduce((total, log) => total + parseFloat(log.indirect_Hours), 0);
-    const goal = goals.find((goal) => goal.week === week);
-    const clinicalHours = goal ? goal.clinical_Hours : 0;
-    const clinicalRemaining =
-      clinicalHours - (totalDirectHours + totalIndirectHours);
+  // Get unique weeks from the filtered clinical logs, sorted in ascending order
+  const uniqueWeeks = Array.from(
+    new Set(userClinicalLogs.map((log) => log.week))
+  ).sort((a, b) => a.localeCompare(b)); // Sorting the weeks
 
-    return {
-      directHours: totalDirectHours,
-      indirectHours: totalIndirectHours,
-      remaining: clinicalRemaining,
-    };
-  });
+  // Prepare data for Clinical Hours chart
+  const filteredClinicalLogs =
+    week === "all"
+      ? userClinicalLogs // Use all logs if "All" is selected
+      : userClinicalLogs.filter((log) => log.week === week); // Filter logs by selected week
 
-  const dataSupervisionHours = uniqueWeeks.map((week) => {
-    const totalSupervisionHours = supervisionLogs
-      .filter((log) => log.week === week)
-      .reduce((total, log) => total + log.supervision_Hours, 0);
-    const goal = goals.find((goal) => goal.week === week);
-    const supervisionHours = goal ? goal.supervision_Hours : 0;
-    const supervisionRemaining = supervisionHours - totalSupervisionHours;
+  const totalDirectHours = filteredClinicalLogs.reduce(
+    (total, log) => total + parseFloat(log.direct_Hours),
+    0
+  );
+  const totalIndirectHours = filteredClinicalLogs.reduce(
+    (total, log) => total + parseFloat(log.indirect_Hours),
+    0
+  );
 
-    return {
-      supervisionHours: totalSupervisionHours,
-      remaining: supervisionRemaining,
-    };
-  });
+  const clinicalGoal =
+    week === "all"
+      ? goals.reduce((total, goal) => total + (goal.clinical_Hours || 0), 0)
+      : goals.find((goal) => goal.week === week)?.clinical_Hours || 0;
 
+  const clinicalRemaining =
+    clinicalGoal - (totalDirectHours + totalIndirectHours);
+
+  // Prepare data for Supervision Hours chart
+  const filteredSupervisionLogs =
+    week === "all"
+      ? supervisionLogs.filter((log) => log.user_Id === userID)
+      : supervisionLogs.filter(
+          (log) => log.user_Id === userID && log.week === week
+        );
+
+  const totalSupervisionHours = filteredSupervisionLogs.reduce(
+    (total, log) => total + log.supervision_Hours,
+    0
+  );
+
+  const supervisionGoal =
+    week === "all"
+      ? goals.reduce((total, goal) => total + (goal.supervision_Hours || 0), 0)
+      : goals.find((goal) => goal.week === week)?.supervision_Hours || 0;
+
+  const supervisionRemaining = supervisionGoal - totalSupervisionHours;
+
+  // Prepare data for PieCharts
   const clinicalHoursChart = {
-    labels: ["Direct", "Indirect", "Remaining"],
+    labels: ["Direct Hours", "Indirect Hours", "Remaining Hours"],
     datasets: [
       {
-        data: [
-          dataClinicalHours.reduce((sum, item) => sum + item.directHours, 0),
-          dataClinicalHours.reduce((sum, item) => sum + item.indirectHours, 0),
-          dataClinicalHours.reduce((sum, item) => sum + item.remaining, 0),
-        ],
+        data: [totalDirectHours, totalIndirectHours, clinicalRemaining],
         backgroundColor: [
           "rgba(112, 157, 80)",
           "rgba(112, 157, 80, 0.7)",
@@ -68,16 +82,10 @@ const Overview = () => {
   };
 
   const supervisionHoursChart = {
-    labels: ["Supervision", "Remaining"],
+    labels: ["Supervision Hours", "Remaining Hours"],
     datasets: [
       {
-        data: [
-          dataSupervisionHours.reduce(
-            (sum, item) => sum + item.supervisionHours,
-            0
-          ),
-          dataSupervisionHours.reduce((sum, item) => sum + item.remaining, 0),
-        ],
+        data: [totalSupervisionHours, supervisionRemaining],
         backgroundColor: ["rgba(112, 157, 80)", "rgba(0, 0, 0)"],
       },
     ],
@@ -89,19 +97,19 @@ const Overview = () => {
         <div>
           <h1 className="text-[20px] md:text-[24px] font-semibold">Overview</h1>
         </div>
-        {/* <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-5">
+        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-5">
           <div className="relative">
             <select
               className="bg-[#FCFEF2] p-2 rounded-md border border-gray-200 appearance-none pr-10"
-              value={range}
-              onChange={(e) => setRange(e.target.value)}
+              value={week}
+              onChange={(e) => setWeek(e.target.value)}
             >
-              <option value="" disabled hidden>
-                Range
-              </option>
-              <option>Option 1</option>
-              <option>Option 2</option>
-              <option>Option 3</option>
+              <option value="all">All Weeks</option>
+              {uniqueWeeks.map((week) => (
+                <option key={week} value={week}>
+                  {week}
+                </option>
+              ))}
             </select>
             <div className="absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center pointer-events-none">
               <img
@@ -111,29 +119,7 @@ const Overview = () => {
               />
             </div>
           </div>
-
-          <div className="relative">
-            <select
-              className="bg-[#FCFEF2] p-2 rounded-md border border-gray-200 appearance-none pr-10"
-              value={selection}
-              onChange={(e) => setSelection(e.target.value)}
-            >
-              <option value="" disabled hidden>
-                Select
-              </option>
-              <option>Option 1</option>
-              <option>Option 2</option>
-              <option>Option 3</option>
-            </select>
-            <div className="absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center pointer-events-none">
-              <img
-                src="./images/downArrow.png"
-                alt="arrow"
-                className="w-4 h-4"
-              />
-            </div>
-          </div>
-        </div> */}
+        </div>
       </div>
 
       <div className="bg-[#FCFEF2] p-6 md:p-10 rounded-xl border flex flex-col md:flex-row justify-center space-y-4 md:space-y-0">
