@@ -3,6 +3,8 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useUserContext } from "@/app/context/userContext";
 import { useUserProfileContext } from "@/app/context/userProfileContext";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface NewClinicalLogProps {
   closePopup: () => void;
@@ -92,13 +94,16 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
         const result = await response.json();
 
         if (response.ok) {
+          toast.success("Data inserted successfully!");
           console.log("Data saved successfully:", result);
           refreshLogs();
           closePopup();
         } else {
+          toast.error("Unexpected error occurred. Please try again.");
           console.error("Failed to save data:", result.error);
         }
       } catch (err) {
+        toast.error("Unexpected error occurred. Please try again.");
         console.error("Unexpected error:", err);
       }
     },

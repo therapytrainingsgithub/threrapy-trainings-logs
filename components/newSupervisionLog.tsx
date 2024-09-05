@@ -2,6 +2,8 @@ import { useUserContext } from "@/app/context/userContext";
 import React, { useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface NewSupervisionLogProps {
   closePopup: () => void;
@@ -51,14 +53,17 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
         const result = await response.json();
 
         if (response.ok) {
+          toast.success("Data inserted successfully!"); 
           console.log("Data inserted successfully:", result);
           refreshLogs();
           closePopup();
         } else {
           console.error("Failed to insert data:", result.error);
+          toast.error(`Failed to insert data: ${result.error}`);
         }
       } catch (err) {
         console.error("Unexpected error:", err);
+        toast.error(`Failed to insert data: ${err}`);
       }
     }
   };

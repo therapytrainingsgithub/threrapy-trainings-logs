@@ -67,32 +67,32 @@ const SupervisionLogs: React.FC = () => {
     }
   };
 
-  const submitLog = async (
-    formData: { week: string; supervision_Hours: string },
-    userID: string
-  ) => {
-    try {
-      const response = await fetch("/api/supervisionHours/post", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...formData, user_Id: userID }),
-      });
+  // const submitLog = async (
+  //   formData: { week: string; supervision_Hours: string },
+  //   userID: string
+  // ) => {
+  //   try {
+  //     const response = await fetch("/api/supervisionHours/post", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ ...formData, user_Id: userID }),
+  //     });
 
-      const result = await response.json();
+  //     const result = await response.json();
 
-      if (response.ok) {
-        console.log("Data inserted successfully:", result);
-        closePopup();
-        refreshLogs();
-      } else {
-        console.error("Failed to insert data:", result.error);
-      }
-    } catch (err) {
-      console.error("Unexpected error:", err);
-    }
-  };
+  //     if (response.ok) {
+  //       console.log("Data inserted successfully:", result);
+  //       closePopup();
+  //       refreshLogs();
+  //     } else {
+  //       console.error("Failed to insert data:", result.error);
+  //     }
+  //   } catch (err) {
+  //     console.error("Unexpected error:", err);
+  //   }
+  // };
 
   const headers = ["Date", "Week Logged", "Supervision Hours", "Action"];
   const data = supervisionLogs.map((log) => ({

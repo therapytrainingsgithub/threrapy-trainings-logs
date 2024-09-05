@@ -3,7 +3,7 @@ import React from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Import the CSS for toastify
+import "react-toastify/dist/ReactToastify.css";
 
 interface NewGoalsProps {
   closePopup: () => void;

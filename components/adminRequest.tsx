@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface RequestProps {
   user: Record<string, React.ReactNode>;
   closePopup: () => void;
   refresh: () => void;
 }
+
+const validationSchema = Yup.object().shape({
+  role: Yup.string()
+    .required("Role is required")
+    .oneOf(["supervisor"], "Invalid role"),
+});
 
 const AdminRequest: React.FC<RequestProps> = ({
   user,
@@ -14,23 +24,17 @@ const AdminRequest: React.FC<RequestProps> = ({
   const [currentUser, setCurrentUser] = useState<Record<string, any> | null>(
     null
   );
-  const [role, setRole] = useState<string>("");
 
   useEffect(() => {
     if (user) {
       setCurrentUser(user);
-      if (user.role) {
-        setRole(user.role as string);
-      }
     }
   }, [user]);
 
-  const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newRole = event.target.value;
-    setRole(newRole);
-  };
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (
+    values: { role: string },
+    { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
+  ) => {
     if (currentUser) {
       try {
         const response = await fetch(
@@ -40,17 +44,21 @@ const AdminRequest: React.FC<RequestProps> = ({
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ role }),
+            body: JSON.stringify({ role: values.role }),
           }
         );
         const result = await response.json();
         console.log("Update result:", result); // Debugging log
         if (response.ok) {
+          toast.success("Data inserted successfully!");
           refresh();
           closePopup();
         }
       } catch (error) {
+        toast.error("Unexpected error occurred. Please try again.");
         console.error("Error updating status:", error);
+      } finally {
+        setSubmitting(false);
       }
     }
   };
@@ -60,37 +68,45 @@ const AdminRequest: React.FC<RequestProps> = ({
       <h3 className="text-lg font-bold mb-4">User Details</h3>
       <div className="space-y-2">
         {currentUser && (
-          <>
-            <div className="flex justify-between">
-              <span className="font-semibold">Name:</span>
-              <span>{currentUser?.Name}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">Status:</span>
-              <select
-                value={role}
-                onChange={handleStatusChange}
-                className="border p-1 rounded"
-              >
-                <option value="" disabled>
-                  Select a status
-                </option>
-                <option value="supervisor">Supervisor</option>
-              </select>
-            </div>
-            <div className="w-full">
-              <button
-                onClick={handleSubmit}
-                style={{
-                  background: "#8cbf68",
-                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                }}
-                className="px-4 py-2 rounded-md text-white w-full"
-              >
-                Submit
-              </button>
-            </div>
-          </>
+          <Formik
+            initialValues={{ role: currentUser.role || "" }}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ isSubmitting }) => (
+              <Form>
+                <div className="flex justify-between">
+                  <span className="font-semibold">Name:</span>
+                  <span>{currentUser?.Name}</span>
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <label className="font-semibold">Status:</label>
+                  <Field as="select" name="role" className="border p-1 rounded">
+                    <option value="" label="Select a status" disabled />
+                    <option value="supervisor" label="Supervisor" />
+                  </Field>
+                  <ErrorMessage
+                    name="role"
+                    component="div"
+                    className="text-red-600 text-sm"
+                  />
+                </div>
+                <div className="w-full mt-4">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    style={{
+                      background: "#8cbf68",
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                    }}
+                    className="px-4 py-2 rounded-md text-white w-full"
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit"}
+                  </button>
+                </div>
+              </Form>
+            )}
+          </Formik>
         )}
       </div>
     </div>
