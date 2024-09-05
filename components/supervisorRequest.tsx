@@ -83,6 +83,7 @@ const SupervisorRequest: React.FC = () => {
   const closePopup = () => {
     setIsPopupOpen(false);
     setSelectedLogData(null);
+    refreshLogs()
   };
 
   return (
