@@ -26,7 +26,7 @@ const Overview = () => {
     const goal = goals.find((goal) => goal.week === week);
     const clinicalHours = goal ? goal.clinical_Hours : 0;
     const clinicalRemaining =
-      totalDirectHours + totalIndirectHours - clinicalHours;
+      clinicalHours - (totalDirectHours + totalIndirectHours);
 
     return {
       directHours: totalDirectHours,
@@ -89,7 +89,7 @@ const Overview = () => {
         <div>
           <h1 className="text-[20px] md:text-[24px] font-semibold">Overview</h1>
         </div>
-        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-5">
+        {/* <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-5">
           <div className="relative">
             <select
               className="bg-[#FCFEF2] p-2 rounded-md border border-gray-200 appearance-none pr-10"
@@ -133,14 +133,16 @@ const Overview = () => {
               />
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       <div className="bg-[#FCFEF2] p-6 md:p-10 rounded-xl border flex flex-col md:flex-row justify-center space-y-4 md:space-y-0">
         <div className="w-full md:w-1/2">
+          <h3 className="text-lg font-semibold mb-2">Clinical Hours</h3>
           <PieChart data={clinicalHoursChart} />
         </div>
         <div className="w-full md:w-1/2">
+          <h3 className="text-lg font-semibold mb-2">Supervision Hours</h3>
           <PieChart data={supervisionHoursChart} />
         </div>
       </div>

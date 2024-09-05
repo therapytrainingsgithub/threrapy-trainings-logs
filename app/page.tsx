@@ -10,10 +10,14 @@ import AppProviders from "./context";
 import { useUserProfileContext } from "./context/userProfileContext";
 import SupervisorUsers from "@/components/supervisorUsers";
 import SupervisorRequest from "@/components/supervisorRequest";
+import AdminUsers from "@/components/adminUsers";
+import AdminSupervisor from "@/components/adminSupervisor";
+import { ToastContainer } from "react-toastify";
 
 export default function Home() {
   return (
     <AppProviders>
+      <ToastContainer />
       <HomeContent />
     </AppProviders>
   );
@@ -33,8 +37,16 @@ function HomeContent() {
       {userRole === "user" && <Goals />}
 
       {/* supervisor UI */}
+      {userRole === "supervisor" && <Overview />}
+      {userRole === "supervisor" && <ClinicalLogs />}
+      {userRole === "supervisor" && <SupervisionLogs />}
+      {userRole === "supervisor" && <Goals />}
       {userRole === "supervisor" && <SupervisorUsers />}
       {userRole === "supervisor" && <SupervisorRequest />}
+
+      {/* admin UI */}
+      {userRole === "admin" && <AdminUsers />}
+      {userRole === "admin" && <AdminSupervisor />}
     </main>
   );
 }
