@@ -11,11 +11,11 @@ interface RequestProps {
   refresh: () => void;
 }
 
-const Request: React.FC<RequestProps> = ({ log, closePopup, refresh }) => {
+const Request: React.FC<RequestProps> = ({ log, closePopup }) => {
   const [clinicalLog, setClinicalLog] = useState<Record<string, any> | null>(
     null
   );
-  const { allClinicalLogs } = useClinicalLogsContext();
+  const { allClinicalLogs, refreshLogs } = useClinicalLogsContext();
 
   useEffect(() => {
     if (log && allClinicalLogs) {
@@ -59,7 +59,7 @@ const Request: React.FC<RequestProps> = ({ log, closePopup, refresh }) => {
 
           if (response.ok) {
             toast.success("Status updated successfully!");
-            refresh(); // Refresh logs
+            refreshLogs(); // Refresh logs
             closePopup(); // Close the popup
           } else {
             toast.error(`Failed to update status: ${result.error}`);
