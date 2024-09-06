@@ -27,7 +27,7 @@ function HomeContent() {
   const { userRole } = useUserProfileContext();
 
   return (
-    <main className="py-5 px-10 space-y-10 font-chesna font-regular">
+    <main className="py-5 px-10 space-y-10 bg-[#f5f5f5]">
       <Header />
 
       {/* user UI */}
