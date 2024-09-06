@@ -2,26 +2,18 @@ import React, { useState } from "react";
 import NewUserForm from "./newUserForm";
 
 const AddNewUser = () => {
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const openPopup = () => {
-        setIsPopupOpen(true);
-      };
-    
-      const closePopup = () => {
-        setIsPopupOpen(false);
-      };
-    
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const openPopup = () => {
+    setIsPopupOpen(true);
+  };
+
+  const closePopup = () => {
+    setIsPopupOpen(false);
+  };
+
   return (
     <div className="flex justify-center">
-      <button
-        onClick={openPopup}
-        style={{
-          background: "#8cbf68",
-          border: "1px solid #dcdcdc",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-        }}
-        className="px-4 py-2 rounded-md text-white"
-      >
+      <button className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]">
         Add User
       </button>
       {isPopupOpen && (
@@ -34,7 +26,7 @@ const AddNewUser = () => {
             }}
           >
             <h2 className="text-2xl mb-4 text-[#709D50]">New User</h2>
-                <NewUserForm closePopup={closePopup} />
+            <NewUserForm closePopup={closePopup} />
             <button
               onClick={closePopup}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"

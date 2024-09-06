@@ -1,32 +1,11 @@
 import type { Metadata } from "next";
-import localFont from "@next/font/local";
 import "./globals.css";
+import { Roboto } from '@next/font/google'
 
-const ChesnaGrotesk = localFont({
-  src: [
-    {
-      path: "../public/fonts/chesnagrotesk-light.otf",
-      weight: "100",
-    },
-    {
-      path: "../public/fonts/chesnagrotesk-regular.otf",
-      weight: "200",
-    },
-    {
-      path: "../public/fonts/chesnagrotesk-medium.otf",
-      weight: "300",
-    },
-    {
-      path: "../public/fonts/chesnagrotesk-semibold.otf",
-      weight: "400",
-    },
-    {
-      path: "../public/fonts/chesnagrotesk-bold.otf",
-      weight: "500",
-    },
-  ],
-  variable: "--font-ChesnaGrotesk",
-});
+const roboto = Roboto({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+})
 
 export const metadata: Metadata = {
   title: "Supervision App",
@@ -40,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={ChesnaGrotesk.variable}>{children}</body>
+      <body className={roboto.className}>{children}</body>
     </html>
   );
 }

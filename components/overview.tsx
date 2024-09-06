@@ -6,6 +6,7 @@ import { useClinicalLogsContext } from "@/app/context/clinicalContext";
 import { useSupervisionLogsContext } from "@/app/context/supervisionContext";
 import { useGoalsContext } from "@/app/context/goalsContext";
 import { useUserContext } from "@/app/context/userContext";
+import { IoIosArrowDown } from "react-icons/io";
 
 const Overview = () => {
   const [week, setWeek] = useState("all");
@@ -74,8 +75,8 @@ const Overview = () => {
         data: [totalDirectHours, totalIndirectHours, clinicalRemaining],
         backgroundColor: [
           "rgba(112, 157, 80)",
-          "rgba(112, 157, 80, 0.7)",
-          "rgba(0, 0, 0)",
+          "rgba(211, 211, 211)",
+          "rgba(180, 0, 0)",
         ],
       },
     ],
@@ -86,7 +87,7 @@ const Overview = () => {
     datasets: [
       {
         data: [totalSupervisionHours, supervisionRemaining],
-        backgroundColor: ["rgba(112, 157, 80)", "rgba(0, 0, 0)"],
+        backgroundColor: ["rgba(112, 157, 80)", "rgba(180, 0, 0)"],
       },
     ],
   };
@@ -100,7 +101,7 @@ const Overview = () => {
         <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-5">
           <div className="relative">
             <select
-              className="bg-[#FCFEF2] p-2 rounded-md border border-gray-200 appearance-none pr-10"
+              className="bg-white p-2 rounded-md border border-gray-200 appearance-none pr-10"
               value={week}
               onChange={(e) => setWeek(e.target.value)}
             >
@@ -112,17 +113,13 @@ const Overview = () => {
               ))}
             </select>
             <div className="absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center pointer-events-none">
-              <img
-                src="./images/downArrow.png"
-                alt="arrow"
-                className="w-4 h-4"
-              />
+              <IoIosArrowDown />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-[#FCFEF2] p-6 md:p-10 rounded-xl border flex flex-col md:flex-row justify-center space-y-4 md:space-y-0">
+      <div className="bg-white p-6 md:p-10 rounded-md border shadow-lg flex flex-col md:flex-row justify-center space-y-4 md:space-y-0">
         <div className="w-full md:w-1/2">
           <h3 className="text-lg font-semibold mb-2">Clinical Hours</h3>
           <PieChart data={clinicalHoursChart} />

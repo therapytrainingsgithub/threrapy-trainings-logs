@@ -23,7 +23,7 @@ const Header = () => {
 
   return (
     <main>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center py-5 px-5">
         <div>
           <img src="./images/logo.png" alt="logo" />
         </div>
@@ -64,7 +64,7 @@ const Header = () => {
           />
         </div>
         <div className="relative z-10">
-          <h1 className="text-[#709D50] text-[41px] font-bold">
+          <h1 className="text-[41px] font-bold">
             {`Welcome ${userName ? userName : "Guest"}!`}
           </h1>
           <p className="text-[24px] font-regular">

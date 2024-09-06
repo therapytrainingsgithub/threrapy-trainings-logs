@@ -27,26 +27,27 @@ function HomeContent() {
   const { userRole } = useUserProfileContext();
 
   return (
-    <main className="py-5 px-10 space-y-10 bg-[#f5f5f5]">
+    <>
       <Header />
+      <main className="py-5 px-10 space-y-10 bg-[#f5f5f5]">
+        {/* user UI */}
+        {userRole === "user" && <Overview />}
+        {userRole === "user" && <ClinicalLogs />}
+        {userRole === "user" && <SupervisionLogs />}
+        {userRole === "user" && <Goals />}
 
-      {/* user UI */}
-      {userRole === "user" && <Overview />}
-      {userRole === "user" && <ClinicalLogs />}
-      {userRole === "user" && <SupervisionLogs />}
-      {userRole === "user" && <Goals />}
+        {/* supervisor UI */}
+        {userRole === "supervisor" && <Overview />}
+        {userRole === "supervisor" && <ClinicalLogs />}
+        {userRole === "supervisor" && <SupervisionLogs />}
+        {userRole === "supervisor" && <Goals />}
+        {userRole === "supervisor" && <SupervisorUsers />}
+        {userRole === "supervisor" && <SupervisorRequest />}
 
-      {/* supervisor UI */}
-      {userRole === "supervisor" && <Overview />}
-      {userRole === "supervisor" && <ClinicalLogs />}
-      {userRole === "supervisor" && <SupervisionLogs />}
-      {userRole === "supervisor" && <Goals />}
-      {userRole === "supervisor" && <SupervisorUsers />}
-      {userRole === "supervisor" && <SupervisorRequest />}
-
-      {/* admin UI */}
-      {userRole === "admin" && <AdminUsers />}
-      {userRole === "admin" && <AdminSupervisor />}
-    </main>
+        {/* admin UI */}
+        {userRole === "admin" && <AdminUsers />}
+        {userRole === "admin" && <AdminSupervisor />}
+      </main>
+    </>
   );
 }

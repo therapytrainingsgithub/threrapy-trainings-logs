@@ -21,6 +21,27 @@ const Goals: React.FC = () => {
     setIsPopupOpen(false);
   };
 
+  function getWeekDates(year: number, week: number) {
+    const startDate = new Date(year, 0, 1 + (week - 1) * 7); // Start of the year + (week - 1) * 7 days
+    const dayOfWeek = startDate.getDay(); // Day of the week (0 = Sunday, 1 = Monday, etc.)
+    const start = new Date(
+      startDate.setDate(startDate.getDate() - dayOfWeek + 1)
+    ); // Adjust to Monday
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6); // End of the week (Sunday)
+
+    return {
+      start: start.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      }),
+      end: end.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      }),
+    };
+  }
+
   const headersClinicalHours = [
     "Week Logged",
     "Clinical Goal",
@@ -38,17 +59,30 @@ const Goals: React.FC = () => {
   const uniqueWeeks = Array.from(new Set(goals.map((goal) => goal.week)));
 
   const dataClinicalHours = uniqueWeeks.map((week) => {
-    let totalDirectHours = clinicalLogs
+    // Calculate total direct hours for the given week
+    const totalDirectHours = clinicalLogs
       .filter((log) => log.week === week)
-      .reduce((total, log) => total + parseFloat(log.direct_Hours), 0);
-    let totalIndirectHours = clinicalLogs
+      .reduce((total, log) => total + parseFloat(log.direct_Hours || "0"), 0);
+
+    // Calculate total indirect hours for the given week
+    const totalIndirectHours = clinicalLogs
       .filter((log) => log.week === week)
-      .reduce((total, log) => total + parseFloat(log.indirect_Hours), 0);
+      .reduce((total, log) => total + parseFloat(log.indirect_Hours || "0"), 0);
+
+    // Find the goal for the given week
     const goal = goals.find((goal) => goal.week === week);
     const clinicalHours = goal ? goal.clinical_Hours : 0;
+
+    // Extract year and week from the week string
+    const [year, weekNumber] = week.split("-W");
+    const { start, end } = getWeekDates(
+      parseInt(year, 10),
+      parseInt(weekNumber, 10)
+    );
+
     return {
-      "Week Logged": week,
-      "Clinical Goal": goal?.clinical_Hours,
+      "Week Logged": `${week}-${start} to ${end}`,
+      "Clinical Goal": clinicalHours, // Display the clinical goal
       "Direct Hours Logged": totalDirectHours,
       "Indirect Hours Logged": totalIndirectHours,
       Remaining: clinicalHours - (totalDirectHours + totalIndirectHours),
@@ -56,15 +90,25 @@ const Goals: React.FC = () => {
   });
 
   const dataSupervisionHours = uniqueWeeks.map((week) => {
-    let totalSupervisionHours = supervisionLogs
+    // Calculate total supervision hours for the given week
+    const totalSupervisionHours = supervisionLogs
       .filter((log) => log.week === week)
       .reduce((total, log) => total + log.supervision_Hours, 0);
+
+    // Find the goal for the given week
     const goal = goals.find((goal) => goal.week === week);
     const supervisionHours = goal ? goal.supervision_Hours : 0;
 
+    // Extract year and week from the week string
+    const [year, weekNumber] = week.split("-W");
+    const { start, end } = getWeekDates(
+      parseInt(year, 10),
+      parseInt(weekNumber, 10)
+    );
+
     return {
-      "Week Logged": week,
-      "Supervision Goal": goal?.supervision_Hours,
+      "Week Logged": `${week}-${start} to ${end}`,
+      "Supervision Goal": supervisionHours, // Display the supervision goal
       "Supervision Hours Logged": totalSupervisionHours,
       Remaining: supervisionHours - totalSupervisionHours,
     };
@@ -73,21 +117,16 @@ const Goals: React.FC = () => {
   return (
     <main className="space-y-5 p-4 md:p-10">
       <div className="flex justify-between items-center flex-wrap">
-        <h1 className="text-[24px] text-[#709D50] mb-4 md:mb-0">Goals</h1>
+        <h1 className="text-[24px] mb-4 md:mb-0">Goals</h1>
         <button
-          style={{
-            background: "#8cbf68",
-            border: "1px solid #dcdcdc",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-          }}
-          className="px-4 py-2 rounded-md text-white"
+          className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
           onClick={openPopup}
         >
           Set Goals
         </button>
       </div>
 
-      <div className="bg-[#FCFEF2] p-4 md:p-10 rounded-xl border space-y-10">
+      <div className="bg-white shadow-lg p-4 md:p-10 rounded-md border space-y-10">
         <div className="overflow-x-auto">
           <h3 className="text-lg font-semibold mb-2">Clinical Hours</h3>
           <Table headers={headersClinicalHours} data={dataClinicalHours} />

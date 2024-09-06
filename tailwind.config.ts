@@ -8,23 +8,20 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-      },
       fontFamily: {
-        chesna: ["var(--font-ChesnaGrotesk)"]
+        roboto: ["Roboto", "sans-serif"], // Ensure Roboto is included
       },
       fontWeight: {
-        light: '100',
-        regular: '200',
-        medium: '300',
-        semibold: '400',
-        bold: '500',
+        light: "100",
+        regular: "200",
+        medium: "300",
+        semibold: "400",
+        bold: "700",
+        // Add additional font weights if needed
       },
     },
   },
   plugins: [],
 };
+
 export default config;
