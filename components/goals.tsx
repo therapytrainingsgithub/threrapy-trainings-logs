@@ -53,6 +53,7 @@ const Goals: React.FC = () => {
     "Week",
     "Supervision Goal",
     "Supervision Hours Logged",
+    "Indirect Hours logged",
     "Remaining",
   ];
 
