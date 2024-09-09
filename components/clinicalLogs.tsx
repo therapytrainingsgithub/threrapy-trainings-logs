@@ -121,7 +121,7 @@ const ClinicalLogs: React.FC = () => {
   return (
     <main className="space-y-5 p-4 md:p-10">
       <div className="flex justify-between items-center flex-wrap">
-        <h1 className="text-[24px] mb-4 md:mb-0">Clinical Hours Logged</h1>
+        <h1 className="text-3xl mb-4 md:mb-0 font-bold">Clinical Hours Logged</h1>
         <button
           onClick={openPopup}
           className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
@@ -137,13 +137,9 @@ const ClinicalLogs: React.FC = () => {
       {isPopupOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
           <div
-            className="p-5 rounded-md shadow-lg w-[90%]"
-            style={{
-              background: "linear-gradient(330deg, #709D50 0%, #FCFEF2 100%)",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-            }}
+            className="p-5 rounded-md shadow-lg w-[90%] bg-white border"
           >
-            <h2 className="text-2xl mb-4 text-[#709D50]">Log New Hours</h2>
+            <h2 className="text-2xl mb-4">Log New Hours</h2>
             <NewClinicalLog
               closePopup={closePopup}
               refreshLogs={refreshLogs}

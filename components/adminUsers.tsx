@@ -59,11 +59,7 @@ const AdminUsers: React.FC = () => {
       {isPopupOpen && selectedUserData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
           <div
-            className="p-5 rounded-md shadow-lg w-[90%]"
-            style={{
-              background: "linear-gradient(330deg, #709D50 0%, #FCFEF2 100%)",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-            }}
+            className="p-5 rounded-md shadow-lg w-[90%] bg-white"
           >
             <AdminRequest
               user={selectedUserData}

@@ -53,7 +53,7 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
         const result = await response.json();
 
         if (response.ok) {
-          toast.success("Data inserted successfully!"); 
+          toast.success("Data inserted successfully!");
           console.log("Data inserted successfully:", result);
           refreshLogs();
           closePopup();
@@ -97,7 +97,7 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
   };
 
   return (
-    <main className="py-5 px-4 sm:px-10 font-chesna space-y-6 sm:space-y-10">
+    <main className="py-5 px-4 sm:px-10 space-y-6 sm:space-y-10">
       <div className="py-8 px-5 rounded-xl flex flex-col items-center space-y-6 sm:space-y-10">
         <div className="w-full">
           <Formik
@@ -111,7 +111,7 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
                 <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
                   <label htmlFor="week">Week</label>
                   <Field
-                    className="rounded-md px-4 py-2 w-full"
+                    className="rounded-md px-4 py-2 w-full border-2"
                     type="week"
                     id="week"
                     name="week"
@@ -126,7 +126,7 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
                 <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
                   <label htmlFor="supervision_Hours">Supervision Hours</label>
                   <Field
-                    className="rounded-md px-4 py-2 w-full"
+                    className="rounded-md px-4 py-2 w-full border-2"
                     type="text"
                     id="supervision_Hours"
                     name="supervision_Hours"
@@ -142,11 +142,7 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
                 <div className="w-full sm:w-[50%]">
                   <button
                     type="submit"
-                    style={{
-                      background: isValid ? "#8cbf68" : "#c0c0c0",
-                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                    }}
-                    className="px-4 py-2 rounded-md text-white w-full"
+                    className="w-full px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
                     disabled={!isValid || isSubmitting}
                   >
                     {mode === "update" ? "Update" : "Submit"}

@@ -107,7 +107,7 @@ const Request: React.FC<RequestProps> = ({ log, closePopup, refresh }) => {
                   value={formik.values.status}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  className="border p-1 rounded"
+                  className="p-1 rounded border-2"
                 >
                   <option value="" disabled>
                     Select a status
@@ -124,11 +124,7 @@ const Request: React.FC<RequestProps> = ({ log, closePopup, refresh }) => {
               <div className="w-full mt-4">
                 <button
                   type="submit"
-                  style={{
-                    background: "#8cbf68",
-                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                  }}
-                  className="px-4 py-2 rounded-md text-white w-full"
+                  className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d] w-full"
                 >
                   Submit
                 </button>

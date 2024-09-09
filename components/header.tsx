@@ -64,7 +64,7 @@ const Header = () => {
           />
         </div>
         <div className="relative z-10">
-          <h1 className="text-[41px] font-bold">
+          <h1 className="text-[32px] font-bold font-roboto">
             {`Welcome ${userName ? userName : "Guest"}!`}
           </h1>
           <p className="text-[24px] font-regular">

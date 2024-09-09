@@ -91,7 +91,7 @@ const NewUserForm: React.FC<RequestProps> = ({ closePopup }) => {
           <div className="flex flex-col space-y-1 w-[50%]">
             <label htmlFor="name">Name</label>
             <Field
-              className="rounded-md px-5 py-2"
+              className="rounded-md px-5 py-2 border-2"
               type="text"
               id="name"
               name="name"
@@ -107,7 +107,7 @@ const NewUserForm: React.FC<RequestProps> = ({ closePopup }) => {
           <div className="flex flex-col space-y-1 w-[50%]">
             <label htmlFor="email">Email</label>
             <Field
-              className="rounded-md px-5 py-2"
+              className="rounded-md px-5 py-2 border-2"
               type="email"
               id="email"
               name="email"
@@ -123,7 +123,7 @@ const NewUserForm: React.FC<RequestProps> = ({ closePopup }) => {
           <div className="flex flex-col space-y-1 w-[50%]">
             <label htmlFor="password">Password</label>
             <Field
-              className="rounded-md px-5 py-2"
+              className="rounded-md px-5 py-2 border-2"
               type="password"
               id="password"
               name="password"
@@ -140,7 +140,7 @@ const NewUserForm: React.FC<RequestProps> = ({ closePopup }) => {
             <label htmlFor="role">Role</label>
             <Field
               as="select"
-              className="rounded-md px-5 py-2"
+              className="rounded-md px-5 py-2 border-2"
               id="role"
               name="role"
             >
@@ -161,11 +161,7 @@ const NewUserForm: React.FC<RequestProps> = ({ closePopup }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              style={{
-                background: "#8cbf68",
-                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-              }}
-              className="px-5 py-2 rounded-md text-white w-full"
+              className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d] w-full"
             >
               {isSubmitting ? "Submitting..." : "Submit"}
             </button>

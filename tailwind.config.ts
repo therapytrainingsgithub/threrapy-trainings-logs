@@ -12,12 +12,9 @@ const config: Config = {
         roboto: ["Roboto", "sans-serif"], // Ensure Roboto is included
       },
       fontWeight: {
-        light: "100",
-        regular: "200",
-        medium: "300",
-        semibold: "400",
+        regular: "400",
         bold: "700",
-        // Add additional font weights if needed
+      
       },
     },
   },

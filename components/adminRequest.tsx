@@ -81,7 +81,7 @@ const AdminRequest: React.FC<RequestProps> = ({
                 </div>
                 <div className="flex flex-col space-y-2">
                   <label className="font-semibold">Status:</label>
-                  <Field as="select" name="role" className="border p-1 rounded">
+                  <Field as="select" name="role" className="p-1 rounded border-2">
                     <option value="" label="Select a status" disabled />
                     <option value="supervisor" label="Supervisor" />
                   </Field>
@@ -95,11 +95,7 @@ const AdminRequest: React.FC<RequestProps> = ({
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    style={{
-                      background: "#8cbf68",
-                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                    }}
-                    className="px-4 py-2 rounded-md text-white w-full"
+                    className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d] w-full"
                   >
                     {isSubmitting ? "Submitting..." : "Submit"}
                   </button>

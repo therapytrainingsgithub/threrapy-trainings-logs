@@ -29,7 +29,7 @@ function HomeContent() {
   return (
     <>
       <Header />
-      <main className="py-5 px-10 space-y-10 bg-[#f5f5f5]">
+      <main className="py-5 px-10 space-y-10 bg-[#f5f5f5] font-roboto">
         {/* user UI */}
         {userRole === "user" && <Overview />}
         {userRole === "user" && <ClinicalLogs />}

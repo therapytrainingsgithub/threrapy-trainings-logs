@@ -96,7 +96,7 @@ const Overview = () => {
     <main className="space-y-5 p-4 md:p-8">
       <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
         <div>
-          <h1 className="text-[20px] md:text-[24px] font-semibold">Overview</h1>
+          <h1 className="text-3xl font-semibold">Overview</h1>
         </div>
         <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-5">
           <div className="relative">

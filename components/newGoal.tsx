@@ -36,7 +36,7 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
       const result = await response.json();
 
       if (response.ok) {
-        refreshGoals()
+        refreshGoals();
         toast.success("Data inserted successfully!"); // Success message
         closePopup();
       } else {
@@ -51,7 +51,7 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
   };
 
   return (
-    <main className="py-5 px-4 sm:px-10 font-chesna space-y-6 sm:space-y-10">
+    <main className="py-5 px-4 sm:px-10 space-y-6 sm:space-y-10">
       <div className="py-8 px-5 rounded-xl flex flex-col items-center space-y-6 sm:space-y-10">
         <div className="w-full">
           <Formik
@@ -73,7 +73,7 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
                     type="week"
                     id="week"
                     name="week"
-                    className="rounded-md px-4 py-2 w-full"
+                    className="rounded-md px-4 py-2 w-full border-2"
                   />
                   <ErrorMessage
                     name="week"
@@ -91,7 +91,7 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
                     id="clinical_Hours"
                     name="clinical_Hours"
                     placeholder="Enter Clinical Goal"
-                    className="rounded-md px-4 py-2 w-full"
+                    className="rounded-md px-4 py-2 w-full border-2"
                   />
                   <ErrorMessage
                     name="clinical_Hours"
@@ -111,7 +111,7 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
                     id="supervision_Hours"
                     name="supervision_Hours"
                     placeholder="Enter Supervision Goal"
-                    className="rounded-md px-4 py-2 w-full"
+                    className="rounded-md px-4 py-2 w-full border-2"
                   />
                   <ErrorMessage
                     name="supervision_Hours"
@@ -124,11 +124,7 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    style={{
-                      background: "#8cbf68",
-                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                    }}
-                    className="px-4 py-2 rounded-md text-white w-full"
+                    className="w-full px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
                   >
                     {isSubmitting ? "Submitting..." : "Submit"}
                   </button>

@@ -23,7 +23,7 @@ const Table: React.FC<TableProps> = ({
             {headers.map((header, index) => (
               <th
                 key={index}
-                className="px-4 py-2 sm:px-6 sm:py-3 text-left font-medium"
+                className="px-4 py-2 sm:px-6 sm:py-3 text-left font-bold"
               >
                 {header.charAt(0).toUpperCase() +
                   header.slice(1).replace(/([A-Z])/g, " $1")}

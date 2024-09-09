@@ -128,7 +128,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   }, [existingLog, supervisors]);
 
   return (
-    <main className="py-5 px-4 sm:px-10 font-chesna space-y-6 sm:space-y-10">
+    <main className="py-5 px-4 sm:px-10 space-y-6 sm:space-y-10">
       <div className="py-8 px-5 rounded-xl flex flex-col items-center space-y-6 sm:space-y-10">
         <div className="w-full">
           <form
@@ -138,7 +138,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
             <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="week">Week</label>
               <input
-                className="rounded-md px-4 py-2 w-full"
+                className="rounded-md px-4 py-2 w-full border-2"
                 type="week"
                 id="week"
                 name="week"
@@ -155,7 +155,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
             <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="direct_Hours">Direct Hours</label>
               <input
-                className="rounded-md px-4 py-2 w-full"
+                className="rounded-md px-4 py-2 w-full border-2"
                 type="text"
                 id="direct_Hours"
                 name="direct_Hours"
@@ -175,7 +175,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
             <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="indirect_Hours">Indirect Hours</label>
               <input
-                className="rounded-md px-4 py-2 w-full"
+                className="rounded-md px-4 py-2 w-full border-2"
                 type="text"
                 id="indirect_Hours"
                 name="indirect_Hours"
@@ -195,7 +195,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
             <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="site">Site</label>
               <input
-                className="rounded-md px-4 py-2 w-full"
+                className="rounded-md px-4 py-2 w-full border-2"
                 type="text"
                 id="site"
                 name="site"
@@ -226,7 +226,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
                   formik.setFieldValue("supervisor_Id", supervisorId);
                 }}
                 onBlur={formik.handleBlur}
-                className="rounded-md px-4 py-2 w-full"
+                className="rounded-md px-4 py-2 w-full border-2"
               >
                 <option value="" disabled hidden>
                   Select Supervisor
@@ -250,11 +250,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
             <div className="w-full sm:w-[50%]">
               <button
                 type="submit"
-                style={{
-                  background: "#8cbf68",
-                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                }}
-                className="px-4 py-2 rounded-md text-white w-full"
+                className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d] w-full"
               >
                 {mode === "update" ? "Update" : "Submit"}
               </button>
