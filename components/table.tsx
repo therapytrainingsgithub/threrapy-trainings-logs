@@ -39,29 +39,38 @@ const Table: React.FC<TableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {data.map((row, rowIndex) => (
-            <tr
-              key={rowIndex}
-              className={`border-b border-gray-300 hover:bg-gray-100 ${
-                editable ? "cursor-pointer" : ""
-              }`}
-              onClick={() => onRowClick?.(row)} // Pass the entire row data on click
-            >
-              {headers.map((header, cellIndex) => {
-                const cellData = row[header] || "-";
-                return (
-                  <td
-                    key={cellIndex}
-                    className={`px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-center ${
-                      cellData === "-" ? "text-white" : "" // Hide if data is "-"
-                    }`}
-                  >
-                    {cellData}
-                  </td>
-                );
-              })}
+          {data.length > 0 ? (
+            data.map((row, rowIndex) => (
+              <tr
+                key={rowIndex}
+                className={`border-b border-gray-300 hover:bg-gray-100 ${
+                  editable ? "cursor-pointer" : ""
+                }`}
+                onClick={() => onRowClick?.(row)} // Pass the entire row data on click
+              >
+                {headers.map((header, cellIndex) => {
+                  const cellData = row[header] || "-";
+                  return (
+                    <td
+                      key={cellIndex}
+                      className={`px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-center ${
+                        cellData === "-" ? "text-white" : "" // Hide if data is "-"
+                      }`}
+                    >
+                      {cellData}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))
+          ) : (
+            // Render this row when there is no data
+            <tr>
+              <td colSpan={headers.length} className="text-center py-4">
+                No records found
+              </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </main>
