@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { useUserProfileContext } from "@/app/context/userProfileContext";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null); // Explicitly type the ref
   const router = useRouter();
   const { userName } = useUserProfileContext();
 
@@ -21,13 +22,38 @@ const Header = () => {
     }
   };
 
+  // Close the dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) // Explicitly cast the target to Node
+      ) {
+        setDropdownOpen(false); // Close the dropdown
+      }
+    };
+
+    // Add event listener when the component mounts
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
+
+  const goToSettings = () => {
+    console.log("here")
+    router.push("/settings");
+  };
+
   return (
     <main>
       <div className="flex justify-between items-center py-5 px-5">
         <div>
           <img src="./images/logo.png" alt="logo" />
         </div>
-        <div className="relative">
+        <div className="relative" ref={dropdownRef}>
           <img
             src="./images/profile.png"
             alt="profile"
@@ -36,6 +62,12 @@ const Header = () => {
           />
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+              <button
+                onClick={goToSettings}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                Settings
+              </button>
               <button
                 onClick={handleLogout}
                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

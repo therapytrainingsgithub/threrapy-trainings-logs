@@ -7,14 +7,23 @@ import { useSupervisionLogsContext } from "@/app/context/supervisionContext";
 import { useGoalsContext } from "@/app/context/goalsContext";
 import { useUserContext } from "@/app/context/userContext";
 import { IoIosArrowDown } from "react-icons/io";
+import Goals from "./goals";
 
 const Overview = () => {
   const [week, setWeek] = useState("all");
-
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const { goals } = useGoalsContext();
   const { clinicalLogs } = useClinicalLogsContext();
   const { supervisionLogs } = useSupervisionLogsContext();
   const { userID } = useUserContext(); // Get userID from the context
+
+  const openPopup = () => {
+    setIsPopupOpen(true);
+  };
+
+  const closePopup = () => {
+    setIsPopupOpen(false);
+  };
 
   // Filter clinical logs by userID
   const userClinicalLogs = clinicalLogs.filter((log) => log.user_Id === userID);
@@ -96,7 +105,7 @@ const Overview = () => {
     <main className="space-y-5 p-4 md:p-8">
       <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
         <div>
-          <h1 className="text-3xl font-semibold">Overview</h1>
+          <h1 className="text-3xl font-semibold">Progress</h1>
         </div>
         <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-5">
           <div className="relative">
@@ -116,6 +125,15 @@ const Overview = () => {
               <IoIosArrowDown />
             </div>
           </div>
+
+          <div className="relative">
+            <button
+              onClick={openPopup}
+              className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
+            >
+              Supervision Goals
+            </button>
+          </div>
         </div>
       </div>
 
@@ -129,6 +147,20 @@ const Overview = () => {
           <PieChart data={supervisionHoursChart} />
         </div>
       </div>
+
+      {isPopupOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+          <div className="p-5 rounded-md shadow-lg w-[90%] bg-white border h-[80%] overflow-auto flex flex-col items-center justify-center">
+            <Goals />
+            <button
+              onClick={closePopup}
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 };

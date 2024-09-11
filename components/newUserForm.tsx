@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useUserProfileContext } from "@/app/context/userProfileContext";
 import { toast } from "react-toastify";
@@ -6,12 +6,26 @@ import "react-toastify/dist/ReactToastify.css";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-interface RequestProps {
-  closePopup: () => void;
-}
+const generatePassword = () => {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+  const passwordLength = 12;
+  let password = "";
+  for (let i = 0; i < passwordLength; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+};
 
-const NewUserForm: React.FC<RequestProps> = ({ closePopup }) => {
+const NewUserForm = () => {
   const { refreshUsers } = useUserProfileContext();
+  const [generatedPassword, setGeneratedPassword] = useState<string>("");
+  const [userData, setUserData] = useState<{
+    name: string;
+    email: string;
+    password: string;
+    role: string;
+  } | null>(null);
 
   // Validation schema with Yup
   const validationSchema = Yup.object().shape({
@@ -67,12 +81,34 @@ const NewUserForm: React.FC<RequestProps> = ({ closePopup }) => {
       } else {
         console.log("User profile added:", profileData);
         refreshUsers();
-        closePopup();
+        setUserData(values); // Set the user data for copy credentials
         toast.success("Data inserted successfully!");
       }
     }
 
     setSubmitting(false);
+  };
+
+  const handlePasswordGenerate = (
+    setFieldValue: (field: string, value: any) => void
+  ) => {
+    const newPassword = generatePassword();
+    setGeneratedPassword(newPassword);
+    setFieldValue("password", newPassword);
+  };
+  const handleCopyCredentials = () => {
+    if (userData) {
+      const { name, email, password, role } = userData;
+      const credentials = `Name: ${name}  Email: ${email} Password: ${password} Role: ${role}`;
+      navigator.clipboard
+        .writeText(credentials)
+        .then(() => {
+          toast.success("Credentials copied to clipboard!");
+        })
+        .catch(() => {
+          toast.error("Failed to copy credentials.");
+        });
+    }
   };
 
   return (
@@ -86,7 +122,7 @@ const NewUserForm: React.FC<RequestProps> = ({ closePopup }) => {
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      {({ isSubmitting }) => (
+      {({ isSubmitting, setFieldValue }) => (
         <Form className="flex flex-col items-center space-y-6">
           <div className="flex flex-col space-y-1 w-[50%]">
             <label htmlFor="name">Name</label>
@@ -95,7 +131,7 @@ const NewUserForm: React.FC<RequestProps> = ({ closePopup }) => {
               type="text"
               id="name"
               name="name"
-              placeholder="Your Name"
+              placeholder="Enter Name"
             />
             <ErrorMessage
               name="name"
@@ -122,13 +158,22 @@ const NewUserForm: React.FC<RequestProps> = ({ closePopup }) => {
 
           <div className="flex flex-col space-y-1 w-[50%]">
             <label htmlFor="password">Password</label>
-            <Field
-              className="rounded-md px-5 py-2 border-2"
-              type="password"
-              id="password"
-              name="password"
-              placeholder="****************"
-            />
+            <div className="flex items-center space-x-2">
+              <Field
+                className="rounded-md px-5 py-2 border-2 flex-grow"
+                type="password"
+                id="password"
+                name="password"
+                placeholder="****************"
+              />
+              <button
+                type="button"
+                onClick={() => handlePasswordGenerate(setFieldValue)}
+                className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d] w-full"
+              >
+                Generate Password
+              </button>
+            </div>
             <ErrorMessage
               name="password"
               component="div"
@@ -166,6 +211,18 @@ const NewUserForm: React.FC<RequestProps> = ({ closePopup }) => {
               {isSubmitting ? "Submitting..." : "Submit"}
             </button>
           </div>
+
+          {userData && (
+            <div className="w-[50%]">
+              <button
+                type="button"
+                onClick={handleCopyCredentials}
+                className="px-4 py-2 mt-4 rounded-md text-white bg-green-500 hover:bg-green-600 w-full"
+              >
+                Copy Credentials
+              </button>
+            </div>
+          )}
         </Form>
       )}
     </Formik>

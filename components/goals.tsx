@@ -116,7 +116,7 @@ const Goals: React.FC = () => {
   });
 
   return (
-    <main className="space-y-5 p-4 md:p-10">
+    <main className="space-y-5 overflow-y-auto h-[70%] w-full">
       <div className="flex justify-between items-center flex-wrap">
         <h1 className="text-3xl mb-4 md:mb-0 font-bold">Goals</h1>
         <button

@@ -3,7 +3,8 @@ import Table from "./table";
 import { useClinicalLogsContext } from "@/app/context/clinicalContext";
 import { useUserProfileContext } from "@/app/context/userProfileContext";
 import { useUserContext } from "@/app/context/userContext";
-import Request from "./request";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface ClinicalLog {
   id: number;
@@ -17,30 +18,16 @@ interface ClinicalLog {
   supervisor_Id: string;
 }
 
-interface User {
-  id: string;
-  role: string;
-  name: string;
-}
-
 const SupervisorRequest: React.FC = () => {
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [selectedLogData, setSelectedLogData] = useState<Record<
-    string,
-    React.ReactNode
-  > | null>(null);
   const { allClinicalLogs, refreshLogs } = useClinicalLogsContext();
   const { allUsers } = useUserProfileContext();
   const { userID } = useUserContext();
-
   const [supervisorsLogs, setSupervisorsLogs] = useState<ClinicalLog[]>([]);
 
-  // Capitalize first letter of status
   function capitalizeFirstLetter(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   }
 
-  // Filter logs by supervisor ID whenever logs are updated
   useEffect(() => {
     const logsForSupervisor = allClinicalLogs.filter(
       (log) => log.supervisor_Id === userID
@@ -49,13 +36,13 @@ const SupervisorRequest: React.FC = () => {
   }, [allClinicalLogs, userID]);
 
   function getWeekDates(year: number, week: number) {
-    const startDate = new Date(year, 0, 1 + (week - 1) * 7); // Start of the year + (week - 1) * 7 days
-    const dayOfWeek = startDate.getDay(); // Day of the week (0 = Sunday, 1 = Monday, etc.)
+    const startDate = new Date(year, 0, 1 + (week - 1) * 7);
+    const dayOfWeek = startDate.getDay();
     const start = new Date(
       startDate.setDate(startDate.getDate() - dayOfWeek + 1)
-    ); // Adjust to Monday
+    );
     const end = new Date(start);
-    end.setDate(start.getDate() + 6); // End of the week (Sunday)
+    end.setDate(start.getDate() + 6);
 
     return {
       start: start.toLocaleDateString("en-US", {
@@ -69,6 +56,31 @@ const SupervisorRequest: React.FC = () => {
     };
   }
 
+  const handleAction = async (id: number, status: string) => {
+    if (id) {
+      try {
+        const response = await fetch(`/api/clinicalHours/update/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: status }),
+        });
+        const result = await response.json();
+
+        if (response.ok) {
+          toast.success("Status updated successfully!");
+          refreshLogs();
+        } else {
+          toast.error(`Failed to update status: ${result.error}`);
+        }
+      } catch (error) {
+        console.error("Error updating status:", error);
+        toast.error(`Failed to update status: ${error}`);
+      }
+    }
+  };
+
   const headers = [
     "Week Logged",
     "Date Logged",
@@ -77,6 +89,7 @@ const SupervisorRequest: React.FC = () => {
     "Indirect Hours",
     "Site",
     "Status",
+    "Action",
   ];
 
   const data = supervisorsLogs.map((log) => {
@@ -97,19 +110,34 @@ const SupervisorRequest: React.FC = () => {
       "Indirect Hours": log.indirect_Hours,
       Site: log.site ?? "N/A",
       Status: capitalizeFirstLetter(log.status),
+      Action: (
+        <div className="space-x-2">
+          <button
+            onClick={() => handleAction(log.id, "decline")}
+            className={`px-5 py-2 rounded-md text-white ${
+              log.status === "pending"
+                ? "bg-red-600"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
+            disabled={log.status !== "pending"}
+          >
+            Decline
+          </button>
+          <button
+            onClick={() => handleAction(log.id, "accept")}
+            className={`px-5 py-2 rounded-md text-white ${
+              log.status === "pending"
+                ? "bg-green-600"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
+            disabled={log.status !== "pending"}
+          >
+            Accept
+          </button>
+        </div>
+      ),
     };
   });
-
-  const openPopup = (rowData: Record<string, React.ReactNode>) => {
-    setSelectedLogData(rowData); // Set the entire row data as the selected log data
-    setIsPopupOpen(true);
-  };
-
-  const closePopup = () => {
-    setIsPopupOpen(false);
-    setSelectedLogData(null);
-    refreshLogs(); // Refresh the logs after closing the popup
-  };
 
   return (
     <main className="space-y-5 p-4 md:p-10">
@@ -118,34 +146,8 @@ const SupervisorRequest: React.FC = () => {
       </div>
 
       <div className="bg-white p-4 md:p-10 rounded-md shadow-lg border overflow-x-auto">
-        <Table
-          headers={headers}
-          data={data}
-          onRowClick={openPopup}
-          editable={true}
-        />
+        <Table headers={headers} data={data} />
       </div>
-
-      {isPopupOpen && selectedLogData && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-          <div
-            className="p-5 rounded-md shadow-lg w-[90%] bg-white"
-          >
-            <h2 className="text-2xl mb-4">Log Details</h2>
-            <Request
-              log={selectedLogData}
-              closePopup={closePopup}
-              refresh={refreshLogs}
-            />
-            <button
-              onClick={closePopup}
-              className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </main>
   );
 };

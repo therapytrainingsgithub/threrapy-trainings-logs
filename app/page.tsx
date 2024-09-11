@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ClinicalLogs from "@/components/clinicalLogs";
-import Goals from "@/components/goals";
 import Header from "@/components/header";
 import Overview from "@/components/overview";
 import SupervisionLogs from "@/components/supervisionLogs";
@@ -24,7 +23,39 @@ export default function Home() {
 }
 
 function HomeContent() {
+  const [loading, setLoading] = useState(true);
   const { userRole } = useUserProfileContext();
+
+  useEffect(() => {
+    // Assume the data fetching logic is here, which sets the user role
+    // Simulating an API call with a timeout
+    const fetchData = async () => {
+      try {
+        // Simulate the time it takes to fetch the user role
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulating API delay
+        // Assuming the userRole is set after fetching the data
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false); // Stop the loader when data is fetched
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div
+          className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full"
+          role="status"
+        >
+          <span className="sr-only">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -34,13 +65,11 @@ function HomeContent() {
         {userRole === "user" && <Overview />}
         {userRole === "user" && <ClinicalLogs />}
         {userRole === "user" && <SupervisionLogs />}
-        {userRole === "user" && <Goals />}
 
         {/* supervisor UI */}
         {userRole === "supervisor" && <Overview />}
         {userRole === "supervisor" && <ClinicalLogs />}
         {userRole === "supervisor" && <SupervisionLogs />}
-        {userRole === "supervisor" && <Goals />}
         {userRole === "supervisor" && <SupervisorUsers />}
         {userRole === "supervisor" && <SupervisorRequest />}
 

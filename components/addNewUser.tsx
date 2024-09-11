@@ -25,7 +25,7 @@ const AddNewUser = () => {
             className="p-5 rounded-md shadow-lg w-[90%] bg-white"
           >
             <h2 className="text-2xl mb-4">New User</h2>
-            <NewUserForm closePopup={closePopup} />
+            <NewUserForm />
             <button
               onClick={closePopup}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"

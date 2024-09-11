@@ -135,7 +135,7 @@ const SupervisionLogs: React.FC = () => {
     <main className="space-y-5 p-4 md:p-10">
       <div className="flex justify-between items-center flex-wrap">
         <h1 className="text-3xl mb-4 md:mb-0 font-bold">
-          Supervision Hours Logged
+          Supervision Hours
         </h1>
         <button
           className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
