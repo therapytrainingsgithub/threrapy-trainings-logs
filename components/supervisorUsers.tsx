@@ -69,7 +69,7 @@ const SupervisorUsers: React.FC = () => {
   return (
     <main className="space-y-5 p-4 md:p-10">
       <div className="flex justify-between items-center flex-wrap">
-        <h1 className="text-[24px] mb-4 md:mb-0">Supervisees</h1>
+        <h1 className="text-[24px] mb-4 md:mb-0 font-bold">Supervisees</h1>
       </div>
 
       <div className="bg-white shadow-lg p-4 md:p-10 rounded-md border overflow-x-auto">
@@ -84,7 +84,7 @@ const SupervisorUsers: React.FC = () => {
       {isPopupOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
           <div className="p-5 rounded-md shadow-lg w-[90%] bg-white border overflow-y-auto h-[80%]">
-            <h2 className="text-2xl mb-4">Supervisee Details</h2>
+            <h2 className="text-2xl mb-4 font-bold">Supervisee Details</h2>
             <SupervisorUserDetails superviseeID={superviseeID} />
             <button
               onClick={closePopup}
