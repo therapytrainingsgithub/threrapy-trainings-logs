@@ -142,7 +142,9 @@ const SupervisorRequest: React.FC = () => {
   return (
     <main className="space-y-5 p-4 md:p-10">
       <div className="flex justify-between items-center flex-wrap">
-        <h1 className="text-[24px] mb-4 md:mb-0 font-bold">Request for Logged Hours</h1>
+        <h1 className="text-[24px] mb-4 md:mb-0 font-bold">
+          Request for Logged Hours
+        </h1>
       </div>
 
       <div className="bg-white p-4 md:p-10 rounded-md shadow-lg border overflow-x-auto">

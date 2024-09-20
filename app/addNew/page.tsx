@@ -1,31 +1,32 @@
 "use client";
 
 import React from "react";
-import AppProviders from "../context";
-import { ToastContainer } from "react-toastify";
-import ChangePasswordForm from "@/components/changePasswordForm";
 import Header from "@/components/header";
+import NewUserForm from "@/components/newUserForm";
+import { useUserProfileContext } from "../context/userProfileContext";
 import { useRouter } from "next/navigation";
+import AppProviders from "../context";
 
-function Settings() {
+function AddNew() {
   return (
     <AppProviders>
-      <ToastContainer />
-      <SettingsContent />
+      <AddNewContent />
     </AppProviders>
   );
 }
 
-function SettingsContent() {
+function AddNewContent() {
   const router = useRouter();
+  const { userRole } = useUserProfileContext();
+  let role =
+    userRole === "user"
+      ? "Supervisor"
+      : userRole === "supervisor"
+      ? "Supervisee"
+      : "";
 
   const handleHomeClick = () => {
     router.push("/");
-  };
-
-  // No action for "Settings" button
-  const handleSettingsClick = () => {
-    // Do nothing
   };
 
   return (
@@ -37,16 +38,14 @@ function SettingsContent() {
             Home
           </button>
           <span>{">"}</span>
-          <button onClick={handleSettingsClick} className="text-gray-600">
-            Settings
-          </button>
+          <button className="text-gray-600">Add New {role}</button>
         </div>
 
         <div className="flex flex-col space-y-10 p-10">
           <div>
-            <h1 className="font-bold text-2xl">Change Password</h1>
+            <h1 className="font-bold text-2xl">Add New {role}</h1>
             <div className="bg-white p-10 rounded-md border shadow-lg flex flex-col justify-center space-y-4">
-              <ChangePasswordForm />
+              <NewUserForm />
             </div>
           </div>
         </div>
@@ -55,4 +54,4 @@ function SettingsContent() {
   );
 }
 
-export default Settings;
+export default AddNew;
