@@ -18,7 +18,7 @@ const generatePassword = () => {
 };
 
 const NewUserForm = () => {
-  const { refreshUsers } = useUserProfileContext();
+  const { refreshUsers, userRole } = useUserProfileContext();
   const [generatedPassword, setGeneratedPassword] = useState<string>("");
   const [userData, setUserData] = useState<{
     name: string;
@@ -36,13 +36,10 @@ const NewUserForm = () => {
     password: Yup.string()
       .min(8, "Password must be at least 8 characters")
       .required("Password is required"),
-    role: Yup.string()
-      .required("Role is required")
-      .oneOf(["user", "supervisor"], "Invalid role selected"),
   });
 
   const handleSubmit = async (
-    values: { email: string; password: string; name: string; role: string },
+    values: { email: string; password: string; name: string },
     { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
   ) => {
     setSubmitting(true);
@@ -53,27 +50,29 @@ const NewUserForm = () => {
     });
 
     if (authError) {
-      toast.error(`Failed to insert data: ${authError}`);
+      toast.error(`Failed to sign up: ${authError.message}`);
       console.error("Error signing up:", authError.message);
       setSubmitting(false);
       return;
     }
 
     if (authData.user) {
+      const role = userRole === "user" ? "supervisor" : "user";
+
       const { data: profileData, error: profileError } = await supabase
         .from("user_profiles")
         .insert([
           {
             id: authData.user.id,
             name: values.name,
-            role: values.role,
+            role: role,
             email: values.email,
           },
         ])
         .select();
 
       if (profileError) {
-        toast.error(`Failed to insert data: ${profileError}`);
+        toast.error(`Failed to create user profile: ${profileError.message}`);
         console.error(
           "Error inserting into user_profiles:",
           profileError.message
@@ -81,8 +80,8 @@ const NewUserForm = () => {
       } else {
         console.log("User profile added:", profileData);
         refreshUsers();
-        setUserData(values); // Set the user data for copy credentials
-        toast.success("Data inserted successfully!");
+        setUserData({ ...values, role }); // Set the user data for copying credentials
+        toast.success("User created successfully!");
       }
     }
 
@@ -96,10 +95,11 @@ const NewUserForm = () => {
     setGeneratedPassword(newPassword);
     setFieldValue("password", newPassword);
   };
+
   const handleCopyCredentials = () => {
     if (userData) {
-      const { name, email, password, role } = userData;
-      const credentials = `Name: ${name}  Email: ${email} Password: ${password} Role: ${role}`;
+      const { name, email, password } = userData;
+      const credentials = `Name: ${name}  Email: ${email} Password: ${password}`;
       navigator.clipboard
         .writeText(credentials)
         .then(() => {
@@ -117,7 +117,6 @@ const NewUserForm = () => {
         email: "",
         password: "",
         name: "",
-        role: "",
       }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -169,34 +168,13 @@ const NewUserForm = () => {
               <button
                 type="button"
                 onClick={() => handlePasswordGenerate(setFieldValue)}
-                className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d] w-full"
+                className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
               >
                 Generate Password
               </button>
             </div>
             <ErrorMessage
               name="password"
-              component="div"
-              className="text-red-600 text-sm"
-            />
-          </div>
-
-          <div className="flex flex-col space-y-1 w-[50%]">
-            <label htmlFor="role">Role</label>
-            <Field
-              as="select"
-              className="rounded-md px-5 py-2 border-2"
-              id="role"
-              name="role"
-            >
-              <option value="" hidden>
-                Select Role
-              </option>
-              <option value="user">User</option>
-              <option value="supervisor">Supervisor</option>
-            </Field>
-            <ErrorMessage
-              name="role"
               component="div"
               className="text-red-600 text-sm"
             />

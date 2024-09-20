@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PieChart from "./piechart";
 import { useClinicalLogsContext } from "@/app/context/clinicalContext";
 import { useSupervisionLogsContext } from "@/app/context/supervisionContext";
@@ -8,14 +8,22 @@ import { useGoalsContext } from "@/app/context/goalsContext";
 import { useUserContext } from "@/app/context/userContext";
 import { IoIosArrowDown } from "react-icons/io";
 import Goals from "./goals";
+import * as XLSX from "xlsx";
 
 const Overview = () => {
   const [week, setWeek] = useState("all");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const { goals } = useGoalsContext();
-  const { clinicalLogs } = useClinicalLogsContext();
-  const { supervisionLogs } = useSupervisionLogsContext();
-  const { userID } = useUserContext(); // Get userID from the context
+
+  const { goals = [] } = useGoalsContext() || {}; // Handle undefined goals context
+  const { clinicalLogs = [] } = useClinicalLogsContext() || {}; // Handle undefined clinicalLogs context
+  const { supervisionLogs = [] } = useSupervisionLogsContext() || {}; // Handle undefined supervisionLogs context
+  const { userID } = useUserContext() || {}; // Handle undefined userID
+
+  useEffect(() => {
+    if (!userID) {
+      console.error("User ID not found");
+    }
+  }, [userID]);
 
   const openPopup = () => {
     setIsPopupOpen(true);
@@ -25,26 +33,25 @@ const Overview = () => {
     setIsPopupOpen(false);
   };
 
-  // Filter clinical logs by userID
   const userClinicalLogs = clinicalLogs.filter((log) => log.user_Id === userID);
 
-  // Get unique weeks from the filtered clinical logs, sorted in ascending order
   const uniqueWeeks = Array.from(
     new Set(userClinicalLogs.map((log) => log.week))
-  ).sort((a, b) => a.localeCompare(b)); // Sorting the weeks
+  ).sort((a, b) => a?.localeCompare(b)); // Safe sorting
 
-  // Prepare data for Clinical Hours chart
   const filteredClinicalLogs =
     week === "all"
-      ? userClinicalLogs // Use all logs if "All" is selected
-      : userClinicalLogs.filter((log) => log.week === week); // Filter logs by selected week
+      ? userClinicalLogs
+      : userClinicalLogs.filter((log) => log.week === week);
 
   const totalDirectHours = filteredClinicalLogs.reduce(
-    (total, log) => total + parseFloat(log.direct_Hours),
+    (total, log) =>
+      total + parseFloat(log.direct_Hours ? log.direct_Hours : "0"),
     0
   );
   const totalIndirectHours = filteredClinicalLogs.reduce(
-    (total, log) => total + parseFloat(log.indirect_Hours),
+    (total, log) =>
+      total + parseFloat(log.indirect_Hours ? log.indirect_Hours : "0"),
     0
   );
 
@@ -53,10 +60,11 @@ const Overview = () => {
       ? goals.reduce((total, goal) => total + (goal.clinical_Hours || 0), 0)
       : goals.find((goal) => goal.week === week)?.clinical_Hours || 0;
 
-  const clinicalRemaining =
-    clinicalGoal - (totalDirectHours + totalIndirectHours);
+  const clinicalRemaining = Math.max(
+    clinicalGoal - (totalDirectHours + totalIndirectHours),
+    0
+  ); // Prevent negative values
 
-  // Prepare data for Supervision Hours chart
   const filteredSupervisionLogs =
     week === "all"
       ? supervisionLogs.filter((log) => log.user_Id === userID)
@@ -65,7 +73,7 @@ const Overview = () => {
         );
 
   const totalSupervisionHours = filteredSupervisionLogs.reduce(
-    (total, log) => total + log.supervision_Hours,
+    (total, log) => total + (log.supervision_Hours || 0),
     0
   );
 
@@ -74,7 +82,10 @@ const Overview = () => {
       ? goals.reduce((total, goal) => total + (goal.supervision_Hours || 0), 0)
       : goals.find((goal) => goal.week === week)?.supervision_Hours || 0;
 
-  const supervisionRemaining = supervisionGoal - totalSupervisionHours;
+  const supervisionRemaining = Math.max(
+    supervisionGoal - totalSupervisionHours,
+    0
+  );
 
   // Prepare data for PieCharts
   const clinicalHoursChart = {
@@ -99,6 +110,28 @@ const Overview = () => {
         backgroundColor: ["rgba(112, 157, 80)", "rgba(180, 0, 0)"],
       },
     ],
+  };
+
+  const exportToSpreadsheet = (
+    data: { Name: string; Email: string; Age: number }[]
+  ) => {
+    try {
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Logs");
+      XLSX.writeFile(workbook, "logs.xlsx");
+    } catch (error) {
+      console.error("Error exporting to spreadsheet:", error);
+    }
+  };
+
+  const data = [
+    { Name: "John Doe", Email: "john@example.com", Age: 30 },
+    { Name: "Jane Smith", Email: "jane@example.com", Age: 25 },
+  ];
+
+  const handleExportClick = () => {
+    exportToSpreadsheet(data);
   };
 
   return (
@@ -146,6 +179,15 @@ const Overview = () => {
           <h3 className="text-lg font-semibold mb-2">Supervision Hours</h3>
           <PieChart data={supervisionHoursChart} />
         </div>
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          onClick={handleExportClick}
+          className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
+        >
+          Export Logs
+        </button>
       </div>
 
       {isPopupOpen && (

@@ -69,7 +69,7 @@ const SupervisorUsers: React.FC = () => {
   return (
     <main className="space-y-5 p-4 md:p-10">
       <div className="flex justify-between items-center flex-wrap">
-        <h1 className="text-[24px] mb-4 md:mb-0">Supervisees</h1>
+        <h1 className="text-[24px] mb-4 md:mb-0 font-bold">Supervisees</h1>
       </div>
 
       <div className="bg-white shadow-lg p-4 md:p-10 rounded-md border overflow-x-auto">

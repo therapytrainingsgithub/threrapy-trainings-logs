@@ -7,7 +7,7 @@ const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null); // Explicitly type the ref
   const router = useRouter();
-  const { userName } = useUserProfileContext();
+  const { userName, userRole } = useUserProfileContext();
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -43,9 +43,19 @@ const Header = () => {
   }, [dropdownRef]);
 
   const goToSettings = () => {
-    console.log("here")
     router.push("/settings");
   };
+
+  const goToAddNew = () => {
+    router.push("/addNew");
+  };
+
+  const role =
+    userRole === "user"
+      ? "Supervisor"
+      : userRole === "supervisor"
+      ? "Supervisee"
+      : ""; // Default case if needed
 
   return (
     <main>
@@ -61,19 +71,27 @@ const Header = () => {
             onClick={toggleDropdown}
           />
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
-              <button
-                onClick={goToSettings}
-                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >
-                Settings
-              </button>
-              <button
-                onClick={handleLogout}
-                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >
-                Logout
-              </button>
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+              <div className="py-1">
+                <button
+                  onClick={goToAddNew}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-200"
+                >
+                  Add New {role}
+                </button>
+                <button
+                  onClick={goToSettings}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-200"
+                >
+                  Settings
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-200"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
           )}
         </div>
