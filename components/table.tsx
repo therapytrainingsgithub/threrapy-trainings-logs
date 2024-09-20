@@ -15,6 +15,9 @@ const Table: React.FC<TableProps> = ({
   onRowClick,
   editable = false,
 }) => {
+  // Determine if there's only one column
+  const isSingleColumn = headers.length === 1;
+
   return (
     <main className="overflow-x-auto">
       <table className="min-w-full text-[14px] sm:text-[16px]">
@@ -26,9 +29,9 @@ const Table: React.FC<TableProps> = ({
               return (
                 <th
                   key={index}
-                  className={`px-4 py-2 sm:px-6 sm:py-3 font-bold text-center ${
-                    hasData ? "" : "text-white" // Hide if no data
-                  }`}
+                  className={`px-4 py-2 sm:px-6 sm:py-3 font-bold ${
+                    isSingleColumn ? "text-left" : "text-center"
+                  } ${hasData ? "" : "text-white"}`} // Hide if no data
                 >
                   {/* Display the header text or keep the space hidden */}
                   {header.charAt(0).toUpperCase() +
@@ -53,9 +56,9 @@ const Table: React.FC<TableProps> = ({
                   return (
                     <td
                       key={cellIndex}
-                      className={`px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-center ${
-                        cellData === "-" ? "text-white" : "" // Hide if data is "-"
-                      }`}
+                      className={`px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap ${
+                        isSingleColumn ? "text-left" : "text-center"
+                      } ${cellData === "-" ? "text-white" : ""}`} // Hide if data is "-"
                     >
                       {cellData}
                     </td>

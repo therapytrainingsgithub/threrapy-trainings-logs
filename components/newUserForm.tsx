@@ -18,7 +18,7 @@ const generatePassword = () => {
 };
 
 const NewUserForm = () => {
-  const { refreshUsers, userRole } = useUserProfileContext();
+  const { refreshUsers, userRole } = useUserProfileContext(); // Fetch current user's role
   const [generatedPassword, setGeneratedPassword] = useState<string>("");
   const [userData, setUserData] = useState<{
     name: string;
@@ -36,10 +36,11 @@ const NewUserForm = () => {
     password: Yup.string()
       .min(8, "Password must be at least 8 characters")
       .required("Password is required"),
+    role: Yup.string().required("Role is required"), // Add validation for the role field
   });
 
   const handleSubmit = async (
-    values: { email: string; password: string; name: string },
+    values: { email: string; password: string; name: string; role: string },
     { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
   ) => {
     setSubmitting(true);
@@ -57,15 +58,13 @@ const NewUserForm = () => {
     }
 
     if (authData.user) {
-      const role = userRole === "user" ? "supervisor" : "user";
-
       const { data: profileData, error: profileError } = await supabase
         .from("user_profiles")
         .insert([
           {
             id: authData.user.id,
             name: values.name,
-            role: role,
+            role: values.role, // Use the selected role
             email: values.email,
           },
         ])
@@ -80,7 +79,7 @@ const NewUserForm = () => {
       } else {
         console.log("User profile added:", profileData);
         refreshUsers();
-        setUserData({ ...values, role }); // Set the user data for copying credentials
+        setUserData({ ...values, role: values.role }); // Set the user data for copying credentials
         toast.success("User created successfully!");
       }
     }
@@ -117,6 +116,7 @@ const NewUserForm = () => {
         email: "",
         password: "",
         name: "",
+        role: userRole === "admin" ? "" : "user", // Set role based on userRole
       }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -179,6 +179,29 @@ const NewUserForm = () => {
               className="text-red-600 text-sm"
             />
           </div>
+
+          {userRole === "admin" && (
+            <div className="flex flex-col space-y-1 w-[50%]">
+              <label htmlFor="role">Role</label>
+              <Field
+                as="select"
+                className="rounded-md px-5 py-2 border-2"
+                id="role"
+                name="role"
+              >
+                <option value="" disabled>
+                  Select Role
+                </option>
+                <option value="user">User</option>
+                <option value="supervisor">Supervisor</option>
+              </Field>
+              <ErrorMessage
+                name="role"
+                component="div"
+                className="text-red-600 text-sm"
+              />
+            </div>
+          )}
 
           <div className="w-[50%]">
             <button

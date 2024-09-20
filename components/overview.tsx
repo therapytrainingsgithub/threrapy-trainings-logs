@@ -10,14 +10,32 @@ import { IoIosArrowDown } from "react-icons/io";
 import Goals from "./goals";
 import * as XLSX from "xlsx";
 
-const Overview = () => {
-  const [week, setWeek] = useState("all");
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
+// Define types for logs and goals (adjust according to your data structure)
+interface Log {
+  week: any;
+  user_Id: any;
+  direct_Hours?: any; // Should match the incoming data
+  indirect_Hours?: any; // Should match the incoming data
+  site?: any;
+  supervisor?: any;
+  status?: any;
+  supervision_Hours?: any; // Should match the incoming data
+}
 
-  const { goals = [] } = useGoalsContext() || {}; // Handle undefined goals context
-  const { clinicalLogs = [] } = useClinicalLogsContext() || {}; // Handle undefined clinicalLogs context
-  const { supervisionLogs = [] } = useSupervisionLogsContext() || {}; // Handle undefined supervisionLogs context
-  const { userID } = useUserContext() || {}; // Handle undefined userID
+interface Goal {
+  week: string;
+  clinical_Hours?: number;
+  supervision_Hours?: number;
+}
+
+const Overview: React.FC = () => {
+  const [week, setWeek] = useState<string>("all");
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+
+  const { goals = [] } = useGoalsContext() || {}; // Goals can be undefined initially
+  const { clinicalLogs = [] } = useClinicalLogsContext() || {}; // Clinical logs can be undefined initially
+  const { supervisionLogs = [] } = useSupervisionLogsContext() || {}; // Supervision logs can be undefined initially
+  const { userID } = useUserContext() || {}; // userID can be undefined initially
 
   useEffect(() => {
     if (!userID) {
@@ -33,11 +51,13 @@ const Overview = () => {
     setIsPopupOpen(false);
   };
 
-  const userClinicalLogs = clinicalLogs.filter((log) => log.user_Id === userID);
+  const userClinicalLogs = clinicalLogs.filter((log) => {
+    return log.user_Id === userID;
+  });
 
   const uniqueWeeks = Array.from(
     new Set(userClinicalLogs.map((log) => log.week))
-  ).sort((a, b) => a?.localeCompare(b)); // Safe sorting
+  ).sort((a, b) => a?.localeCompare(b));
 
   const filteredClinicalLogs =
     week === "all"
@@ -45,29 +65,31 @@ const Overview = () => {
       : userClinicalLogs.filter((log) => log.week === week);
 
   const totalDirectHours = filteredClinicalLogs.reduce(
-    (total, log) =>
-      total + parseFloat(log.direct_Hours ? log.direct_Hours : "0"),
+    (total, log) => total + parseFloat(log.direct_Hours || "0"),
     0
   );
+
   const totalIndirectHours = filteredClinicalLogs.reduce(
-    (total, log) =>
-      total + parseFloat(log.indirect_Hours ? log.indirect_Hours : "0"),
+    (total, log) => total + parseFloat(log.indirect_Hours || "0"),
     0
   );
 
   const clinicalGoal =
     week === "all"
-      ? goals.reduce((total, goal) => total + (goal.clinical_Hours || 0), 0)
+      ? goals.reduce(
+          (total, goal: Goal) => total + (goal.clinical_Hours || 0),
+          0
+        )
       : goals.find((goal) => goal.week === week)?.clinical_Hours || 0;
 
   const clinicalRemaining = Math.max(
     clinicalGoal - (totalDirectHours + totalIndirectHours),
     0
-  ); // Prevent negative values
+  );
 
   const filteredSupervisionLogs =
     week === "all"
-      ? supervisionLogs.filter((log) => log.user_Id === userID)
+      ? supervisionLogs.filter((log: Log) => log.user_Id === userID)
       : supervisionLogs.filter(
           (log) => log.user_Id === userID && log.week === week
         );
@@ -87,7 +109,6 @@ const Overview = () => {
     0
   );
 
-  // Prepare data for PieCharts
   const clinicalHoursChart = {
     labels: ["Direct Hours", "Indirect Hours", "Remaining Hours"],
     datasets: [
@@ -112,26 +133,83 @@ const Overview = () => {
     ],
   };
 
-  const exportToSpreadsheet = (
-    data: { Name: string; Email: string; Age: number }[]
-  ) => {
+  const exportToSpreadsheet = (clinicalLogs: Log[], supervisionLogs: Log[]) => {
     try {
       const workbook = XLSX.utils.book_new();
-      const worksheet = XLSX.utils.json_to_sheet(data);
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Logs");
+
+      const clinicalTitle = [["Logs"]];
+      const clinicalLogHeaders = [
+        "Week",
+        "Direct Hours",
+        "Indirect Hours",
+        "Site",
+        "Supervisor",
+        "Status",
+      ];
+      const clinicalLogData = clinicalLogs.map((log) => ({
+        week: log.week,
+        direct_Hours: log.direct_Hours,
+        indirect_Hours: log.indirect_Hours,
+        site: log.site,
+        supervisor: log.supervisor,
+        status: log.status,
+      }));
+
+      const clinicalLogSheetData = [
+        ...clinicalTitle,
+        clinicalLogHeaders,
+        ...clinicalLogData.map(Object.values),
+      ];
+
+      const clinicalLogWorksheet =
+        XLSX.utils.aoa_to_sheet(clinicalLogSheetData);
+      XLSX.utils.book_append_sheet(
+        workbook,
+        clinicalLogWorksheet,
+        "Clinical Logs"
+      );
+
+      const supervisionTitle = [["Logs"]];
+      const supervisionLogHeaders = ["Week", "Supervision Hours"];
+      const supervisionLogData = supervisionLogs.map((log) => ({
+        week: log.week,
+        supervision_Hours: log.supervision_Hours,
+      }));
+
+      const supervisionLogSheetData = [
+        ...supervisionTitle,
+        supervisionLogHeaders,
+        ...supervisionLogData.map(Object.values),
+      ];
+
+      const supervisionLogWorksheet = XLSX.utils.aoa_to_sheet(
+        supervisionLogSheetData
+      );
+      XLSX.utils.book_append_sheet(
+        workbook,
+        supervisionLogWorksheet,
+        "Supervision Logs"
+      );
+
       XLSX.writeFile(workbook, "logs.xlsx");
     } catch (error) {
       console.error("Error exporting to spreadsheet:", error);
     }
   };
 
-  const data = [
-    { Name: "John Doe", Email: "john@example.com", Age: 30 },
-    { Name: "Jane Smith", Email: "jane@example.com", Age: 25 },
-  ];
-
   const handleExportClick = () => {
-    exportToSpreadsheet(data);
+    const preparedClinicalLogs = filteredClinicalLogs.map((log) => ({
+      ...log,
+      direct_Hours: parseFloat(log.direct_Hours || "0"),
+      indirect_Hours: parseFloat(log.indirect_Hours || "0"),
+    }));
+
+    const preparedSupervisionLogs = filteredSupervisionLogs.map((log) => ({
+      ...log,
+      supervision_Hours: Number(log.supervision_Hours || 0),
+    }));
+
+    exportToSpreadsheet(preparedClinicalLogs, preparedSupervisionLogs);
   };
 
   return (

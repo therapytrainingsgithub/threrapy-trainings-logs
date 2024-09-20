@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "@/components/header";
 import NewUserForm from "@/components/newUserForm";
 import { useUserProfileContext } from "../context/userProfileContext";
@@ -18,16 +18,39 @@ function AddNew() {
 function AddNewContent() {
   const router = useRouter();
   const { userRole } = useUserProfileContext();
-  let role =
-    userRole === "user"
-      ? "Supervisor"
-      : userRole === "supervisor"
-      ? "Supervisee"
-      : "";
+  const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState("");
+
+  useEffect(() => {
+    if (userRole) {
+      setRole(
+        userRole === "user"
+          ? "Supervisor"
+          : userRole === "supervisor"
+          ? "Supervisee"
+          : ""
+      );
+      setLoading(false); // Set loading to false once userRole is determined
+    }
+  }, [userRole]);
 
   const handleHomeClick = () => {
     router.push("/");
   };
+
+  // Loading indicator
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div
+          className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full border-t-transparent"
+          role="status"
+        >
+          <span className="sr-only">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
