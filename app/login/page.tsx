@@ -18,8 +18,7 @@ const Page = () => {
       router.push("/");
     } catch (error) {
       console.error("Login failed:", error);
-    } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
 
