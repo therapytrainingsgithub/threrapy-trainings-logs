@@ -6,18 +6,22 @@ import { useRouter } from "next/navigation";
 const Page = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage(null); // Reset error message on new attempt
 
     try {
       await login(email, password);
       router.push("/");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login failed:", error);
+      setErrorMessage(error.message || "Login failed. Please try again.");
+    } finally {
       setLoading(false);
     }
   };
@@ -73,6 +77,12 @@ const Page = () => {
                   />
                 </div>
 
+                {/* Error Message */}
+                {errorMessage && (
+                  <div className="text-red-500 text-sm">{errorMessage}</div>
+                )}
+
+                {/* Loading Spinner */}
                 {loading ? (
                   <div className="flex justify-center items-center">
                     <div
