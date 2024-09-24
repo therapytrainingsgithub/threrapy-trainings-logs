@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { login } from "./action";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 const Page = () => {
   const [email, setEmail] = useState("");
@@ -16,8 +17,19 @@ const Page = () => {
     setErrorMessage(null); // Reset error message on new attempt
 
     try {
-      await login(email, password);
-      router.push("/");
+      // Wait for the login function to complete
+      const result = await login(email, password);
+
+      if (result) {
+        // Explicitly wait for the session to be established
+        const { data: sessionData } = await supabase.auth.getSession();
+
+        if (sessionData?.session) {
+          router.push("/"); // Only push if session exists
+        } else {
+          throw new Error("Session not established after login");
+        }
+      }
     } catch (error: any) {
       console.error("Login failed:", error);
       setErrorMessage(error.message || "Login failed. Please try again.");

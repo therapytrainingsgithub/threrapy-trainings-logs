@@ -8,16 +8,12 @@ export async function login(email: string, password: string) {
     });
 
     if (error) {
-      if (error.message.includes("Invalid login credentials")) {
-        throw new Error("Invalid email or password. Please try again.");
-      } else {
-        throw new Error(error.message); // For other errors
-      }
+      throw new Error(error.message); // Throw an error for login failures
     }
 
-    return data; // Return data if successful
+    return data; // Return the login data
   } catch (error: any) {
     console.error("Error during login:", error);
-    throw error; // Re-throw the error to be caught in the calling function
+    throw error; // Re-throw error to the caller
   }
 }
