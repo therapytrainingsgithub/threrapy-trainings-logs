@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { login } from "./action";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -9,7 +9,15 @@ const Page = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // If login is successful and isLoggedIn is set, push to "/"
+    if (isLoggedIn) {
+      router.push("/");
+    }
+  }, [isLoggedIn, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +33,7 @@ const Page = () => {
         const { data: sessionData } = await supabase.auth.getSession();
 
         if (sessionData?.session) {
-          router.push("/"); // Only push if session exists
+          setIsLoggedIn(true); // Set isLoggedIn state to true
         } else {
           throw new Error("Session not established after login");
         }
