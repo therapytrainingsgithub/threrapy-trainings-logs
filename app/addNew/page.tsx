@@ -6,10 +6,12 @@ import NewUserForm from "@/components/newUserForm";
 import { useUserProfileContext } from "../context/userProfileContext";
 import { useRouter } from "next/navigation";
 import AppProviders from "../context";
+import { ToastContainer } from "react-toastify";
 
 function AddNew() {
   return (
     <AppProviders>
+      <ToastContainer />
       <AddNewContent />
     </AppProviders>
   );
