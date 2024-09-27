@@ -46,7 +46,7 @@ const NewUserForm = () => {
     setSubmitting(true);
 
     try {
-      // API call to the Next.js API route for user creation
+      // Ensure you're calling the correct API path
       const response = await fetch("/api/userProfile", {
         method: "POST",
         headers: {
@@ -55,22 +55,23 @@ const NewUserForm = () => {
         body: JSON.stringify(values), // Send user details to the API
       });
 
-      const result = await response.json();
-
       if (!response.ok) {
+        const result = await response.json();
         toast.error(`Failed to create user: ${result.error}`);
         console.error("Error creating user:", result.error);
         setSubmitting(false);
         return;
       }
 
+      const result = await response.json();
+
       // If successful
       toast.success("User created successfully!");
       console.log("User created successfully:", result.user);
 
-      // You can refresh your user list or perform any additional logic
-      refreshUsers(); // Optional: if you have a function to refresh the user list
-      setUserData({ ...values, role: values.role }); // Optional: set the user data
+      // Additional logic
+      refreshUsers();
+      setUserData({ ...values, role: values.role });
     } catch (error) {
       toast.error("An error occurred while creating the user.");
       console.error("Error during handleSubmit:", error);

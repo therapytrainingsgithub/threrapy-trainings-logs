@@ -3,8 +3,12 @@ import { supabase } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("API request received"); // To verify that the request is hitting the API
+
     // Parse the request body to get user details
     const { email, password, name, role } = await req.json();
+
+    console.log("Request data:", { email, password, name, role }); // To check if the request data is coming through correctly
 
     // Use Supabase Admin API to create the user without logging them in
     const { data, error: userError } = await supabase.auth.admin.createUser({
@@ -14,7 +18,6 @@ export async function POST(req: NextRequest) {
       user_metadata: { name, role }, // Optional user metadata
     });
 
-    // Ensure the user is created and no error occurs
     if (userError || !data?.user?.id) {
       return NextResponse.json(
         { error: userError?.message || "User creation failed" },
@@ -55,4 +58,8 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function GET() {
+  return NextResponse.json({ message: "Method not allowed" }, { status: 405 });
 }
