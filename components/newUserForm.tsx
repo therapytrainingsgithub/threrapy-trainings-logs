@@ -116,7 +116,14 @@ const NewUserForm = () => {
         email: "",
         password: "",
         name: "",
-        role: userRole === "admin" ? "" : "user", // Set role based on userRole
+        role:
+          userRole === "admin"
+            ? ""
+            : userRole === "user"
+            ? "supervisor"
+            : userRole === "supervisor"
+            ? "user"
+            : "",
       }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
