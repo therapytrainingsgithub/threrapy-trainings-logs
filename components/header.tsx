@@ -5,7 +5,7 @@ import { useUserProfileContext } from "@/app/context/userProfileContext";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null); // Explicitly type the ref
+  const dropdownRef = useRef<HTMLDivElement>(null); 
   const router = useRouter();
   const { userName, userRole } = useUserProfileContext();
 
@@ -18,7 +18,7 @@ const Header = () => {
     if (error) {
       console.log("Error logging out:", error.message);
     } else {
-      router.push("/login"); // Redirect the user to the login page after logout
+      router.push("/login");
     }
   };
 
@@ -27,7 +27,7 @@ const Header = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) // Explicitly cast the target to Node
+        !dropdownRef.current.contains(event.target as Node) 
       ) {
         setDropdownOpen(false); // Close the dropdown
       }
@@ -55,7 +55,7 @@ const Header = () => {
       ? "Supervisor"
       : userRole === "supervisor"
       ? "Supervisee"
-      : ""; // Default case if needed
+      : "";
 
   const goToHome = () => {
     router.push("/");

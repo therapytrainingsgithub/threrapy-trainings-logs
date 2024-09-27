@@ -10,15 +10,9 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  const { pathname } = req.nextUrl;
-
-  // If no session exists, and the user is not already on the /login page, redirect to /login
-  if (!session && pathname !== "/login") {
-    const loginUrl = new URL("/login", req.url);
-    return NextResponse.redirect(loginUrl);
+  if (!session) {
+    return NextResponse.rewrite(new URL("/login", req.url));
   }
-
-  return res; // If session exists or already on /login, continue
 }
 
 export const config = {
