@@ -45,49 +45,38 @@ const NewUserForm = () => {
   ) => {
     setSubmitting(true);
 
-    // Use Supabase Admin API to create the user without logging them in
-    const { data: authData, error: authError } =
-      await supabase.auth.admin.createUser({
-        email: values.email,
-        password: values.password,
-        email_confirm: true, // Optional: Set this to true if you want to auto-confirm the user's email
+    try {
+      // API call to the Next.js API route for user creation
+      const response = await fetch("/api/userProfile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values), // Send user details to the API
       });
 
-    if (authError) {
-      toast.error(`Failed to create user: ${authError.message}`);
-      console.error("Error creating user:", authError.message);
-      setSubmitting(false);
-      return;
-    }
+      const result = await response.json();
 
-    if (authData.user) {
-      const { data: profileData, error: profileError } = await supabase
-        .from("user_profiles")
-        .insert([
-          {
-            id: authData.user.id,
-            name: values.name,
-            role: values.role, // Use the selected role
-            email: values.email,
-          },
-        ])
-        .select();
-
-      if (profileError) {
-        toast.error(`Failed to create user profile: ${profileError.message}`);
-        console.error(
-          "Error inserting into user_profiles:",
-          profileError.message
-        );
-      } else {
-        console.log("User profile added:", profileData);
-        refreshUsers(); // Refresh user list after creation
-        setUserData({ ...values, role: values.role }); // Set the user data for copying credentials
-        toast.success("User created successfully!");
+      if (!response.ok) {
+        toast.error(`Failed to create user: ${result.error}`);
+        console.error("Error creating user:", result.error);
+        setSubmitting(false);
+        return;
       }
-    }
 
-    setSubmitting(false);
+      // If successful
+      toast.success("User created successfully!");
+      console.log("User created successfully:", result.user);
+
+      // You can refresh your user list or perform any additional logic
+      refreshUsers(); // Optional: if you have a function to refresh the user list
+      setUserData({ ...values, role: values.role }); // Optional: set the user data
+    } catch (error) {
+      toast.error("An error occurred while creating the user.");
+      console.error("Error during handleSubmit:", error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handlePasswordGenerate = (

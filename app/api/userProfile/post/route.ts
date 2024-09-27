@@ -1,0 +1,58 @@
+import { NextResponse, NextRequest } from "next/server";
+import { supabase } from "@/lib/supabase";
+
+export async function POST(req: NextRequest) {
+  try {
+    // Parse the request body to get user details
+    const { email, password, name, role } = await req.json();
+
+    // Use Supabase Admin API to create the user without logging them in
+    const { data, error: userError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true, // Automatically confirm the email
+      user_metadata: { name, role }, // Optional user metadata
+    });
+
+    // Ensure the user is created and no error occurs
+    if (userError || !data?.user?.id) {
+      return NextResponse.json(
+        { error: userError?.message || "User creation failed" },
+        { status: 400 }
+      );
+    }
+
+    const userId = data.user.id;
+
+    // Insert the user profile into the `user_profiles` table
+    const { data: profileData, error: profileError } = await supabase
+      .from("user_profiles")
+      .insert([
+        {
+          id: userId,
+          name,
+          email,
+          role,
+        },
+      ]);
+
+    if (profileError) {
+      return NextResponse.json(
+        { error: profileError.message },
+        { status: 400 }
+      );
+    }
+
+    // Return a success response with the newly created user data
+    return NextResponse.json(
+      { message: "User created successfully", user: profileData },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return NextResponse.json(
+      { error: "An error occurred while creating the user" },
+      { status: 500 }
+    );
+  }
+}
