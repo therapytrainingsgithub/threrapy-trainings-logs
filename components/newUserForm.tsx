@@ -18,7 +18,7 @@ const generatePassword = () => {
 };
 
 const NewUserForm = () => {
-  const { refreshUsers, userRole } = useUserProfileContext(); // Fetch current user's role
+  const { refreshUsers, userRole } = useUserProfileContext();
   const [generatedPassword, setGeneratedPassword] = useState<string>("");
   const [userData, setUserData] = useState<{
     name: string;
@@ -46,13 +46,12 @@ const NewUserForm = () => {
     setSubmitting(true);
 
     try {
-      // Ensure you're calling the correct API path
-      const response = await fetch("/api/userProfile", {
+      const response = await fetch("/api/userProfile/post", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values), // Send user details to the API
+        body: JSON.stringify(values),
       });
 
       if (!response.ok) {

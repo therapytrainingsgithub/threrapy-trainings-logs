@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     console.log("Request data:", { email, password, name, role }); // To check if the request data is coming through correctly
 
     // Use Supabase Admin API to create the user without logging them in
-    const { data, error: userError } = await supabase.auth.admin.createUser({
+    const { data, error: userError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
       email_confirm: true, // Automatically confirm the email
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     const userId = data.user.id;
 
     // Insert the user profile into the `user_profiles` table
-    const { data: profileData, error: profileError } = await supabase
+    const { data: profileData, error: profileError } = await supabaseAdmin
       .from("user_profiles")
       .insert([
         {
