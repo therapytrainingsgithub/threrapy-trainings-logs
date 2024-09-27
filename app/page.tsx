@@ -28,14 +28,6 @@ function HomeContent() {
   const { userRole } = useUserProfileContext();
 
   useEffect(() => {
-    
-    
-const checkUser = async () => {
-  const { data: { user } } = await supabase.auth.getUser()
-  console.log(user)
-}
-
-checkUser()
 
     const fetchData = async () => {
       try {

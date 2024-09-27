@@ -10,8 +10,6 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  console.log(session)
-
   const { pathname } = req.nextUrl;
 
   if (!session && pathname !== "/login") {
