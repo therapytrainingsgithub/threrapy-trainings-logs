@@ -12,6 +12,7 @@ import SupervisorRequest from "@/components/supervisorRequest";
 import AdminUsers from "@/components/adminUsers";
 import AdminSupervisor from "@/components/adminSupervisor";
 import { ToastContainer } from "react-toastify";
+import { supabase } from "@/lib/supabase";
 
 export default function Home() {
   return (
@@ -27,8 +28,15 @@ function HomeContent() {
   const { userRole } = useUserProfileContext();
 
   useEffect(() => {
-    // Assume the data fetching logic is here, which sets the user role
-    // Simulating an API call with a timeout
+    
+    
+const checkUser = async () => {
+  const { data: { user } } = await supabase.auth.getUser()
+  console.log(user)
+}
+
+checkUser()
+
     const fetchData = async () => {
       try {
         // Simulate the time it takes to fetch the user role
