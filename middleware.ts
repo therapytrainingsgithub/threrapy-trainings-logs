@@ -18,7 +18,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return res; // If session exists or already on /login, continue
+  return res;
 }
 
 export const config = {

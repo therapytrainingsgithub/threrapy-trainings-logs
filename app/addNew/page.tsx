@@ -32,7 +32,7 @@ function AddNewContent() {
           ? "Supervisee"
           : ""
       );
-      setLoading(false); // Set loading to false once userRole is determined
+      setLoading(false);
     }
   }, [userRole]);
 

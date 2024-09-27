@@ -45,14 +45,17 @@ const NewUserForm = () => {
   ) => {
     setSubmitting(true);
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: values.email,
-      password: values.password,
-    });
+    // Use Supabase Admin API to create the user without logging them in
+    const { data: authData, error: authError } =
+      await supabase.auth.admin.createUser({
+        email: values.email,
+        password: values.password,
+        email_confirm: true, // Optional: Set this to true if you want to auto-confirm the user's email
+      });
 
     if (authError) {
-      toast.error(`Failed to sign up: ${authError.message}`);
-      console.error("Error signing up:", authError.message);
+      toast.error(`Failed to create user: ${authError.message}`);
+      console.error("Error creating user:", authError.message);
       setSubmitting(false);
       return;
     }
@@ -78,7 +81,7 @@ const NewUserForm = () => {
         );
       } else {
         console.log("User profile added:", profileData);
-        refreshUsers();
+        refreshUsers(); // Refresh user list after creation
         setUserData({ ...values, role: values.role }); // Set the user data for copying credentials
         toast.success("User created successfully!");
       }
