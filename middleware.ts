@@ -12,12 +12,13 @@ export async function middleware(req: NextRequest) {
 
   const { pathname } = req.nextUrl;
 
+  // If no session exists, and the user is not already on the /login page, redirect to /login
   if (!session && pathname !== "/login") {
     const loginUrl = new URL("/login", req.url);
     return NextResponse.redirect(loginUrl);
   }
 
-  return res;
+  return res; // If session exists or already on /login, continue
 }
 
 export const config = {
