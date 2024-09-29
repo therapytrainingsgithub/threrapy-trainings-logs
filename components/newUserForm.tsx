@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const generatePassword = () => {
   const chars =
@@ -20,6 +21,7 @@ const generatePassword = () => {
 const NewUserForm = () => {
   const { refreshUsers, userRole } = useUserProfileContext();
   const [generatedPassword, setGeneratedPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState(false);
   const [userData, setUserData] = useState<{
     name: string;
     email: string;
@@ -36,7 +38,7 @@ const NewUserForm = () => {
     password: Yup.string()
       .min(8, "Password must be at least 8 characters")
       .required("Password is required"),
-    role: Yup.string().required("Role is required"), // Add validation for the role field
+    role: Yup.string().required("Role is required"),
   });
 
   const handleSubmit = async (
@@ -63,12 +65,8 @@ const NewUserForm = () => {
       }
 
       const result = await response.json();
-
-      // If successful
       toast.success("User created successfully!");
       console.log("User created successfully:", result.user);
-
-      // Additional logic
       refreshUsers();
       setUserData({ ...values, role: values.role });
     } catch (error) {
@@ -159,11 +157,18 @@ const NewUserForm = () => {
             <div className="flex items-center space-x-2">
               <Field
                 className="rounded-md px-5 py-2 border-2 flex-grow"
-                type="password"
+                type={showPassword ? "text" : "password"} // Toggle between text and password
                 id="password"
                 name="password"
                 placeholder="****************"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
+                className="flex items-center justify-center px-2"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />} {/* Eye icon */}
+              </button>
               <button
                 type="button"
                 onClick={() => handlePasswordGenerate(setFieldValue)}
