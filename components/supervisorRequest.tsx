@@ -6,6 +6,7 @@ import { useUserContext } from "@/app/context/userContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { supabase } from "@/lib/supabase";
+import { NextResponse } from "next/server";
 
 interface ClinicalLog {
   id: number;
@@ -20,42 +21,28 @@ interface ClinicalLog {
 }
 
 const SupervisorRequest: React.FC = () => {
-  const { allClinicalLogs, refreshLogs } = useClinicalLogsContext();
+  const { allClinicalLogs, refreshAllLogs } = useClinicalLogsContext();
   const { allUsers } = useUserProfileContext();
   const { userID } = useUserContext();
   const [supervisorsLogs, setSupervisorsLogs] = useState<ClinicalLog[]>([]);
 
   // Function to capitalize the first letter of a string
-  const capitalizeFirstLetter = (string: string) =>
-    string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  function capitalizeFirstLetter(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  }
 
-  // Fetch clinical logs specific to the supervisor
-  const fetchAllClinicalLogs = async () => {
-    try {
-      const { data, error } = await supabase.from("clinical_Logs").select("*");
-
-      if (error) {
-        console.error("Error fetching logs:", error);
-        toast.error("Failed to fetch logs");
-        return;
-      }
-
-      const logsForSupervisor = data.filter(
-        (log: ClinicalLog) => log.supervisor_Id === userID
+  // Fetch and filter logs for the supervisor when the component mounts or `userID` changes
+  useEffect(() => {
+    const fetchLogs = async () => {
+      refreshAllLogs()
+      const logsForSupervisor = allClinicalLogs.filter(
+        (log) => log.supervisor_Id === userID
       );
       setSupervisorsLogs(logsForSupervisor);
-    } catch (err) {
-      console.error("Unexpected error fetching logs:", err);
-      toast.error("Unexpected error occurred");
-    }
-  };
+    };
 
-  // Fetch logs when the component mounts or userID changes
-  useEffect(() => {
-    if (userID) {
-      fetchAllClinicalLogs();
-    }
-  }, [userID]);
+    if (userID) fetchLogs();
+  }, [userID, allClinicalLogs]);
 
   // Handle status updates for clinical logs
   const handleAction = async (id: number, status: string) => {
@@ -66,22 +53,52 @@ const SupervisorRequest: React.FC = () => {
           headers: {
             "Content-Type": "application/json",
           },
+          cache: "no-store", // Disable cache for the update request
           body: JSON.stringify({ status: status }),
         });
+        const result = await response.json();
 
         if (response.ok) {
           toast.success("Status updated successfully!");
-          fetchAllClinicalLogs(); // Refetch after updating status
+          refreshAllLogs();
         } else {
-          const result = await response.json();
           toast.error(`Failed to update status: ${result.error}`);
         }
       } catch (error) {
         console.error("Error updating status:", error);
-        toast.error("Failed to update status");
+        toast.error(`Failed to update status: ${error}`);
       }
     }
   };
+
+  // const fetchAllClinicalLogs = async () => {
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from("clinical_Logs")
+  //       .select("*");
+
+  //     if (error) {
+  //       console.error("Error fetching session:", error);
+  //       return NextResponse.json({ error: error.message }, { status: 500 });
+  //     }
+
+  //     const fetchLogs = async () => {
+  //       refreshLogs(); // Fetch the latest logs once
+  //       const logsForSupervisor = data.filter(
+  //         (log) => log.supervisor_Id === userID
+  //       );
+  //       setSupervisorsLogs(logsForSupervisor);
+  //     };
+
+  //     return NextResponse.json(data, { status: 200 });
+  //   } catch (err) {
+  //     console.error("Unexpected error:", err);
+  //     return NextResponse.json(
+  //       { error: "Unexpected error occurred" },
+  //       { status: 500 }
+  //     );
+  //   }
+  // };
 
   // Table headers
   const headers = [
@@ -95,7 +112,7 @@ const SupervisorRequest: React.FC = () => {
     "Action",
   ];
 
-  // Prepare data for rendering in the table
+  // Map the supervisors logs into a format compatible with the table
   const data = supervisorsLogs.map((log) => {
     const user = allUsers?.find((user) => user.id === log.user_Id);
     const [year, week] = log.week.split("-W");
@@ -103,7 +120,7 @@ const SupervisorRequest: React.FC = () => {
 
     return {
       Log_Id: log.id,
-      "Week Logged": `${log.week} - ${start} to ${end}`,
+      "Week Logged": `${log.week}-${start} to ${end}`,
       "Date Logged": new Date(log.created_at).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",

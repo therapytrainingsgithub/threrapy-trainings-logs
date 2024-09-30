@@ -19,7 +19,8 @@ interface ClinicalLogsContextType {
   clinicalLogs: ClinicalLog[];
   allClinicalLogs: ClinicalLog[];
   setLogs: React.Dispatch<React.SetStateAction<ClinicalLog[]>>;
-  refreshLogs: () => void;
+  refreshLogs: () => void; // Function to refresh only user-specific logs
+  refreshAllLogs: () => void; // Function to refresh all logs
 }
 
 const ClinicalLogsContext = createContext<ClinicalLogsContextType | undefined>(
@@ -49,7 +50,7 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
         throw new Error("Failed to fetch clinical logs");
       }
       const data: ClinicalLog[] = await response.json();
-      setLogs(data);
+      setLogs(data); // Update user-specific logs
     } catch (error) {
       console.error("Error fetching clinical logs:", error);
     }
@@ -71,18 +72,24 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       const data: ClinicalLog[] = await response.json();
-      setAllLogs(data); // Store the fetched logs in state
+      setAllLogs(data); // Update all logs
     } catch (error) {
       console.error("Error fetching all clinical logs:", error);
     }
   };
 
-  // Function to refresh both user-specific and all logs
-  const refreshLogs = () => {
-    setLoading(true); // Set loading before fetching
-    Promise.all([fetchClinicalLogs(), fetchAllClinicalLogs()]).finally(() =>
-      setLoading(false)
-    );
+  // Separate function to refresh only user-specific logs
+  const refreshLogs = async () => {
+    setLoading(true); // Set loading state
+    await fetchClinicalLogs();
+    setLoading(false); // Reset loading state after fetching
+  };
+
+  // Separate function to refresh all logs
+  const refreshAllLogs = async () => {
+    setLoading(true); // Set loading state
+    await fetchAllClinicalLogs();
+    setLoading(false); // Reset loading state after fetching
   };
 
   // Fetch logs when userID changes or component mounts
@@ -95,7 +102,13 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <ClinicalLogsContext.Provider
-      value={{ clinicalLogs, allClinicalLogs, setLogs, refreshLogs }}
+      value={{
+        clinicalLogs,
+        allClinicalLogs,
+        setLogs,
+        refreshLogs,
+        refreshAllLogs,
+      }}
     >
       {children}
     </ClinicalLogsContext.Provider>
