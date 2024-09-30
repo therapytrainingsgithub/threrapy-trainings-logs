@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Table from "./table";
+import { supabase } from "@/lib/supabase"; // Ensure that your supabase client is properly imported
 
 interface User {
   id: string;
@@ -11,21 +12,21 @@ const AdminSupervisor: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true); // Add a loading state
 
-  // Fetch supervisors from the API
+  // Fetch supervisors directly from Supabase
   const fetchSupervisors = async () => {
     try {
-      const response = await fetch("/api/userProfile/fetchAll"); // Call the API route
-      const data = await response.json();
+      const { data, error } = await supabase.from("user_profiles").select("*");
 
-      if (response.ok) {
-        // Filter supervisors based on role
-        const filteredUsers = data.filter(
-          (user: User) => user.role === "supervisor"
-        );
-        setUsers(filteredUsers);
-      } else {
-        console.error("Error fetching supervisors:", data.error);
+      if (error) {
+        console.error("Error fetching supervisors:", error);
+        return;
       }
+
+      // Filter supervisors based on role
+      const filteredUsers = data.filter(
+        (user: User) => user.role === "supervisor"
+      );
+      setUsers(filteredUsers);
     } catch (err) {
       console.error("Unexpected error:", err);
     } finally {

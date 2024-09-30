@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Table from "./table";
-import { useUserProfileContext } from "@/app/context/userProfileContext";
 import AdminRequest from "./adminRequest";
 import AddNewUser from "./addNewUser";
+import { supabase } from "@/lib/supabase"; // Ensure the Supabase client is imported
 
 interface User {
   id: string;
@@ -11,22 +11,38 @@ interface User {
 }
 
 const AdminUsers: React.FC = () => {
-  const { allUsers, refreshUsers } = useUserProfileContext();
   const [users, setUsers] = useState<User[]>([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedUserData, setSelectedUserData] = useState<Record<
     string,
     React.ReactNode
   > | null>(null);
+  const [loading, setLoading] = useState(true); // Track loading state
 
-  useEffect(() => {
-    if (allUsers) {
-      const filteredUsers = allUsers.filter(
-        (user: User) => user.role === "user"
-      );
+  // Fetch users directly from Supabase
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase.from("user_profiles").select("*");
+
+      if (error) {
+        console.error("Error fetching users:", error);
+        return;
+      }
+
+      // Filter users based on role
+      const filteredUsers = data.filter((user: User) => user.role === "user");
       setUsers(filteredUsers);
+    } catch (err) {
+      console.error("Unexpected error fetching users:", err);
+    } finally {
+      setLoading(false); // Stop loading once data is fetched
     }
-  }, [allUsers]);
+  };
+
+  // Fetch users on component mount
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const headers = ["Name"];
 
@@ -45,6 +61,10 @@ const AdminUsers: React.FC = () => {
     setSelectedUserData(null);
   };
 
+  if (loading) {
+    return <p>Loading...</p>; // Show loading state while fetching users
+  }
+
   return (
     <main className="space-y-5 p-4 md:p-10">
       <div className="flex justify-between items-center flex-wrap">
@@ -53,18 +73,21 @@ const AdminUsers: React.FC = () => {
       </div>
 
       <div className="bg-white p-4 md:p-10 rounded-md shadow-lg border overflow-x-auto">
-        <Table headers={headers} data={data} onRowClick={openPopup} editable={true} />
+        <Table
+          headers={headers}
+          data={data}
+          onRowClick={openPopup}
+          editable={true}
+        />
       </div>
 
       {isPopupOpen && selectedUserData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-          <div
-            className="p-5 rounded-md shadow-lg w-[90%] bg-white"
-          >
+          <div className="p-5 rounded-md shadow-lg w-[90%] bg-white">
             <AdminRequest
               user={selectedUserData}
               closePopup={closePopup}
-              refresh={refreshUsers}
+              refresh={fetchUsers} // Call fetchUsers to refresh the user list
             />
             <button
               onClick={closePopup}
