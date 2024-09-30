@@ -21,7 +21,7 @@ interface ClinicalLog {
 }
 
 const SupervisorRequest: React.FC = () => {
-  const { allClinicalLogs, refreshAllLogs } = useClinicalLogsContext();
+  const { allClinicalLogs, refreshLogs } = useClinicalLogsContext();
   const { allUsers } = useUserProfileContext();
   const { userID } = useUserContext();
   const [supervisorsLogs, setSupervisorsLogs] = useState<ClinicalLog[]>([]);
@@ -34,7 +34,7 @@ const SupervisorRequest: React.FC = () => {
   // Fetch and filter logs for the supervisor when the component mounts or `userID` changes
   useEffect(() => {
     const fetchLogs = async () => {
-      refreshAllLogs()
+      refreshLogs(); // Fetch the latest logs once
       const logsForSupervisor = allClinicalLogs.filter(
         (log) => log.supervisor_Id === userID
       );
@@ -60,7 +60,7 @@ const SupervisorRequest: React.FC = () => {
 
         if (response.ok) {
           toast.success("Status updated successfully!");
-          refreshAllLogs();
+          fetchAllClinicalLogs();
         } else {
           toast.error(`Failed to update status: ${result.error}`);
         }
@@ -71,34 +71,34 @@ const SupervisorRequest: React.FC = () => {
     }
   };
 
-  // const fetchAllClinicalLogs = async () => {
-  //   try {
-  //     const { data, error } = await supabase
-  //       .from("clinical_Logs")
-  //       .select("*");
+  const fetchAllClinicalLogs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("clinical_Logs")
+        .select("*");
 
-  //     if (error) {
-  //       console.error("Error fetching session:", error);
-  //       return NextResponse.json({ error: error.message }, { status: 500 });
-  //     }
+      if (error) {
+        console.error("Error fetching session:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
 
-  //     const fetchLogs = async () => {
-  //       refreshLogs(); // Fetch the latest logs once
-  //       const logsForSupervisor = data.filter(
-  //         (log) => log.supervisor_Id === userID
-  //       );
-  //       setSupervisorsLogs(logsForSupervisor);
-  //     };
+      const fetchLogs = async () => {
+        refreshLogs(); // Fetch the latest logs once
+        const logsForSupervisor = data.filter(
+          (log) => log.supervisor_Id === userID
+        );
+        setSupervisorsLogs(logsForSupervisor);
+      };
 
-  //     return NextResponse.json(data, { status: 200 });
-  //   } catch (err) {
-  //     console.error("Unexpected error:", err);
-  //     return NextResponse.json(
-  //       { error: "Unexpected error occurred" },
-  //       { status: 500 }
-  //     );
-  //   }
-  // };
+      return NextResponse.json(data, { status: 200 });
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      return NextResponse.json(
+        { error: "Unexpected error occurred" },
+        { status: 500 }
+      );
+    }
+  };
 
   // Table headers
   const headers = [

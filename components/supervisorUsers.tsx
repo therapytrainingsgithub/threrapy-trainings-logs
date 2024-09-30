@@ -4,6 +4,7 @@ import { useClinicalLogsContext } from "@/app/context/clinicalContext";
 import { useUserProfileContext } from "@/app/context/userProfileContext";
 import { useUserContext } from "@/app/context/userContext";
 import SupervisorUserDetails from "./supervisorUserDetails";
+import { supabase } from "@/lib/supabase";
 
 interface ClinicalLog {
   created_at: string;
@@ -21,39 +22,48 @@ const SupervisorUsers: React.FC = () => {
     undefined
   );
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const { allClinicalLogs, refreshLogs } = useClinicalLogsContext();
   const { allUsers } = useUserProfileContext();
   const { userID } = useUserContext();
   const [supervisorsLogs, setSupervisorsLogs] = useState<ClinicalLog[]>([]);
 
-  useEffect(() => {
-    refreshLogs();
-    refreshLocal()
-  }, []);
+  // Fetch logs for supervisor
+  const fetchLogsForSupervisor = async () => {
+    try {
+      const { data, error } = await supabase.from("clinical_Logs").select("*");
 
-  useEffect(() => {
-    const logsForSupervisor = allClinicalLogs.filter(
-      (log) => log.supervisor_Id === userID
-    );
-    setSupervisorsLogs(logsForSupervisor);
-  }, [allClinicalLogs, userID]);
+      if (error) {
+        console.error("Error fetching logs:", error);
+        return;
+      }
 
-  const refreshLocal = () => {
-    const logsForSupervisor = allClinicalLogs.filter(
-      (log) => log.supervisor_Id === userID
-    );
-    setSupervisorsLogs(logsForSupervisor);
+      // Filter logs where the supervisor_Id matches the current userID
+      const logsForSupervisor = data.filter(
+        (log: ClinicalLog) => log.supervisor_Id === userID
+      );
+      setSupervisorsLogs(logsForSupervisor);
+    } catch (err) {
+      console.error("Unexpected error fetching logs:", err);
+    }
   };
 
-  const headers = ["Supervisees"];
+  // Fetch logs when the component mounts or when userID changes
+  useEffect(() => {
+    if (userID) {
+      fetchLogsForSupervisor(); // Fetch logs for the supervisor
+    }
+  }, [userID]);
 
+  // Table headers
+  const headers = ["Supervisees"];
   const uniqueNames = new Set();
 
+  // Map logs to the data format compatible with the Table
   const data = supervisorsLogs
     .map((log) => {
       const user = allUsers?.find((user) => user.id === log.user_Id);
       const userName = user ? user.name : "Unknown";
 
+      // Prevent duplicate supervisees
       if (!uniqueNames.has(userName)) {
         uniqueNames.add(userName);
         return {
@@ -65,14 +75,16 @@ const SupervisorUsers: React.FC = () => {
     })
     .filter((entry) => entry !== null);
 
+  // Handle row click in the table (to open the popup)
   const handleRowClick = (rowData: Record<string, React.ReactNode>) => {
     const superviseeId = rowData.id as string | undefined;
     if (superviseeId) {
       setSuperviseeID(superviseeId);
+      setIsPopupOpen(true);
     }
-    setIsPopupOpen(true);
   };
 
+  // Close the popup
   const closePopup = () => {
     setIsPopupOpen(false);
   };
