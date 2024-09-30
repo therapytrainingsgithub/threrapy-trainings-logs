@@ -59,7 +59,8 @@ const SupervisorRequest: React.FC = () => {
 
         if (response.ok) {
           toast.success("Status updated successfully!");
-          await refreshLogs(); // Fetch fresh logs after status update
+          refreshLogs(); // Fetch fresh logs after status update
+          fetchAllClinicalLogs()
         } else {
           toast.error(`Failed to update status: ${result.error}`);
         }
@@ -67,6 +68,28 @@ const SupervisorRequest: React.FC = () => {
         console.error("Error updating status:", error);
         toast.error(`Failed to update status: ${error}`);
       }
+    }
+  };
+
+  const fetchAllClinicalLogs = async () => {
+    try {
+      const response = await fetch(`/api/clinicalHours/fetchAll`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache, no-store, must-revalidate", // Ensure no caching
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch all clinical logs");
+      }
+
+      const data: ClinicalLog[] = await response.json();
+      // setAllLogs(data); // Store the fetched logs in state
+      console.log(data)
+    } catch (error) {
+      console.error("Error fetching all clinical logs:", error);
     }
   };
 
