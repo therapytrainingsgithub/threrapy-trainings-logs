@@ -60,7 +60,6 @@ const SupervisorRequest: React.FC = () => {
 
         if (response.ok) {
           toast.success("Status updated successfully!");
-          refreshLogs(); // Fetch fresh logs after status update
           fetchAllClinicalLogs();
         } else {
           toast.error(`Failed to update status: ${result.error}`);
@@ -83,8 +82,13 @@ const SupervisorRequest: React.FC = () => {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      // Log the returned data from Supabase to ensure it's fresh
-      console.log("Fetched clinical logs:", data);
+      const fetchLogs = async () => {
+        refreshLogs(); // Fetch the latest logs once
+        const logsForSupervisor = data.filter(
+          (log) => log.supervisor_Id === userID
+        );
+        setSupervisorsLogs(logsForSupervisor);
+      };
 
       return NextResponse.json(data, { status: 200 });
     } catch (err) {
