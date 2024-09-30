@@ -38,7 +38,7 @@ const SupervisorUsers: React.FC = () => {
 
   const uniqueNames = new Set();
 
-  const data = supervisorsLogs
+  const data = allClinicalLogs
     .map((log) => {
       const user = allUsers?.find((user) => user.id === log.user_Id);
       const userName = user ? user.name : "Unknown";
