@@ -21,7 +21,7 @@ const SupervisorUsers: React.FC = () => {
     undefined
   );
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const { allClinicalLogs } = useClinicalLogsContext();
+  const { allClinicalLogs, refreshLogs } = useClinicalLogsContext();
   const { allUsers } = useUserProfileContext();
   const { userID } = useUserContext();
   const [supervisorsLogs, setSupervisorsLogs] = useState<ClinicalLog[]>([]);
@@ -31,12 +31,20 @@ const SupervisorUsers: React.FC = () => {
       (log) => log.supervisor_Id === userID
     );
     setSupervisorsLogs(logsForSupervisor);
-    console.log(allClinicalLogs, supervisorsLogs)
+    console.log(allClinicalLogs, supervisorsLogs);
   }, [allClinicalLogs, userID]);
 
   useEffect(() => {
-    console.log(supervisorsLogs)
-  },[supervisorsLogs])
+    console.log(supervisorsLogs);
+  }, [supervisorsLogs]);
+
+  useEffect(() => {
+    refreshLogs();
+    const logsForSupervisor = allClinicalLogs.filter(
+      (log) => log.supervisor_Id === userID
+    );
+    setSupervisorsLogs(logsForSupervisor);
+  }, []);
 
   const headers = ["Supervisees"];
 

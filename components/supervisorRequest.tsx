@@ -35,6 +35,14 @@ const SupervisorRequest: React.FC = () => {
     setSupervisorsLogs(logsForSupervisor);
   }, [allClinicalLogs, userID]);
 
+  useEffect(() => {
+    refreshLogs();
+    const logsForSupervisor = allClinicalLogs.filter(
+      (log) => log.supervisor_Id === userID
+    );
+    setSupervisorsLogs(logsForSupervisor);
+  }, []);
+
   function getWeekDates(year: number, week: number) {
     const startDate = new Date(year, 0, 1 + (week - 1) * 7);
     const dayOfWeek = startDate.getDay();
