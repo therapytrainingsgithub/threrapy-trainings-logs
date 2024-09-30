@@ -44,8 +44,8 @@ const SupervisorRequest: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    console.log(allClinicalLogs)
-  },[refreshLogs])
+    console.log(allClinicalLogs);
+  }, [refreshLogs]);
 
   function getWeekDates(year: number, week: number) {
     const startDate = new Date(year, 0, 1 + (week - 1) * 7);
@@ -75,6 +75,7 @@ const SupervisorRequest: React.FC = () => {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
           },
           body: JSON.stringify({ status: status }),
         });
