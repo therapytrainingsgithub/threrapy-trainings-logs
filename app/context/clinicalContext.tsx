@@ -32,11 +32,11 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
   const { userID } = useUserContext();
   const [clinicalLogs, setLogs] = useState<ClinicalLog[]>([]);
   const [allClinicalLogs, setAllLogs] = useState<ClinicalLog[]>([]);
+  const [loading, setLoading] = useState(false); // Track loading state
 
   // Fetch logs specific to the current user
   const fetchClinicalLogs = async () => {
     if (!userID) return; // Ensure userID exists before making the request
-
     try {
       const response = await fetch(`/api/clinicalHours/fetch/${userID}`, {
         method: "GET",
@@ -71,10 +71,6 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       const data: ClinicalLog[] = await response.json();
-
-      // Log the data to confirm it's being fetched correctly
-      console.log("Fetched clinical logs:", data);
-
       setAllLogs(data); // Store the fetched logs in state
     } catch (error) {
       console.error("Error fetching all clinical logs:", error);
@@ -83,17 +79,19 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Function to refresh both user-specific and all logs
   const refreshLogs = () => {
-    fetchAllClinicalLogs();
-    fetchClinicalLogs(); // Fetch logs specific to the current user
+    setLoading(true); // Set loading before fetching
+    Promise.all([fetchClinicalLogs(), fetchAllClinicalLogs()]).finally(() =>
+      setLoading(false)
+    );
   };
 
   // Fetch logs when userID changes or component mounts
   useEffect(() => {
-    if (userID) {
+    if (userID && !loading) {
       fetchClinicalLogs(); // Fetch user-specific logs on mount or userID change
       fetchAllClinicalLogs(); // Fetch all logs on mount
     }
-  }, [userID]);
+  }, [userID, loading]); // Make sure not to refetch when loading
 
   return (
     <ClinicalLogsContext.Provider
