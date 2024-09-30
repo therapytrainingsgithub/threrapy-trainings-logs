@@ -34,11 +34,15 @@ const SupervisorUsers: React.FC = () => {
     console.log(allClinicalLogs, supervisorsLogs)
   }, [allClinicalLogs, userID]);
 
+  useEffect(() => {
+    console.log(supervisorsLogs)
+  },[supervisorsLogs])
+
   const headers = ["Supervisees"];
 
   const uniqueNames = new Set();
 
-  const data = allClinicalLogs
+  const data = supervisorsLogs
     .map((log) => {
       const user = allUsers?.find((user) => user.id === log.user_Id);
       const userName = user ? user.name : "Unknown";
