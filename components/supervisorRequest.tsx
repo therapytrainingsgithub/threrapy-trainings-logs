@@ -6,7 +6,6 @@ import { useUserContext } from "@/app/context/userContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { supabase } from "@/lib/supabase";
-import { NextResponse } from "next/server";
 
 interface ClinicalLog {
   id: number;
@@ -27,76 +26,60 @@ const SupervisorRequest: React.FC = () => {
   const [supervisorsLogs, setSupervisorsLogs] = useState<ClinicalLog[]>([]);
 
   // Function to capitalize the first letter of a string
-  function capitalizeFirstLetter(string: string) {
+  const capitalizeFirstLetter = (string: string) => {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-  }
+  };
 
-  // Fetch and filter logs for the supervisor when the component mounts or `userID` changes
-  useEffect(() => {
-    const fetchLogs = async () => {
-      refreshLogs(); // Fetch the latest logs once
-      const logsForSupervisor = allClinicalLogs.filter(
-        (log) => log.supervisor_Id === userID
+  // Fetch logs for the supervisor
+  const fetchLogsForSupervisor = async () => {
+    try {
+      const { data, error } = await supabase.from("clinical_Logs").select("*");
+
+      if (error) {
+        console.error("Error fetching logs:", error);
+        return;
+      }
+
+      // Filter logs where the supervisor_Id matches the current userID
+      const logsForSupervisor = data.filter(
+        (log: ClinicalLog) => log.supervisor_Id === userID
       );
       setSupervisorsLogs(logsForSupervisor);
-    };
-
-    if (userID) fetchLogs();
-  }, [userID, allClinicalLogs]);
-
-  // Handle status updates for clinical logs
-  const handleAction = async (id: number, status: string) => {
-    if (id) {
-      try {
-        const response = await fetch(`/api/clinicalHours/update/${id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          cache: "no-store", // Disable cache for the update request
-          body: JSON.stringify({ status: status }),
-        });
-        const result = await response.json();
-
-        if (response.ok) {
-          toast.success("Status updated successfully!");
-          fetchAllClinicalLogs();
-        } else {
-          toast.error(`Failed to update status: ${result.error}`);
-        }
-      } catch (error) {
-        console.error("Error updating status:", error);
-        toast.error(`Failed to update status: ${error}`);
-      }
+    } catch (err) {
+      console.error("Unexpected error fetching logs:", err);
     }
   };
 
-  const fetchAllClinicalLogs = async () => {
+  // Fetch logs when the component mounts or when userID changes
+  useEffect(() => {
+    if (userID) {
+      fetchLogsForSupervisor(); // Fetch logs for the supervisor
+    }
+  }, [userID]);
+
+  // Handle status updates for clinical logs
+  const handleAction = async (id: number, status: string) => {
+    if (!id) return;
+
     try {
-      const { data, error } = await supabase
-        .from("clinical_Logs")
-        .select("*");
+      const response = await fetch(`/api/clinicalHours/update/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
+      });
 
-      if (error) {
-        console.error("Error fetching session:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+      if (response.ok) {
+        toast.success("Status updated successfully!");
+        fetchLogsForSupervisor(); // Refresh logs after update
+      } else {
+        const result = await response.json();
+        toast.error(`Failed to update status: ${result.error}`);
       }
-
-      const fetchLogs = async () => {
-        refreshLogs(); // Fetch the latest logs once
-        const logsForSupervisor = data.filter(
-          (log) => log.supervisor_Id === userID
-        );
-        setSupervisorsLogs(logsForSupervisor);
-      };
-
-      return NextResponse.json(data, { status: 200 });
-    } catch (err) {
-      console.error("Unexpected error:", err);
-      return NextResponse.json(
-        { error: "Unexpected error occurred" },
-        { status: 500 }
-      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status.");
     }
   };
 
@@ -112,7 +95,7 @@ const SupervisorRequest: React.FC = () => {
     "Action",
   ];
 
-  // Map the supervisors logs into a format compatible with the table
+  // Map the supervisor's logs into a format compatible with the table
   const data = supervisorsLogs.map((log) => {
     const user = allUsers?.find((user) => user.id === log.user_Id);
     const [year, week] = log.week.split("-W");
