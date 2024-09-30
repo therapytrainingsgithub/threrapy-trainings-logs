@@ -27,10 +27,10 @@ const SupervisorUsers: React.FC = () => {
   const [supervisorsLogs, setSupervisorsLogs] = useState<ClinicalLog[]>([]);
 
   useEffect(() => {
-    refreshLogs(); 
+    refreshLogs();
+    refreshLocal()
   }, []);
 
-  // Filter logs for the current supervisor whenever logs or userID change
   useEffect(() => {
     const logsForSupervisor = allClinicalLogs.filter(
       (log) => log.supervisor_Id === userID
@@ -38,11 +38,17 @@ const SupervisorUsers: React.FC = () => {
     setSupervisorsLogs(logsForSupervisor);
   }, [allClinicalLogs, userID]);
 
+  const refreshLocal = () => {
+    const logsForSupervisor = allClinicalLogs.filter(
+      (log) => log.supervisor_Id === userID
+    );
+    setSupervisorsLogs(logsForSupervisor);
+  };
+
   const headers = ["Supervisees"];
 
   const uniqueNames = new Set();
 
-  // Map the logs to the corresponding supervisee names
   const data = supervisorsLogs
     .map((log) => {
       const user = allUsers?.find((user) => user.id === log.user_Id);

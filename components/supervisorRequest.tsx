@@ -36,8 +36,16 @@ const SupervisorRequest: React.FC = () => {
     setSupervisorsLogs(logsForSupervisor);
   }, [allClinicalLogs, userID]);
 
+  const refreshLocal = () => {
+    const logsForSupervisor = allClinicalLogs.filter(
+      (log) => log.supervisor_Id === userID
+    );
+    setSupervisorsLogs(logsForSupervisor);
+  };
+
   useEffect(() => {
     refreshLogs();
+    refreshLocal()
   }, []);
 
   function getWeekDates(year: number, week: number) {
