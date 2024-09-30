@@ -17,7 +17,7 @@ interface ClinicalLog {
 
 interface ClinicalLogsContextType {
   clinicalLogs: ClinicalLog[];
-  allClinicalLogs: ClinicalLog[]; // New state for all clinical logs
+  allClinicalLogs: ClinicalLog[];
   setLogs: React.Dispatch<React.SetStateAction<ClinicalLog[]>>;
   refreshLogs: () => void;
 }
@@ -31,16 +31,20 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const { userID } = useUserContext();
   const [clinicalLogs, setLogs] = useState<ClinicalLog[]>([]);
-  const [allClinicalLogs, setAllLogs] = useState<ClinicalLog[]>([]); // New state for all clinical logs
+  const [allClinicalLogs, setAllLogs] = useState<ClinicalLog[]>([]);
 
-  // Fetch logs specific to the user
+  // Fetch logs specific to the current user
   const fetchClinicalLogs = async () => {
-    if (!userID) {
-      return;
-    }
+    if (!userID) return; // Ensure userID exists before making the request
 
     try {
-      const response = await fetch(`/api/clinicalHours/fetch/${userID}`);
+      const response = await fetch(`/api/clinicalHours/fetch/${userID}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache, no-store, must-revalidate", // Prevent caching
+        },
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch clinical logs");
       }
@@ -51,10 +55,16 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // Fetch all logs
+  // Fetch all clinical logs (for admin or higher-level users)
   const fetchAllClinicalLogs = async () => {
     try {
-      const response = await fetch(`/api/clinicalHours/fetchAll`);
+      const response = await fetch(`/api/clinicalHours/fetchAll`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache, no-store, must-revalidate", // Prevent caching
+        },
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch all clinical logs");
       }
@@ -65,15 +75,18 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  // Function to refresh both user-specific and all logs
   const refreshLogs = () => {
-    console.log("refresh logs is working")
-    fetchClinicalLogs();
-    fetchAllClinicalLogs();
+    fetchClinicalLogs(); // Fetch logs specific to the current user
+    fetchAllClinicalLogs(); // Fetch all logs
   };
 
+  // Fetch logs when userID changes or component mounts
   useEffect(() => {
-    fetchClinicalLogs();
-    fetchAllClinicalLogs(); // Fetch all clinical logs on mount
+    if (userID) {
+      fetchClinicalLogs(); // Fetch user-specific logs on mount or userID change
+      fetchAllClinicalLogs(); // Fetch all logs on mount
+    }
   }, [userID]);
 
   return (
@@ -85,6 +98,7 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+// Hook to use the clinical logs context
 export const useClinicalLogsContext = () => {
   const context = useContext(ClinicalLogsContext);
   if (context === undefined) {

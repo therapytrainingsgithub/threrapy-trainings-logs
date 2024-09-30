@@ -75,8 +75,8 @@ const SupervisorRequest: React.FC = () => {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            "Cache-Control": "no-cache, no-store, must-revalidate",
           },
+          cache: "no-store",
           body: JSON.stringify({ status: status }),
         });
         const result = await response.json();
