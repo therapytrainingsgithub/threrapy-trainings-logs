@@ -5,7 +5,8 @@ import { useUserProfileContext } from "@/app/context/userProfileContext";
 import { useUserContext } from "@/app/context/userContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
+import { NextResponse } from "next/server";
 
 interface ClinicalLog {
   id: number;
@@ -60,7 +61,7 @@ const SupervisorRequest: React.FC = () => {
         if (response.ok) {
           toast.success("Status updated successfully!");
           refreshLogs(); // Fetch fresh logs after status update
-          fetchAllClinicalLogs()
+          fetchAllClinicalLogs();
         } else {
           toast.error(`Failed to update status: ${result.error}`);
         }
@@ -73,23 +74,25 @@ const SupervisorRequest: React.FC = () => {
 
   const fetchAllClinicalLogs = async () => {
     try {
-      const response = await fetch(`/api/clinicalHours/fetchAll`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-cache, no-store, must-revalidate", // Ensure no caching
-        },
-      });
+      const { data, error } = await supabaseAdmin
+        .from("clinical_Logs")
+        .select("*");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch all clinical logs");
+      if (error) {
+        console.error("Error fetching session:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      const data: ClinicalLog[] = await response.json();
-      // setAllLogs(data); // Store the fetched logs in state
-      console.log(data)
-    } catch (error) {
-      console.error("Error fetching all clinical logs:", error);
+      // Log the returned data from Supabase to ensure it's fresh
+      console.log("Fetched clinical logs:", data);
+
+      return NextResponse.json(data, { status: 200 });
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      return NextResponse.json(
+        { error: "Unexpected error occurred" },
+        { status: 500 }
+      );
     }
   };
 
