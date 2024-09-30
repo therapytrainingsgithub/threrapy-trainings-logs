@@ -5,6 +5,7 @@ import { useUserProfileContext } from "@/app/context/userProfileContext";
 import { useUserContext } from "@/app/context/userContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { supabase } from "@/lib/supabase";
 
 interface ClinicalLog {
   id: number;
@@ -19,8 +20,7 @@ interface ClinicalLog {
 }
 
 const SupervisorRequest: React.FC = () => {
-  const { allClinicalLogs, refreshLogs, clinicalLogs } =
-    useClinicalLogsContext();
+  const { allClinicalLogs, refreshLogs } = useClinicalLogsContext();
   const { allUsers } = useUserProfileContext();
   const { userID } = useUserContext();
   const [supervisorsLogs, setSupervisorsLogs] = useState<ClinicalLog[]>([]);
@@ -30,28 +30,18 @@ const SupervisorRequest: React.FC = () => {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   }
 
-  // Fetch clinical logs when component mounts or userID changes
+  // Fetch and filter logs for the supervisor when the component mounts or `userID` changes
   useEffect(() => {
     const fetchLogs = async () => {
-      refreshLogs(); // Fetch the latest logs once
+      await refreshLogs(); // Fetch the latest logs once
+      const logsForSupervisor = allClinicalLogs.filter(
+        (log) => log.supervisor_Id === userID
+      );
+      setSupervisorsLogs(logsForSupervisor);
     };
-    fetchLogs();
-  }, [userID]); // Fetch logs when the userID changes or component mounts
 
-  // Filter logs for the supervisor when `allClinicalLogs` or `userID` updates
-  useEffect(() => {
-    const logsForSupervisor = allClinicalLogs.filter(
-      (log) => log.supervisor_Id === userID
-    );
-    setSupervisorsLogs(logsForSupervisor);
-  }, [allClinicalLogs, userID]);
-
-  const refreshLocal = () => {
-    const logsForSupervisor = allClinicalLogs.filter(
-      (log) => log.supervisor_Id === userID
-    );
-    setSupervisorsLogs(logsForSupervisor);
-  };
+    if (userID) fetchLogs();
+  }, [userID, allClinicalLogs, refreshLogs]);
 
   // Handle status updates for clinical logs
   const handleAction = async (id: number, status: string) => {
@@ -69,10 +59,7 @@ const SupervisorRequest: React.FC = () => {
 
         if (response.ok) {
           toast.success("Status updated successfully!");
-          refreshLogs();
-          refreshLocal()
-          console.log(allClinicalLogs);
-          console.log(clinicalLogs);
+          await refreshLogs(); // Fetch fresh logs after status update
         } else {
           toast.error(`Failed to update status: ${result.error}`);
         }

@@ -62,14 +62,20 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Cache-Control": "no-cache, no-store, must-revalidate", // Ensure no caching
         },
       });
+
       if (!response.ok) {
         throw new Error("Failed to fetch all clinical logs");
       }
+
       const data: ClinicalLog[] = await response.json();
-      setAllLogs(data);
+
+      // Log the data to confirm it's being fetched correctly
+      console.log("Fetched clinical logs:", data);
+
+      setAllLogs(data); // Store the fetched logs in state
     } catch (error) {
       console.error("Error fetching all clinical logs:", error);
     }
