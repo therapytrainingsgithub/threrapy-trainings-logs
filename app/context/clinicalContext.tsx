@@ -77,8 +77,8 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Function to refresh both user-specific and all logs
   const refreshLogs = () => {
+    fetchAllClinicalLogs();
     fetchClinicalLogs(); // Fetch logs specific to the current user
-    fetchAllClinicalLogs(); // Fetch all logs
   };
 
   // Fetch logs when userID changes or component mounts
