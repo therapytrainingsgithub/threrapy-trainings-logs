@@ -31,6 +31,7 @@ const SupervisorUsers: React.FC = () => {
       (log) => log.supervisor_Id === userID
     );
     setSupervisorsLogs(logsForSupervisor);
+    console.log(allClinicalLogs, supervisorsLogs)
   }, [allClinicalLogs, userID]);
 
   const headers = ["Supervisees"];
