@@ -19,7 +19,8 @@ interface ClinicalLog {
 }
 
 const SupervisorRequest: React.FC = () => {
-  const { allClinicalLogs, refreshLogs } = useClinicalLogsContext();
+  const { allClinicalLogs, refreshLogs, clinicalLogs } =
+    useClinicalLogsContext();
   const { allUsers } = useUserProfileContext();
   const { userID } = useUserContext();
   const [supervisorsLogs, setSupervisorsLogs] = useState<ClinicalLog[]>([]);
@@ -32,7 +33,7 @@ const SupervisorRequest: React.FC = () => {
   // Fetch clinical logs when component mounts or userID changes
   useEffect(() => {
     const fetchLogs = async () => {
-      await refreshLogs(); // Fetch the latest logs once
+      refreshLogs(); // Fetch the latest logs once
     };
     fetchLogs();
   }, [userID]); // Fetch logs when the userID changes or component mounts
@@ -61,8 +62,9 @@ const SupervisorRequest: React.FC = () => {
 
         if (response.ok) {
           toast.success("Status updated successfully!");
-          refreshLogs(); // Refresh logs after status update
-          console.log(allClinicalLogs)
+          refreshLogs();
+          console.log(allClinicalLogs);
+          console.log(clinicalLogs);
         } else {
           toast.error(`Failed to update status: ${result.error}`);
         }
