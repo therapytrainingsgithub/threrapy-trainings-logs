@@ -1,9 +1,9 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async () => {
   try {
-    const { data, error } = await supabase.from("clinical_Logs").select("*");
+    const { data, error } = await supabaseAdmin.from("clinical_Logs").select("*");
 
     if (error) {
       console.error("Error fetching session:", error);
