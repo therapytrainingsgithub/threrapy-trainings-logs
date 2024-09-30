@@ -24,50 +24,28 @@ const SupervisorRequest: React.FC = () => {
   const { userID } = useUserContext();
   const [supervisorsLogs, setSupervisorsLogs] = useState<ClinicalLog[]>([]);
 
+  // Function to capitalize the first letter of a string
   function capitalizeFirstLetter(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   }
 
+  // Fetch clinical logs when component mounts or userID changes
   useEffect(() => {
-    const logsForSupervisor = allClinicalLogs.filter(
-      (log) => log.supervisor_Id === userID
-    );
-    setSupervisorsLogs(logsForSupervisor);
-  }, [allClinicalLogs, userID]);
-
-  useEffect(() => {
-    refreshLogs();
-    const logsForSupervisor = allClinicalLogs.filter(
-      (log) => log.supervisor_Id === userID
-    );
-    setSupervisorsLogs(logsForSupervisor);
-  }, []);
-
-  useEffect(() => {
-    console.log(allClinicalLogs);
-  }, [refreshLogs]);
-
-  function getWeekDates(year: number, week: number) {
-    const startDate = new Date(year, 0, 1 + (week - 1) * 7);
-    const dayOfWeek = startDate.getDay();
-    const start = new Date(
-      startDate.setDate(startDate.getDate() - dayOfWeek + 1)
-    );
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-
-    return {
-      start: start.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
-      end: end.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
+    const fetchLogs = async () => {
+      await refreshLogs(); // Fetch the latest logs once
     };
-  }
+    fetchLogs();
+  }, [userID]); // Fetch logs when the userID changes or component mounts
 
+  // Filter logs for the supervisor when `allClinicalLogs` or `userID` updates
+  useEffect(() => {
+    const logsForSupervisor = allClinicalLogs.filter(
+      (log) => log.supervisor_Id === userID
+    );
+    setSupervisorsLogs(logsForSupervisor);
+  }, [allClinicalLogs, userID]); // Filter logs based on the latest logs and userID
+
+  // Handle status updates for clinical logs
   const handleAction = async (id: number, status: string) => {
     if (id) {
       try {
@@ -76,14 +54,15 @@ const SupervisorRequest: React.FC = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          cache: "no-store",
+          cache: "no-store", // Disable cache for the update request
           body: JSON.stringify({ status: status }),
         });
         const result = await response.json();
 
         if (response.ok) {
           toast.success("Status updated successfully!");
-          refreshLogs();
+          refreshLogs(); // Refresh logs after status update
+          console.log(allClinicalLogs)
         } else {
           toast.error(`Failed to update status: ${result.error}`);
         }
@@ -94,6 +73,7 @@ const SupervisorRequest: React.FC = () => {
     }
   };
 
+  // Table headers
   const headers = [
     "Week Logged",
     "Date Logged",
@@ -105,6 +85,7 @@ const SupervisorRequest: React.FC = () => {
     "Action",
   ];
 
+  // Map the supervisors logs into a format compatible with the table
   const data = supervisorsLogs.map((log) => {
     const user = allUsers?.find((user) => user.id === log.user_Id);
     const [year, week] = log.week.split("-W");
@@ -168,3 +149,25 @@ const SupervisorRequest: React.FC = () => {
 };
 
 export default SupervisorRequest;
+
+// Helper function to get the start and end dates of a week
+function getWeekDates(year: number, week: number) {
+  const startDate = new Date(year, 0, 1 + (week - 1) * 7);
+  const dayOfWeek = startDate.getDay();
+  const start = new Date(
+    startDate.setDate(startDate.getDate() - dayOfWeek + 1)
+  );
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+
+  return {
+    start: start.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    }),
+    end: end.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    }),
+  };
+}

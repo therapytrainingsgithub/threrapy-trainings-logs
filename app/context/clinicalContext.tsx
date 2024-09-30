@@ -62,7 +62,7 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Cache-Control": "no-cache, no-store, must-revalidate", // Prevent caching
+          "Cache-Control": "no-cache, no-store, must-revalidate",
         },
       });
       if (!response.ok) {
