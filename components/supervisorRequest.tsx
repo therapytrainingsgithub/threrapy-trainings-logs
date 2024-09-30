@@ -33,7 +33,7 @@ const SupervisorRequest: React.FC = () => {
   // Fetch and filter logs for the supervisor when the component mounts or `userID` changes
   useEffect(() => {
     const fetchLogs = async () => {
-      await refreshLogs(); // Fetch the latest logs once
+      refreshLogs(); // Fetch the latest logs once
       const logsForSupervisor = allClinicalLogs.filter(
         (log) => log.supervisor_Id === userID
       );
@@ -41,7 +41,7 @@ const SupervisorRequest: React.FC = () => {
     };
 
     if (userID) fetchLogs();
-  }, [userID, allClinicalLogs, refreshLogs]);
+  }, [userID, allClinicalLogs]);
 
   // Handle status updates for clinical logs
   const handleAction = async (id: number, status: string) => {
