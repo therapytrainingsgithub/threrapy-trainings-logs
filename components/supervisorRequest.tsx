@@ -28,14 +28,7 @@ const SupervisorRequest: React.FC = () => {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   }
 
-  // Fetch and set supervisor logs based on current userID
-  useEffect(() => {
-    const logsForSupervisor = allClinicalLogs.filter(
-      (log) => log.supervisor_Id === userID
-    );
-    setSupervisorsLogs(logsForSupervisor);
-  }, [allClinicalLogs, userID]);
-
+  // Function to refresh the logs locally for the supervisor
   const refreshLocal = () => {
     const logsForSupervisor = allClinicalLogs.filter(
       (log) => log.supervisor_Id === userID
@@ -43,10 +36,14 @@ const SupervisorRequest: React.FC = () => {
     setSupervisorsLogs(logsForSupervisor);
   };
 
+  // Call refreshLogs on component mount
   useEffect(() => {
-    refreshLogs();
-    refreshLocal()
-  }, []);
+    const fetchLogs = async () => {
+      await refreshLogs(); // Refresh logs from the server
+      refreshLocal(); // Refresh local logs after fetching
+    };
+    fetchLogs();
+  }, [userID]); // Depend only on userID to avoid an infinite loop
 
   function getWeekDates(year: number, week: number) {
     const startDate = new Date(year, 0, 1 + (week - 1) * 7);
@@ -83,7 +80,8 @@ const SupervisorRequest: React.FC = () => {
 
         if (response.ok) {
           toast.success("Status updated successfully!");
-          refreshLogs();
+          await refreshLogs(); // Refresh logs after status change
+          refreshLocal(); // Update local logs
         } else {
           toast.error(`Failed to update status: ${result.error}`);
         }
