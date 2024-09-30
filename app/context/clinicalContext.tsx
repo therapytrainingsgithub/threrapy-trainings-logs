@@ -66,8 +66,9 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const refreshLogs = () => {
+    console.log("refresh logs is working")
     fetchClinicalLogs();
-    fetchAllClinicalLogs(); // Also refresh all clinical logs
+    fetchAllClinicalLogs();
   };
 
   useEffect(() => {

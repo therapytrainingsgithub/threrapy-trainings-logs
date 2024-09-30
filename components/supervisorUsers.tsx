@@ -26,10 +26,9 @@ const SupervisorUsers: React.FC = () => {
   const { userID } = useUserContext();
   const [supervisorsLogs, setSupervisorsLogs] = useState<ClinicalLog[]>([]);
 
-  // Fetch logs for the supervisor when the component mounts and when logs are refreshed
   useEffect(() => {
-    refreshLogs(); // Fetch latest logs when the component mounts
-  }, [refreshLogs]);
+    refreshLogs(); 
+  }, []);
 
   // Filter logs for the current supervisor whenever logs or userID change
   useEffect(() => {

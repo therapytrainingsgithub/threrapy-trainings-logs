@@ -36,10 +36,9 @@ const SupervisorRequest: React.FC = () => {
     setSupervisorsLogs(logsForSupervisor);
   }, [allClinicalLogs, userID]);
 
-  // Refresh logs on component mount
   useEffect(() => {
     refreshLogs();
-  }, [refreshLogs]);
+  }, []);
 
   function getWeekDates(year: number, week: number) {
     const startDate = new Date(year, 0, 1 + (week - 1) * 7);
@@ -76,7 +75,7 @@ const SupervisorRequest: React.FC = () => {
 
         if (response.ok) {
           toast.success("Status updated successfully!");
-          await refreshLogs(); // Make sure to refresh logs after updating status
+          refreshLogs();
         } else {
           toast.error(`Failed to update status: ${result.error}`);
         }
