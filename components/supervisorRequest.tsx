@@ -44,7 +44,14 @@ const SupervisorRequest: React.FC = () => {
       (log) => log.supervisor_Id === userID
     );
     setSupervisorsLogs(logsForSupervisor);
-  }, [allClinicalLogs, userID]); // Filter logs based on the latest logs and userID
+  }, [allClinicalLogs, userID]);
+
+  const refreshLocal = () => {
+    const logsForSupervisor = allClinicalLogs.filter(
+      (log) => log.supervisor_Id === userID
+    );
+    setSupervisorsLogs(logsForSupervisor);
+  };
 
   // Handle status updates for clinical logs
   const handleAction = async (id: number, status: string) => {
@@ -63,6 +70,7 @@ const SupervisorRequest: React.FC = () => {
         if (response.ok) {
           toast.success("Status updated successfully!");
           refreshLogs();
+          refreshLocal()
           console.log(allClinicalLogs);
           console.log(clinicalLogs);
         } else {
