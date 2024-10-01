@@ -113,22 +113,16 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
 
   // Update supervisor list dynamically when allLocalUsers or allUsers change
   useEffect(() => {
-    console.log("allUsers", allUsers);
-    console.log("allLocalUsers", allLocalUsers);
     if (allSupervisors.length > 0 && allLocalUsers.length > 0) {
       const filteredSupervisors = allSupervisors.filter(
         (supervisor: any) => supervisor.supervisee_Id === userID
       );
 
-      const supervisorsWithNames = filteredSupervisors
-        .map((supervisor) => {
-          const matchedUser = allUsers?.find(
-            (user) => user.id === supervisor.supervisor_id
-          );
-          return matchedUser ? { ...supervisor, name: matchedUser.name } : null;
-        })
-        .filter(Boolean); // Remove any null values
-      console.log("supervisorsWithNames", supervisorsWithNames);
+      const supervisorsWithNames = allLocalUsers.filter((user) =>
+        filteredSupervisors.some(
+          (supervisor) => supervisor.id === user.id
+        )
+      );
       setSupervisors(supervisorsWithNames);
     }
   }, [allLocalUsers, allUsers, allSupervisors, userID]);
