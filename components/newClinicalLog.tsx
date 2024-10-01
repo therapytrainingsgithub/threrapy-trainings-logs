@@ -56,7 +56,8 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   const { userID } = useUserContext();
   const { allUsers, refreshUsers } = useUserProfileContext();
   const [allLocalUsers, setAllLocalUsers] = useState<User[]>([]);
-  const [supervisors, setSupervisors] = useState<any>([]);
+  const [allSupervisors, setAllSupervisors] = useState<any[]>([]);
+  const [supervisors, setSupervisors] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
@@ -93,7 +94,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
         console.error("Error fetching supervisors:", error);
         toast.error("Failed to fetch supervisors.");
       } else {
-        setAllLocalUsers(data);
+        setAllSupervisors(data);
       }
     } catch (error) {
       console.error("Unexpected error:", error);
@@ -114,15 +115,15 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   useEffect(() => {
     console.log("allUsers", allUsers);
     console.log("allLocalUsers", allLocalUsers);
-    if (allLocalUsers.length > 0) {
-      const filteredSupervisors = allLocalUsers.filter(
-        (user: any) => user.supervisee_Id === userID
+    if (allSupervisors.length > 0 && allLocalUsers.length > 0) {
+      const filteredSupervisors = allSupervisors.filter(
+        (supervisor: any) => supervisor.supervisee_Id === userID
       );
 
       const supervisorsWithNames = filteredSupervisors
         .map((supervisor) => {
           const matchedUser = allUsers?.find(
-            (user) => user.id === supervisor.id
+            (user) => user.id === supervisor.supervisor_id
           );
           return matchedUser ? { ...supervisor, name: matchedUser.name } : null;
         })
@@ -130,7 +131,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
       console.log("supervisorsWithNames", supervisorsWithNames);
       setSupervisors(supervisorsWithNames);
     }
-  }, [allLocalUsers, allUsers, userID, refreshUsers]); // Ensure supervisors are updated when users or local users change
+  }, [allLocalUsers, allUsers, allSupervisors, userID]);
 
   const formik = useFormik({
     initialValues: {
@@ -176,7 +177,6 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
     },
   });
 
-  // Pre-populate form values when updating an existing log
   useEffect(() => {
     if (existingLog && supervisors.length > 0) {
       const supervisorData = supervisors.find(
