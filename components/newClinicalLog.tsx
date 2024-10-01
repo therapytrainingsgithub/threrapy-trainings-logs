@@ -287,6 +287,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
 
             {/* Button to add new supervisor */}
             <button
+              type="button"
               onClick={goToAddNew}
               className="px-6 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
             >

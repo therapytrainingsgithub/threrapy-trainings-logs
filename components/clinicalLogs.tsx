@@ -46,6 +46,14 @@ const ClinicalLogs: React.FC = () => {
   ];
 
   const data = clinicalLogs.map((log) => {
+    const userStatus =
+      log.status === "accept"
+        ? "Accepted"
+        : log.status === "decline"
+        ? "Declined"
+        : log.status === "pending"
+        ? "Pending"
+        : "";
     return {
       "Date Logged": new Date(log.date_logged).toLocaleDateString("en-US", {
         year: "numeric",
@@ -56,7 +64,7 @@ const ClinicalLogs: React.FC = () => {
       "Indirect Hours": log.indirect_Hours,
       Site: log.site ?? "N/A",
       Supervisor: log.supervisor ?? "N/A",
-      Status: capitalizeFirstLetter(log.status),
+      Status: userStatus,
       Action: (
         <Dropdown
           status={log.status}
@@ -109,9 +117,7 @@ const ClinicalLogs: React.FC = () => {
 
       {isPopupOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-          <div
-            className="p-5 rounded-md shadow-lg w-[90%] bg-white border"
-          >
+          <div className="p-5 rounded-md shadow-lg w-[90%] bg-white border">
             <h2 className="text-2xl mb-4">Log New Hours</h2>
             <NewClinicalLog
               closePopup={closePopup}
