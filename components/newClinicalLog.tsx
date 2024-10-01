@@ -5,6 +5,7 @@ import { useUserContext } from "@/app/context/userContext";
 import { useUserProfileContext } from "@/app/context/userProfileContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/navigation";
 
 interface NewClinicalLogProps {
   closePopup: () => void;
@@ -54,6 +55,11 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   const { userID } = useUserContext();
   const { allUsers } = useUserProfileContext();
   const [supervisors, setSupervisors] = useState<User[]>([]);
+  const router = useRouter();
+
+  const goToAddNew = () => {
+    router.push("/addNew");
+  };
 
   useEffect(() => {
     if (allUsers) {
@@ -258,6 +264,13 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
                 </div>
               ) : null}
             </div>
+
+            <button
+              onClick={goToAddNew}
+              className="px-6 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
+            >
+              Add Supervisor
+            </button>
 
             {/* Submit Button */}
             <div className="w-full sm:w-[50%]">
