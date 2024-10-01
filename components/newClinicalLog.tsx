@@ -54,9 +54,10 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   mode = "create",
 }) => {
   const { userID } = useUserContext();
-  const {allUsers} = useUserProfileContext()
+  const { allUsers } = useUserProfileContext();
   const [allLocalUsers, setAllLocalUsers] = useState<User[]>([]);
   const [supervisors, setSupervisors] = useState<any>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
   // Function to navigate to add new supervisor page
@@ -66,17 +67,17 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
 
   // Fetch all users from the database
   const fetchAllUsers = async () => {
+    setLoading(true);
     try {
       const { data, error } = await supabase.from("supervisee").select("*");
       if (error) {
-        console.error("Error fetching users:", error);
-        toast.error("Failed to fetch users");
-      } else {
-        setAllLocalUsers(data);
+        throw new Error("Failed to fetch users.");
       }
-    } catch (err) {
-      console.error("Unexpected error:", err);
-      toast.error("An unexpected error occurred while fetching users.");
+      setAllLocalUsers(data);
+    } catch {
+      toast.error("An unexpected error occurred.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -85,14 +86,13 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
     fetchAllUsers();
   }, []);
 
-  // Filter supervisors from the list of users
-  useEffect(() => {
+  // Function to filter and map supervisors
+  const filterSupervisors = () => {
     if (allLocalUsers.length > 0) {
       const filteredSupervisors = allLocalUsers.filter(
         (user: any) => user.supervisee_Id === userID
       );
 
-      // Map over the filtered supervisors to find the corresponding names from allUsers
       const supervisorsWithNames = filteredSupervisors
         .map((supervisor) => {
           const matchedUser = allUsers?.find(
@@ -101,10 +101,15 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
           return matchedUser ? { ...supervisor, name: matchedUser.name } : null;
         })
         .filter(Boolean); // Remove any `null` values
-        
+
       setSupervisors(supervisorsWithNames);
     }
-  }, [allUsers, userID]);
+  };
+
+  // Filter supervisors when allLocalUsers or allUsers change
+  useEffect(() => {
+    filterSupervisors();
+  }, [allLocalUsers, allUsers, userID]);
 
   const formik = useFormik({
     initialValues: {
@@ -118,6 +123,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
     },
     validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
+      setSubmitting(true);
       const url =
         mode === "create"
           ? "/api/clinicalHours/post"
@@ -133,25 +139,23 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
           body: JSON.stringify({ ...values, user_Id: userID }),
         });
 
-        const result = await response.json();
-
-        if (response.ok) {
-          toast.success("Data inserted successfully!");
-          refreshLogs();
-          closePopup();
-        } else {
-          toast.error("Unexpected error occurred. Please try again.");
-          console.error("Failed to save data:", result.error);
+        if (!response.ok) {
+          const result = await response.json();
+          throw new Error(result.error || "Failed to save data.");
         }
-      } catch (err) {
-        toast.error("Unexpected error occurred. Please try again.");
-        console.error("Unexpected error:", err);
+
+        toast.success("Data submitted successfully!");
+        refreshLogs();
+        closePopup();
+      } catch {
+        toast.error("An unexpected error occurred.");
       } finally {
-        setSubmitting(false); // Stop submitting state after request finishes
+        setSubmitting(false);
       }
     },
   });
 
+  // Pre-populate form values when updating an existing log
   useEffect(() => {
     if (existingLog && supervisors.length > 0) {
       const supervisorData = supervisors.find(
@@ -178,6 +182,9 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
             onSubmit={formik.handleSubmit}
             className="flex flex-col items-center space-y-6"
           >
+            {/* Loading Indicator */}
+            {loading && <p>Loading data...</p>}
+
             {/* Date Logged Field */}
             <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="date_logged">Date</label>
@@ -315,7 +322,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
               <button
                 type="submit"
                 className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d] w-full"
-                disabled={formik.isSubmitting}
+                disabled={formik.isSubmitting || loading}
               >
                 {formik.isSubmitting
                   ? "Submitting..."
