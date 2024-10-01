@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useUserContext } from "@/app/context/userContext";
-import { useUserProfileContext } from "@/app/context/userProfileContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 interface NewClinicalLogProps {
   closePopup: () => void;
@@ -53,24 +53,43 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   mode = "create",
 }) => {
   const { userID } = useUserContext();
-  const { allUsers } = useUserProfileContext();
+  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [supervisors, setSupervisors] = useState<User[]>([]);
   const router = useRouter();
 
+  // Function to navigate to add new supervisor page
   const goToAddNew = () => {
     router.push("/addNew");
   };
 
+  // Fetch all users from the database
+  const fetchAllUsers = async () => {
+    try {
+      const { data, error } = await supabase.from("user_profiles").select("*");
+      if (error) {
+        console.error("Error fetching users:", error);
+        toast.error("Failed to fetch users");
+      } else {
+        setAllUsers(data); // Set users to the state
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      toast.error("An unexpected error occurred while fetching users.");
+    }
+  };
+
+  // Effect to load users on component mount
   useEffect(() => {
-    if (allUsers) {
-      console.log("All users available:", allUsers); // Debugging: log all users
+    fetchAllUsers();
+  }, []);
+
+  // Filter supervisors from the list of users
+  useEffect(() => {
+    if (allUsers.length > 0) {
       const filteredSupervisors = allUsers.filter(
         (user) => user.role === "supervisor" && user.id !== userID
       );
-      console.log("Filtered supervisors:", filteredSupervisors); // Debugging: log filtered supervisors
       setSupervisors(filteredSupervisors);
-    } else {
-      console.warn("No users found in the context");
     }
   }, [allUsers, userID]);
 
@@ -120,6 +139,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
     },
   });
 
+  // Prepopulate form with existing data
   useEffect(() => {
     if (existingLog && supervisors.length > 0) {
       const supervisorData = supervisors.find(
@@ -265,6 +285,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
               ) : null}
             </div>
 
+            {/* Button to add new supervisor */}
             <button
               onClick={goToAddNew}
               className="px-6 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
