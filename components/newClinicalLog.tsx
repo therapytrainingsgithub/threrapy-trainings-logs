@@ -65,32 +65,55 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
     router.push("/addNew");
   };
 
-  // Fetch all users from the database
+  // Fetch all users from user_profiles table
   const fetchAllUsers = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from("supervisee").select("*");
+      const { data, error } = await supabase.from("user_profiles").select("*");
       if (error) {
-        throw new Error("Failed to fetch users.");
+        console.error("Error fetching users:", error);
+        toast.error("Failed to fetch users.");
+      } else {
+        setAllLocalUsers(data);
       }
-      setAllLocalUsers(data);
-    } catch {
-      toast.error("An unexpected error occurred.");
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast.error("An unexpected error occurred while fetching users.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Effect to load users on component mount
+  // Fetch all supervisees from the database
+  const fetchAllSupervisors = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.from("supervisee").select("*");
+      if (error) {
+        console.error("Error fetching supervisors:", error);
+        toast.error("Failed to fetch supervisors.");
+      } else {
+        setAllLocalUsers(data);
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast.error("An unexpected error occurred while fetching supervisors.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Effect to load users and supervisors on component mount
   useEffect(() => {
     refreshUsers(); // Refresh the user list from context
     fetchAllUsers();
+    fetchAllSupervisors();
   }, []);
 
   // Update supervisor list dynamically when allLocalUsers or allUsers change
   useEffect(() => {
-    console.log("allusers", allUsers)
-    console.log("alllocalusers", allLocalUsers)
+    console.log("allUsers", allUsers);
+    console.log("allLocalUsers", allLocalUsers);
     if (allLocalUsers.length > 0) {
       const filteredSupervisors = allLocalUsers.filter(
         (user: any) => user.supervisee_Id === userID
@@ -104,7 +127,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
           return matchedUser ? { ...supervisor, name: matchedUser.name } : null;
         })
         .filter(Boolean); // Remove any null values
-        console.log("supervisorswithnames", supervisorsWithNames)
+      console.log("supervisorsWithNames", supervisorsWithNames);
       setSupervisors(supervisorsWithNames);
     }
   }, [allLocalUsers, allUsers, userID, refreshUsers]); // Ensure supervisors are updated when users or local users change
