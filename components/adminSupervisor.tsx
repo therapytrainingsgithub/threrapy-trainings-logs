@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Table from "./table";
-import { supabase } from "@/lib/supabase"; // Ensure that your supabase client is properly imported
 import AdminRequest from "./adminRequest";
 
 interface User {
@@ -9,14 +8,27 @@ interface User {
   name: string;
 }
 
-const AdminSupervisor: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true); // Add a loading state
+interface AdminSupervisorProps {
+  supervisors: User[];
+  refreshData: () => void;
+}
+
+const AdminSupervisor: React.FC<AdminSupervisorProps> = ({
+  supervisors,
+  refreshData,
+}) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedUserData, setSelectedUserData] = useState<Record<
     string,
     React.ReactNode
   > | null>(null);
+
+  const headers = ["Name"];
+
+  const data = supervisors.map((user) => ({
+    Name: user.name,
+    id: user.id,
+  }));
 
   const openPopup = (rowData: Record<string, React.ReactNode>) => {
     setSelectedUserData(rowData);
@@ -28,44 +40,6 @@ const AdminSupervisor: React.FC = () => {
     setSelectedUserData(null);
   };
 
-  // Fetch supervisors directly from Supabase
-  const fetchSupervisors = async () => {
-    try {
-      const { data, error } = await supabase.from("user_profiles").select("*");
-
-      if (error) {
-        console.error("Error fetching supervisors:", error);
-        return;
-      }
-
-      // Filter supervisors based on role
-      const filteredUsers = data.filter(
-        (user: User) => user.role === "supervisor"
-      );
-      setUsers(filteredUsers);
-    } catch (err) {
-      console.error("Unexpected error:", err);
-    } finally {
-      setLoading(false); // Stop loading once the data is fetched
-    }
-  };
-
-  // Fetch the supervisors on component mount
-  useEffect(() => {
-    fetchSupervisors();
-  }, []);
-
-  const headers = ["Name"];
-
-  const data = users.map((user) => ({
-    Name: user.name,
-    id: user.id
-  }));
-
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
   return (
     <main className="space-y-5 p-4 md:p-10">
       <div className="flex justify-between items-center flex-wrap">
@@ -73,12 +47,7 @@ const AdminSupervisor: React.FC = () => {
       </div>
 
       <div className="bg-white p-4 md:p-10 rounded-md shadow-lg border overflow-x-auto">
-        <Table
-          headers={headers}
-          data={data}
-          onRowClick={openPopup}
-          editable={true}
-        />
+        <Table headers={headers} data={data} onRowClick={openPopup} editable />
       </div>
 
       {isPopupOpen && selectedUserData && (
@@ -87,9 +56,11 @@ const AdminSupervisor: React.FC = () => {
             <AdminRequest
               user={selectedUserData}
               closePopup={closePopup}
-              refresh={fetchSupervisors}
+              refreshUsers={refreshData}
+              refreshSupervisors={refreshData}
               role={"supervisor"}
             />
+
             <button
               onClick={closePopup}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"

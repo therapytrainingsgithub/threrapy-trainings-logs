@@ -13,6 +13,7 @@ import AdminUsers from "@/components/adminUsers";
 import AdminSupervisor from "@/components/adminSupervisor";
 import { ToastContainer } from "react-toastify";
 import { supabase } from "@/lib/supabase";
+import AdminDashboard from "@/components/adminDashboard";
 
 export default function Home() {
   return (
@@ -74,8 +75,7 @@ function HomeContent() {
         {userRole === "supervisor" && <SupervisorRequest />}
 
         {/* admin UI */}
-        {userRole === "admin" && <AdminUsers />}
-        {userRole === "admin" && <AdminSupervisor />}
+        {userRole === "admin" && <AdminDashboard />}
       </main>
     </>
   );
