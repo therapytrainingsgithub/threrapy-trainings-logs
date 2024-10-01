@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 export const PUT = async (req: NextRequest, { params }: { params: { id: string } }) => {
   const { id } = params;
   const { role } = await req.json();
+  console.log(role)
+  console.log(id)
 
   try {
     const { data, error } = await supabase

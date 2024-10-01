@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Table from "./table";
 import AdminRequest from "./adminRequest";
-import AddNewUser from "./addNewUser";
-import { supabase } from "@/lib/supabase"; // Ensure the Supabase client is imported
+import { supabase } from "@/lib/supabase";
 
 interface User {
   id: string;
@@ -62,14 +61,13 @@ const AdminUsers: React.FC = () => {
   };
 
   if (loading) {
-    return <p>Loading...</p>; // Show loading state while fetching users
+    return <p>Loading...</p>;
   }
 
   return (
     <main className="space-y-5 p-4 md:p-10">
       <div className="flex justify-between items-center flex-wrap">
         <h1 className="text-[24px] mb-4 md:mb-0">Users</h1>
-        <AddNewUser />
       </div>
 
       <div className="bg-white p-4 md:p-10 rounded-md shadow-lg border overflow-x-auto">
@@ -87,7 +85,8 @@ const AdminUsers: React.FC = () => {
             <AdminRequest
               user={selectedUserData}
               closePopup={closePopup}
-              refresh={fetchUsers} // Call fetchUsers to refresh the user list
+              refresh={fetchUsers} 
+              role = {"user"}
             />
             <button
               onClick={closePopup}

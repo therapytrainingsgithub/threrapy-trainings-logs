@@ -5,7 +5,7 @@ import { useUserProfileContext } from "@/app/context/userProfileContext";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null); 
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { userName, userRole } = useUserProfileContext();
 
@@ -27,7 +27,7 @@ const Header = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) 
+        !dropdownRef.current.contains(event.target as Node)
       ) {
         setDropdownOpen(false); // Close the dropdown
       }
@@ -55,6 +55,8 @@ const Header = () => {
       ? "Supervisor"
       : userRole === "supervisor"
       ? "Supervisee"
+      : userRole === "admin"
+      ? "User/Supervisor"
       : "";
 
   const goToHome = () => {

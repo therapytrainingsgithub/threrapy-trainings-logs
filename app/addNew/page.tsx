@@ -30,6 +30,8 @@ function AddNewContent() {
           ? "Supervisor"
           : userRole === "supervisor"
           ? "Supervisee"
+          : userRole === "admin"
+          ? "User/Supervisor"
           : ""
       );
       setLoading(false);
