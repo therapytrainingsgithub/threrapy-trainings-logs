@@ -57,10 +57,14 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
 
   useEffect(() => {
     if (allUsers) {
+      console.log("All users available:", allUsers); // Debugging: log all users
       const filteredSupervisors = allUsers.filter(
         (user) => user.role === "supervisor" && user.id !== userID
       );
+      console.log("Filtered supervisors:", filteredSupervisors); // Debugging: log filtered supervisors
       setSupervisors(filteredSupervisors);
+    } else {
+      console.warn("No users found in the context");
     }
   }, [allUsers, userID]);
 
@@ -111,7 +115,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   });
 
   useEffect(() => {
-    if (existingLog) {
+    if (existingLog && supervisors.length > 0) {
       const supervisorData = supervisors.find(
         (supervisor) => supervisor.name === existingLog.supervisor
       );
