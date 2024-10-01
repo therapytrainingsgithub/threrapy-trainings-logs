@@ -69,7 +69,7 @@ const NewUserForm = () => {
 
       const result = await response.json();
       console.log(result)
-      const createdUserId = result.user.id; // Get the ID of the newly created user
+      const createdUserId = result.user[0].id; // Get the ID of the newly created user
 
       toast.success("User created successfully!");
       console.log("User created successfully:", result.user);

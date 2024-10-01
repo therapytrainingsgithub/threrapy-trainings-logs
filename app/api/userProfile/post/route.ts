@@ -36,7 +36,8 @@ export async function POST(req: NextRequest) {
           email,
           role,
         },
-      ]);
+      ])
+      .select();
 
     if (profileError) {
       return NextResponse.json(
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    console.log(profileData);
 
     // Insert goals into the `goals` table for the newly created user
     const { data: goalsData, error: goalsError } = await supabaseAdmin
@@ -54,12 +56,13 @@ export async function POST(req: NextRequest) {
           clinical_Hours: 4000, // Default clinical hours
           supervision_Hours: 100, // Default supervision hours
         },
-      ]);
+      ])
+      .select();
 
     if (goalsError) {
       return NextResponse.json({ error: goalsError.message }, { status: 400 });
     }
-
+    console.log(goalsData);
     // Return a success response with the newly created user and goals data
     return NextResponse.json(
       {

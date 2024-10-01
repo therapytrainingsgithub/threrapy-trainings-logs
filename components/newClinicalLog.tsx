@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useUserProfileContext } from "@/app/context/userProfileContext";
 
 interface NewClinicalLogProps {
   closePopup: () => void;
@@ -53,8 +54,9 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   mode = "create",
 }) => {
   const { userID } = useUserContext();
-  const [allUsers, setAllUsers] = useState<User[]>([]);
-  const [supervisors, setSupervisors] = useState<User[]>([]);
+  const {allUsers} = useUserProfileContext()
+  const [allLocalUsers, setAllLocalUsers] = useState<User[]>([]);
+  const [supervisors, setSupervisors] = useState<any>([]);
   const router = useRouter();
 
   // Function to navigate to add new supervisor page
@@ -70,7 +72,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
         console.error("Error fetching users:", error);
         toast.error("Failed to fetch users");
       } else {
-        setAllUsers(data);
+        setAllLocalUsers(data);
       }
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -85,12 +87,22 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
 
   // Filter supervisors from the list of users
   useEffect(() => {
-    if (allUsers.length > 0) {
-      const filteredSupervisors = allUsers.filter(
-        (user: any) =>  user.supervisee_Id === userID
+    if (allLocalUsers.length > 0) {
+      const filteredSupervisors = allLocalUsers.filter(
+        (user: any) => user.supervisee_Id === userID
       );
-      console.log(filteredSupervisors)
-      setSupervisors(filteredSupervisors);
+
+      // Map over the filtered supervisors to find the corresponding names from allUsers
+      const supervisorsWithNames = filteredSupervisors
+        .map((supervisor) => {
+          const matchedUser = allUsers?.find(
+            (user) => user.id === supervisor.id
+          );
+          return matchedUser ? { ...supervisor, name: matchedUser.name } : null;
+        })
+        .filter(Boolean); // Remove any `null` values
+        
+      setSupervisors(supervisorsWithNames);
     }
   }, [allUsers, userID]);
 
@@ -143,7 +155,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   useEffect(() => {
     if (existingLog && supervisors.length > 0) {
       const supervisorData = supervisors.find(
-        (supervisor) => supervisor.name === existingLog.supervisor
+        (supervisor: any) => supervisor.name === existingLog.supervisor
       );
 
       formik.setValues({
@@ -250,34 +262,38 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
             {/* Supervisor Field */}
             <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="supervisor">Supervisor</label>
-              <select
-                name="supervisor"
-                value={
-                  formik.values.supervisor_Id
-                    ? `${formik.values.supervisor},${formik.values.supervisor_Id}`
-                    : ""
-                }
-                onChange={(e) => {
-                  const [supervisorName, supervisorId] =
-                    e.target.value.split(",");
-                  formik.setFieldValue("supervisor", supervisorName);
-                  formik.setFieldValue("supervisor_Id", supervisorId);
-                }}
-                onBlur={formik.handleBlur}
-                className="rounded-md px-4 py-2 w-full border-2"
-              >
-                <option value="" disabled hidden>
-                  Select Supervisor
-                </option>
-                {supervisors.map((supervisor) => (
-                  <option
-                    key={supervisor.id}
-                    value={`${supervisor.name},${supervisor.id}`}
-                  >
-                    {supervisor.name}
+              {supervisors.length > 0 ? (
+                <select
+                  name="supervisor"
+                  value={
+                    formik.values.supervisor_Id
+                      ? `${formik.values.supervisor},${formik.values.supervisor_Id}`
+                      : ""
+                  }
+                  onChange={(e) => {
+                    const [supervisorName, supervisorId] =
+                      e.target.value.split(",");
+                    formik.setFieldValue("supervisor", supervisorName);
+                    formik.setFieldValue("supervisor_Id", supervisorId);
+                  }}
+                  onBlur={formik.handleBlur}
+                  className="rounded-md px-4 py-2 w-full border-2"
+                >
+                  <option value="" disabled hidden>
+                    Select Supervisor
                   </option>
-                ))}
-              </select>
+                  {supervisors.map((supervisor: any) => (
+                    <option
+                      key={supervisor.id}
+                      value={`${supervisor.name},${supervisor.id}`}
+                    >
+                      {supervisor.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-red-500">No supervisor found</p>
+              )}
               {formik.touched.supervisor && formik.errors.supervisor ? (
                 <div className="text-red-500 text-sm">
                   {formik.errors.supervisor}
