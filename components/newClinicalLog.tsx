@@ -83,12 +83,12 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
 
   // Effect to load users on component mount
   useEffect(() => {
-    refreshUsers();
+    refreshUsers(); // Refresh the user list from context
     fetchAllUsers();
   }, []);
 
-  // Function to filter and map supervisors
-  const filterSupervisors = () => {
+  // Update supervisor list dynamically when allLocalUsers or allUsers change
+  useEffect(() => {
     if (allLocalUsers.length > 0) {
       const filteredSupervisors = allLocalUsers.filter(
         (user: any) => user.supervisee_Id === userID
@@ -101,16 +101,11 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
           );
           return matchedUser ? { ...supervisor, name: matchedUser.name } : null;
         })
-        .filter(Boolean); // Remove any `null` values
+        .filter(Boolean); // Remove any null values
 
       setSupervisors(supervisorsWithNames);
     }
-  };
-
-  // Filter supervisors when allLocalUsers or allUsers change
-  useEffect(() => {
-    filterSupervisors();
-  }, [allLocalUsers, allUsers, userID]);
+  }, [allLocalUsers, allUsers, userID]); // Ensure supervisors are updated when users or local users change
 
   const formik = useFormik({
     initialValues: {
