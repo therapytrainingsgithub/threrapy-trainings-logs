@@ -89,6 +89,8 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
 
   // Update supervisor list dynamically when allLocalUsers or allUsers change
   useEffect(() => {
+    console.log("allusers", allUsers)
+    console.log("alllocalusers", allLocalUsers)
     if (allLocalUsers.length > 0) {
       const filteredSupervisors = allLocalUsers.filter(
         (user: any) => user.supervisee_Id === userID
@@ -102,10 +104,10 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
           return matchedUser ? { ...supervisor, name: matchedUser.name } : null;
         })
         .filter(Boolean); // Remove any null values
-
+        console.log("supervisorswithnames", supervisorsWithNames)
       setSupervisors(supervisorsWithNames);
     }
-  }, [allLocalUsers, allUsers, userID]); // Ensure supervisors are updated when users or local users change
+  }, [allLocalUsers, allUsers, userID, refreshUsers]); // Ensure supervisors are updated when users or local users change
 
   const formik = useFormik({
     initialValues: {
