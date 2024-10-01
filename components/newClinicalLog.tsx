@@ -65,12 +65,12 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   // Fetch all users from the database
   const fetchAllUsers = async () => {
     try {
-      const { data, error } = await supabase.from("user_profiles").select("*");
+      const { data, error } = await supabase.from("supervisee").select("*");
       if (error) {
         console.error("Error fetching users:", error);
         toast.error("Failed to fetch users");
       } else {
-        setAllUsers(data); // Set users to the state
+        setAllUsers(data);
       }
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -87,8 +87,9 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   useEffect(() => {
     if (allUsers.length > 0) {
       const filteredSupervisors = allUsers.filter(
-        (user) => user.role === "supervisor" && user.id !== userID
+        (user: any) =>  user.supervisee_Id === userID
       );
+      console.log(filteredSupervisors)
       setSupervisors(filteredSupervisors);
     }
   }, [allUsers, userID]);
@@ -139,7 +140,6 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
     },
   });
 
-  // Prepopulate form with existing data
   useEffect(() => {
     if (existingLog && supervisors.length > 0) {
       const supervisorData = supervisors.find(
