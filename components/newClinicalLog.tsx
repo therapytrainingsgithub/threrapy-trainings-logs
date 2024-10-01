@@ -54,7 +54,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   mode = "create",
 }) => {
   const { userID } = useUserContext();
-  const { allUsers } = useUserProfileContext();
+  const { allUsers, refreshUsers } = useUserProfileContext();
   const [allLocalUsers, setAllLocalUsers] = useState<User[]>([]);
   const [supervisors, setSupervisors] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -83,6 +83,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
 
   // Effect to load users on component mount
   useEffect(() => {
+    refreshUsers();
     fetchAllUsers();
   }, []);
 
