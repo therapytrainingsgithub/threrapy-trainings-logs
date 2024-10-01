@@ -23,54 +23,47 @@ const SupervisorUsers: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const { allUsers } = useUserProfileContext();
   const { userID } = useUserContext();
-  const [supervisorsLogs, setSupervisorsLogs] = useState<ClinicalLog[]>([]);
+  const [supervisorsUsers, setSupervisorsUsers] = useState<ClinicalLog[]>([]);
 
   // Fetch logs for supervisor
-  const fetchLogsForSupervisor = async () => {
+  const fetchSupervisees = async () => {
     try {
-      const { data, error } = await supabase.from("clinical_Logs").select("*");
+      const { data, error } = await supabase.from("supervisee").select("*");
 
       if (error) {
         console.error("Error fetching logs:", error);
         return;
       }
 
-      // Filter logs where the supervisor_Id matches the current userID
-      const logsForSupervisor = data.filter(
-        (log: ClinicalLog) => log.supervisor_Id === userID
+      const supervisees = data.filter(
+        (supervisee: any) => supervisee.id === userID
       );
-      setSupervisorsLogs(logsForSupervisor);
+
+      setSupervisorsUsers(supervisees);
     } catch (err) {
       console.error("Unexpected error fetching logs:", err);
     }
   };
 
-  // Fetch logs when the component mounts or when userID changes
   useEffect(() => {
     if (userID) {
-      fetchLogsForSupervisor(); // Fetch logs for the supervisor
+      fetchSupervisees();
     }
   }, [userID]);
 
-  // Table headers
   const headers = ["Supervisees"];
-  const uniqueNames = new Set();
 
-  // Map logs to the data format compatible with the Table
-  const data = supervisorsLogs
-    .map((log) => {
-      const user = allUsers?.find((user) => user.id === log.user_Id);
+  const data = supervisorsUsers
+    .map((supervisee: any) => {
+      const user = allUsers?.find(
+        (user) => user.id === supervisee.supervisee_Id
+      );
       const userName = user ? user.name : "Unknown";
 
-      // Prevent duplicate supervisees
-      if (!uniqueNames.has(userName)) {
-        uniqueNames.add(userName);
-        return {
-          Supervisees: userName,
-          id: user?.id,
-        };
-      }
-      return null;
+      return {
+        Supervisees: userName,
+        id: supervisee.supervisee_Id,
+      };
     })
     .filter((entry) => entry !== null);
 

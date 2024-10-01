@@ -21,6 +21,10 @@ const Goals: React.FC = () => {
     setIsPopupOpen(false);
   };
 
+  const userClinicalLogs = clinicalLogs.filter(
+    (log) => log.status === "accept"
+  );
+
   // Access the first goal from the goals array if it exists
   const userGoal = goals && goals.length > 0 ? goals[0] : null;
 
@@ -29,12 +33,12 @@ const Goals: React.FC = () => {
   const supervisionGoal = userGoal ? userGoal.supervision_Hours : 100;
 
   // Aggregate all logged hours
-  const totalDirectClinicalHours = clinicalLogs.reduce(
+  const totalDirectClinicalHours = userClinicalLogs.reduce(
     (total, log) => total + parseFloat(log.direct_Hours || "0"),
     0
   );
 
-  const totalIndirectClinicalHours = clinicalLogs.reduce(
+  const totalIndirectClinicalHours = userClinicalLogs.reduce(
     (total, log) => total + parseFloat(log.indirect_Hours || "0"),
     0
   );

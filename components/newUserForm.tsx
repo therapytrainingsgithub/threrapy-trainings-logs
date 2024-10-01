@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useUserContext } from "@/app/context/userContext";
 
 const generatePassword = () => {
   const chars =
@@ -20,6 +21,7 @@ const generatePassword = () => {
 
 const NewUserForm = () => {
   const { refreshUsers, userRole } = useUserProfileContext();
+  const { userID } = useUserContext();
   const [generatedPassword, setGeneratedPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
   const [userData, setUserData] = useState<{
@@ -48,6 +50,7 @@ const NewUserForm = () => {
     setSubmitting(true);
 
     try {
+      // Create the user by making a POST request to the API
       const response = await fetch("/api/userProfile/post", {
         method: "POST",
         headers: {
@@ -65,9 +68,41 @@ const NewUserForm = () => {
       }
 
       const result = await response.json();
+      const createdUserId = result.user.id; // Get the ID of the newly created user
+
       toast.success("User created successfully!");
       console.log("User created successfully:", result.user);
-      refreshUsers();
+      refreshUsers(); // Refresh users list
+
+      // Role-based logic for adding to supervisee table
+      if (userRole === "user") {
+        // If current user is a 'user' creating a 'supervisor'
+        const { error } = await supabase
+          .from("supervisee")
+          .insert([{ id: createdUserId, supervisee_Id: userID }]) // Add current user as supervisee
+          .select();
+
+        if (error) {
+          console.error("Error adding to supervisee table:", error);
+          toast.error("Failed to add to supervisee table.");
+        } else {
+          toast.success("Supervisee added successfully.");
+        }
+      } else if (userRole === "supervisor") {
+        const { error } = await supabase
+          .from("supervisee")
+          .insert([{ id: userID, supervisee_Id: createdUserId }]) // Add new user as supervisee
+          .select();
+
+        if (error) {
+          console.error("Error adding to supervisee table:", error);
+          toast.error("Failed to add to supervisee table.");
+        } else {
+          toast.success("Supervisee added successfully.");
+        }
+      }
+
+      // Store user data for copying credentials
       setUserData({ ...values, role: values.role });
     } catch (error) {
       toast.error("An error occurred while creating the user.");

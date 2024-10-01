@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import PieChart from "./piechart";
 import { useClinicalLogsContext } from "@/app/context/clinicalContext";
@@ -46,7 +44,9 @@ const Overview: React.FC = () => {
     setIsPopupOpen(false);
   };
 
-  const userClinicalLogs = clinicalLogs.filter((log) => log.user_Id === userID);
+  const userClinicalLogs = clinicalLogs.filter(
+    (log) => log.user_Id === userID && log.status === "accept"
+  );
 
   const totalDirectHours = userClinicalLogs.reduce(
     (total, log) => total + (log.direct_Hours || 0),
