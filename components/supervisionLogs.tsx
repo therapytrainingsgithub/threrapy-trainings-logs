@@ -67,29 +67,7 @@ const SupervisionLogs: React.FC = () => {
     }
   };
 
-  function getWeekDates(year: number, week: number) {
-    const startDate = new Date(year, 0, 1 + (week - 1) * 7); // Start of the year + (week - 1) * 7 days
-    const dayOfWeek = startDate.getDay(); // Day of the week (0 = Sunday, 1 = Monday, etc.)
-    const start = new Date(
-      startDate.setDate(startDate.getDate() - dayOfWeek + 1)
-    ); // Adjust to Monday
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6); // End of the week (Sunday)
-
-    return {
-      start: start.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
-      end: end.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
-    };
-  }
-
   const headers = [
-    "Week Logged",
     "Date Logged",
     "Supervision Hours",
     "Indirect Hours",
@@ -99,12 +77,9 @@ const SupervisionLogs: React.FC = () => {
     "Action",
   ];
   const data = supervisionLogs.map((log) => {
-    const [year, week] = log.week.split("-W");
-    const { start, end } = getWeekDates(parseInt(year, 10), parseInt(week, 10));
 
     return {
-      "Week Logged": `${log.week}-${start} to ${end}`,
-      "Date Logged": new Date(log.created_at).toLocaleDateString("en-US", {
+      "Date Logged": new Date(log.date_logged).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -120,7 +95,7 @@ const SupervisionLogs: React.FC = () => {
               mode="update"
               existingLog={{
                 id: log.id,
-                week: log.week,
+                date_logged: log.date_logged,
                 supervision_Hours: log.supervision_Hours.toString(), // Convert to string
               }}
               closePopup={closePopup} // Pass closePopup function

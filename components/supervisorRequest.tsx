@@ -10,7 +10,6 @@ import { supabase } from "@/lib/supabase";
 interface ClinicalLog {
   id: number;
   created_at: string;
-  week: string;
   direct_Hours: string;
   indirect_Hours: string;
   site: string;
@@ -85,7 +84,6 @@ const SupervisorRequest: React.FC = () => {
 
   // Table headers
   const headers = [
-    "Week Logged",
     "Date Logged",
     "User",
     "Direct Hours",
@@ -98,12 +96,9 @@ const SupervisorRequest: React.FC = () => {
   // Map the supervisor's logs into a format compatible with the table
   const data = supervisorsLogs.map((log) => {
     const user = allUsers?.find((user) => user.id === log.user_Id);
-    const [year, week] = log.week.split("-W");
-    const { start, end } = getWeekDates(parseInt(year, 10), parseInt(week, 10));
 
     return {
       Log_Id: log.id,
-      "Week Logged": `${log.week}-${start} to ${end}`,
       "Date Logged": new Date(log.created_at).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
@@ -159,25 +154,3 @@ const SupervisorRequest: React.FC = () => {
 };
 
 export default SupervisorRequest;
-
-// Helper function to get the start and end dates of a week
-function getWeekDates(year: number, week: number) {
-  const startDate = new Date(year, 0, 1 + (week - 1) * 7);
-  const dayOfWeek = startDate.getDay();
-  const start = new Date(
-    startDate.setDate(startDate.getDate() - dayOfWeek + 1)
-  );
-  const end = new Date(start);
-  end.setDate(start.getDate() + 6);
-
-  return {
-    start: start.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    }),
-    end: end.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    }),
-  };
-}

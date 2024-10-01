@@ -8,7 +8,6 @@ import { supabase } from "@/lib/supabase";
 
 interface ClinicalLog {
   created_at: string;
-  week: string;
   direct_Hours: string;
   indirect_Hours: string;
   site: string;

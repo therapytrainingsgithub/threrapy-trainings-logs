@@ -35,29 +35,7 @@ const ClinicalLogs: React.FC = () => {
     }
   };
 
-  function getWeekDates(year: number, week: number) {
-    const startDate = new Date(year, 0, 1 + (week - 1) * 7); // Start of the year + (week - 1) * 7 days
-    const dayOfWeek = startDate.getDay(); // Day of the week (0 = Sunday, 1 = Monday, etc.)
-    const start = new Date(
-      startDate.setDate(startDate.getDate() - dayOfWeek + 1)
-    ); // Adjust to Monday
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6); // End of the week (Sunday)
-
-    return {
-      start: start.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
-      end: end.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
-    };
-  }
-
   const headers = [
-    "Week Logged",
     "Date Logged",
     "Direct Hours",
     "Indirect Hours",
@@ -68,12 +46,8 @@ const ClinicalLogs: React.FC = () => {
   ];
 
   const data = clinicalLogs.map((log) => {
-    const [year, week] = log.week.split("-W");
-    const { start, end } = getWeekDates(parseInt(year, 10), parseInt(week, 10));
-
     return {
-      "Week Logged": `${log.week}-${start} to ${end}`,
-      "Date Logged": new Date(log.created_at).toLocaleDateString("en-US", {
+      "Date Logged": new Date(log.date_logged).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -83,7 +57,6 @@ const ClinicalLogs: React.FC = () => {
       Site: log.site ?? "N/A",
       Supervisor: log.supervisor ?? "N/A",
       Status: capitalizeFirstLetter(log.status),
-      "Week Date Range": `${start} to ${end}`,
       Action: (
         <Dropdown
           status={log.status}
@@ -94,8 +67,8 @@ const ClinicalLogs: React.FC = () => {
               closePopup={closePopup}
               refreshLogs={refreshLogs}
               existingLog={{
+                date_logged: log.date_logged,
                 id: log.id,
-                week: log.week,
                 direct_Hours: log.direct_Hours,
                 indirect_Hours: log.indirect_Hours,
                 site: log.site,

@@ -11,7 +11,7 @@ interface NewSupervisionLogProps {
   mode: "update" | "create";
   existingLog?: {
     id: number;
-    week: string;
+    date_logged: string;
     supervision_Hours: string;
   };
 }
@@ -25,16 +25,18 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
   const { userID } = useUserContext();
 
   const initialValues = {
-    week: mode === "update" && existingLog ? existingLog.week : "",
+    date_logged:
+      mode === "update" && existingLog ? existingLog.date_logged : "",
     supervision_Hours:
       mode === "update" && existingLog ? existingLog.supervision_Hours : "",
   };
 
   const validationSchema = Yup.object({
-    week: Yup.string().required("Week is required"),
-    supervision_Hours: Yup.string()
-      .matches(/^\d+(\.\d{1,2})?$/, "Must be a valid number")
-      .required("Supervision hours are required"),
+    date_logged: Yup.string().required("Date is required"), // Changed to 'date_logged'
+    supervision_Hours: Yup.number()
+      .typeError("Must be a valid number")
+      .required("Supervision hours are required")
+      .positive("Supervision hours must be positive"),
   });
 
   const handleSubmit = async (values: typeof initialValues) => {
@@ -47,7 +49,7 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ ...values, user_Id: userID }),
+          body: JSON.stringify({ ...values, user_Id: userID }), // Submit the form data
         });
 
         const result = await response.json();
@@ -108,26 +110,28 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
           >
             {({ isSubmitting, isValid }) => (
               <Form className="flex flex-col items-center space-y-6">
+                {/* Date Logged Field */}
                 <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
-                  <label htmlFor="week">Week</label>
+                  <label htmlFor="date_logged">Date</label>
                   <Field
                     className="rounded-md px-4 py-2 w-full border-2"
-                    type="week"
-                    id="week"
-                    name="week"
+                    type="date" // Changed to 'date'
+                    id="date_logged"
+                    name="date_logged"
                   />
                   <ErrorMessage
-                    name="week"
+                    name="date_logged"
                     component="div"
                     className="text-red-500 text-sm"
                   />
                 </div>
 
+                {/* Supervision Hours Field */}
                 <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
                   <label htmlFor="supervision_Hours">Supervision Hours</label>
                   <Field
                     className="rounded-md px-4 py-2 w-full border-2"
-                    type="text"
+                    type="number" // Changed to 'number'
                     id="supervision_Hours"
                     name="supervision_Hours"
                     placeholder="Enter supervision hours"
@@ -139,13 +143,18 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
                   />
                 </div>
 
+                {/* Submit Button */}
                 <div className="w-full sm:w-[50%]">
                   <button
                     type="submit"
                     className="w-full px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
                     disabled={!isValid || isSubmitting}
                   >
-                    {mode === "update" ? "Update" : "Submit"}
+                    {isSubmitting
+                      ? "Submitting..."
+                      : mode === "update"
+                      ? "Update"
+                      : "Submit"}
                   </button>
                 </div>
               </Form>

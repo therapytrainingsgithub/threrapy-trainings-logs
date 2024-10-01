@@ -10,7 +10,6 @@ interface SupervisorUserDetailsProps {
 interface ClinicalLog {
   id: number;
   created_at: string;
-  week: string;
   user_Id: string;
   direct_Hours: string;
   indirect_Hours: string;
@@ -19,14 +18,15 @@ interface ClinicalLog {
   supervisor: string;
   status: string;
   supervisor_Id: string;
+  date_logged: any;
 }
 
 interface SupervisionLog {
   id: number;
-  week: string;
   created_at: string;
   supervision_Hours: number;
   user_Id: string;
+  date_logged: any;
 }
 
 interface Goal {
@@ -36,7 +36,6 @@ interface Goal {
   user_id: string;
   clinical_Hours: number;
   supervision_Hours: number;
-  week: string;
 }
 
 const SupervisorUserDetails: React.FC<SupervisorUserDetailsProps> = ({
@@ -47,28 +46,6 @@ const SupervisorUserDetails: React.FC<SupervisorUserDetailsProps> = ({
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [week, setWeek] = useState("all");
-
-  function getWeekDates(year: number, week: number) {
-    const startDate = new Date(year, 0, 1 + (week - 1) * 7);
-    const dayOfWeek = startDate.getDay();
-    const start = new Date(
-      startDate.setDate(startDate.getDate() - dayOfWeek + 1)
-    ); // Adjust to Monday
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-
-    return {
-      start: start.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
-      end: end.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
-    };
-  }
 
   const capitalizeFirstLetter = (string: string) =>
     string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
@@ -127,7 +104,6 @@ const SupervisorUserDetails: React.FC<SupervisorUserDetailsProps> = ({
   if (error) return <p>{error}</p>;
 
   const clinicalHeaders = [
-    "Week Logged",
     "Date Logged",
     "Direct Hours",
     "Indirect Hours",
@@ -136,12 +112,8 @@ const SupervisorUserDetails: React.FC<SupervisorUserDetailsProps> = ({
   ];
 
   const clinicalData = clinicalLogs.map((log) => {
-    const [year, week] = log.week.split("-W");
-    const { start, end } = getWeekDates(parseInt(year, 10), parseInt(week, 10));
-
     return {
-      "Week Logged": `${log.week}-${start} to ${end}`,
-      "Date Logged": new Date(log.created_at).toLocaleDateString("en-US", {
+      "Date Logged": new Date(log.date_logged).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -150,12 +122,10 @@ const SupervisorUserDetails: React.FC<SupervisorUserDetailsProps> = ({
       "Indirect Hours": log.indirect_Hours,
       Site: log.site ?? "N/A",
       Status: capitalizeFirstLetter(log.status),
-      "Week Date Range": `${start} to ${end}`,
     };
   });
 
   const supervisionHeaders = [
-    "Week Logged",
     "Date Logged",
     "Supervision Hours",
     "Indirect Hours",
@@ -163,12 +133,8 @@ const SupervisorUserDetails: React.FC<SupervisorUserDetailsProps> = ({
     "Status",
   ];
   const supervisionData = supervisionLogs.map((log) => {
-    const [year, week] = log.week.split("-W");
-    const { start, end } = getWeekDates(parseInt(year, 10), parseInt(week, 10));
-
     return {
-      "Week Logged": `${log.week}-${start} to ${end}`,
-      "Date Logged": new Date(log.created_at).toLocaleDateString("en-US", {
+      "Date Logged": new Date(log.date_logged).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -177,28 +143,17 @@ const SupervisorUserDetails: React.FC<SupervisorUserDetailsProps> = ({
     };
   });
 
-  const uniqueWeeks = Array.from(
-    new Set(clinicalLogs.map((log) => log.week))
-  ).sort((a, b) => a.localeCompare(b));
-
-  const filteredClinicalLogs =
-    week === "all"
-      ? clinicalLogs
-      : clinicalLogs.filter((log) => log.week === week);
-
-  const totalDirectHours = filteredClinicalLogs.reduce(
+  const totalDirectHours = clinicalLogs.reduce(
     (total, log) => total + parseFloat(log.direct_Hours),
     0
   );
-  const totalIndirectHours = filteredClinicalLogs.reduce(
+  const totalIndirectHours = clinicalLogs.reduce(
     (total, log) => total + parseFloat(log.indirect_Hours),
     0
   );
 
   const clinicalGoal =
-    week === "all"
-      ? goals.reduce((total, goal) => total + (goal.clinical_Hours || 0), 0)
-      : goals.find((goal) => goal.week === week)?.clinical_Hours || 0;
+      goals.reduce((total, goal) => total + (goal.clinical_Hours || 0), 0)
 
   const clinicalRemaining =
     clinicalGoal - (totalDirectHours + totalIndirectHours);
@@ -209,9 +164,8 @@ const SupervisorUserDetails: React.FC<SupervisorUserDetailsProps> = ({
   );
 
   const supervisionGoal =
-    week === "all"
-      ? goals.reduce((total, goal) => total + (goal.supervision_Hours || 0), 0)
-      : goals.find((goal) => goal.week === week)?.supervision_Hours || 0;
+  goals.reduce((total, goal) => total + (goal.supervision_Hours || 0), 0)
+
 
   const supervisionRemaining = supervisionGoal - totalSupervisionHours;
 

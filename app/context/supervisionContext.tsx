@@ -3,10 +3,10 @@ import { useUserContext } from "./userContext";
 
 interface SupervisionLog {
   id: number;
-  week: string;
   created_at: string;
   supervision_Hours: number;
-  user_Id : string
+  user_Id : string;
+  date_logged: any;
 }
 
 interface SupervisionLogsContextType {

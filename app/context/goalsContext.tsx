@@ -1,22 +1,19 @@
 // src/context/goalsContext.tsx
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import { useUserContext } from "./userContext"; // Import user context
+import { useUserContext } from "./userContext";
 
 interface Goal {
   id: number;
   created_at: string;
-  description: string;
   user_id: string;
   clinical_Hours: number;
   supervision_Hours: number;
-  week: string;
 }
 
 interface GoalsContextType {
   goals: Goal[];
   setGoals: React.Dispatch<React.SetStateAction<Goal[]>>;
-  refreshGoals: () => void; // Add refreshGoals function
+  refreshGoals: () => void;
 }
 
 const GoalsContext = createContext<GoalsContextType | undefined>(undefined);
@@ -24,9 +21,10 @@ const GoalsContext = createContext<GoalsContextType | undefined>(undefined);
 export const GoalsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { userID } = useUserContext();
+  const { userID } = useUserContext(); // Assume useUserContext provides user ID
   const [goals, setGoals] = useState<Goal[]>([]);
 
+  // Fetch goals from the API based on userID
   const fetchGoals = async () => {
     if (!userID) {
       return;
@@ -44,14 +42,15 @@ export const GoalsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // Add the refreshGoals function
+  // Add the refreshGoals function, which simply re-fetches goals
   const refreshGoals = () => {
-    fetchGoals();
+    fetchGoals(); // Call fetchGoals to refresh the goals state
   };
 
+  // Fetch goals when the component mounts and whenever the user ID changes
   useEffect(() => {
     fetchGoals();
-  }, [userID]); // Refetch if user changes
+  }, [userID]); // Re-fetch goals if the userID changes
 
   return (
     <GoalsContext.Provider value={{ goals, setGoals, refreshGoals }}>

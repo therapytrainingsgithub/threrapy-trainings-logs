@@ -8,25 +8,30 @@ import { useGoalsContext } from "@/app/context/goalsContext";
 
 interface NewGoalsProps {
   closePopup: () => void;
+  supervisionGoal: number;
+  clinicalGoal: number;
 }
 
-// Define validation schema with Yup
 const validationSchema = Yup.object({
-  week: Yup.string().required("Week is required"),
-  clinical_Hours: Yup.string().required("Clinical Hours Goal is required"),
-  supervision_Hours: Yup.string().required(
+  clinical_Hours: Yup.number().required("Clinical Hours Goal is required"),
+  supervision_Hours: Yup.number().required(
     "Supervision Hours Goal is required"
   ),
 });
 
-const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
+const UpdateGoal: React.FC<NewGoalsProps> = ({
+  closePopup,
+  supervisionGoal,
+  clinicalGoal,
+}) => {
   const { userID } = useUserContext();
   const { refreshGoals } = useGoalsContext();
 
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     try {
-      const response = await fetch("/api/goals/post", {
-        method: "POST",
+      // Call the API to update the goals
+      const response = await fetch(`/api/goals/update/${userID}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -37,10 +42,10 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
 
       if (response.ok) {
         refreshGoals();
-        toast.success("Data inserted successfully!"); // Success message
+        toast.success("Goals updated successfully!"); // Success message
         closePopup();
       } else {
-        toast.error(`Failed to insert data: ${result.error}`); // Error message
+        toast.error(`Failed to update goals: ${result.error}`); // Error message
       }
     } catch (err) {
       toast.error("Unexpected error occurred. Please try again."); // Error message
@@ -56,38 +61,20 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
         <div className="w-full">
           <Formik
             initialValues={{
-              week: "",
-              clinical_Hours: "",
-              supervision_Hours: "",
+              clinical_Hours: clinicalGoal,
+              supervision_Hours: supervisionGoal,
             }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
             {({ isSubmitting }) => (
               <Form className="flex flex-col items-center space-y-6">
-                {/* Week Input */}
-                <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
-                  <label htmlFor="week">Week</label>
-                  <Field
-                    as="input"
-                    type="week"
-                    id="week"
-                    name="week"
-                    className="rounded-md px-4 py-2 w-full border-2"
-                  />
-                  <ErrorMessage
-                    name="week"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
-
                 {/* Clinical Hours Goal Input */}
                 <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
                   <label htmlFor="clinical_Hours">Clinical Hours Goal</label>
                   <Field
                     as="input"
-                    type="text"
+                    type="number"
                     id="clinical_Hours"
                     name="clinical_Hours"
                     placeholder="Enter Clinical Goal"
@@ -107,7 +94,7 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
                   </label>
                   <Field
                     as="input"
-                    type="text"
+                    type="number"
                     id="supervision_Hours"
                     name="supervision_Hours"
                     placeholder="Enter Supervision Goal"
@@ -126,7 +113,7 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
                     disabled={isSubmitting}
                     className="w-full px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
                   >
-                    {isSubmitting ? "Submitting..." : "Submit"}
+                    {isSubmitting ? "Updating..." : "Update"}
                   </button>
                 </div>
               </Form>
@@ -138,4 +125,4 @@ const NewGoal: React.FC<NewGoalsProps> = ({ closePopup }) => {
   );
 };
 
-export default NewGoal;
+export default UpdateGoal;

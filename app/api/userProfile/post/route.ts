@@ -8,15 +8,14 @@ export async function POST(req: NextRequest) {
     // Parse the request body to get user details
     const { email, password, name, role } = await req.json();
 
-    console.log("Request data:", { email, password, name, role }); // To check if the request data is coming through correctly
-
     // Use Supabase Admin API to create the user without logging them in
-    const { data, error: userError } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true, 
-      user_metadata: { name, role }, // Optional user metadata
-    });
+    const { data, error: userError } =
+      await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { name, role }, // Optional user metadata
+      });
 
     if (userError || !data?.user?.id) {
       return NextResponse.json(
@@ -46,15 +45,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Return a success response with the newly created user data
+    // Insert goals into the `goals` table for the newly created user
+    const { data: goalsData, error: goalsError } = await supabaseAdmin
+      .from("goals")
+      .insert([
+        {
+          user_Id: userId, // Link the goal to the newly created user
+          clinical_Hours: 4000, // Default clinical hours
+          supervision_Hours: 100, // Default supervision hours
+        },
+      ]);
+
+    if (goalsError) {
+      return NextResponse.json({ error: goalsError.message }, { status: 400 });
+    }
+
+    // Return a success response with the newly created user and goals data
     return NextResponse.json(
-      { message: "User created successfully", user: profileData },
+      {
+        message: "User and goals created successfully",
+        user: profileData,
+        goals: goalsData,
+      },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error creating user:", error);
+    console.error("Error creating user and goals:", error);
     return NextResponse.json(
-      { error: "An error occurred while creating the user" },
+      { error: "An error occurred while creating the user and goals" },
       { status: 500 }
     );
   }

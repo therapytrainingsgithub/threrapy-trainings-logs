@@ -4,15 +4,15 @@ import { useUserContext } from "./userContext";
 interface ClinicalLog {
   id: number;
   created_at: string;
-  week: string;
   user_Id: string;
-  direct_Hours: string;
-  indirect_Hours: string;
-  supervision_Hours: string;
+  direct_Hours: any;
+  indirect_Hours: any;
+  supervision_Hours: any;
   site: string;
   supervisor: string;
   status: string;
   supervisor_Id: string;
+  date_logged: any
 }
 
 interface ClinicalLogsContextType {

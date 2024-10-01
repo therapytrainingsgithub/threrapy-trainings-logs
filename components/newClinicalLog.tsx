@@ -11,7 +11,7 @@ interface NewClinicalLogProps {
   refreshLogs: () => void;
   existingLog?: {
     id: string | number;
-    week: string;
+    date_logged: string;
     direct_Hours: string;
     indirect_Hours: string;
     site: string;
@@ -29,7 +29,7 @@ interface User {
 }
 
 const validationSchema = Yup.object({
-  week: Yup.string().required("Week is required"),
+  date_logged: Yup.string().required("Date is required"),
   direct_Hours: Yup.number()
     .typeError("Direct Hours must be a number")
     .required("Direct Hours is required")
@@ -66,7 +66,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
 
   const formik = useFormik({
     initialValues: {
-      week: existingLog?.week || "",
+      date_logged: existingLog?.date_logged || "",
       direct_Hours: existingLog?.direct_Hours || "",
       indirect_Hours: existingLog?.indirect_Hours || "",
       site: existingLog?.site || "",
@@ -75,7 +75,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
       status: existingLog?.status || "pending",
     },
     validationSchema,
-    onSubmit: async (values) => {
+    onSubmit: async (values, { setSubmitting }) => {
       const url =
         mode === "create"
           ? "/api/clinicalHours/post"
@@ -95,7 +95,6 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
 
         if (response.ok) {
           toast.success("Data inserted successfully!");
-          console.log("Data saved successfully:", result);
           refreshLogs();
           closePopup();
         } else {
@@ -105,6 +104,8 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
       } catch (err) {
         toast.error("Unexpected error occurred. Please try again.");
         console.error("Unexpected error:", err);
+      } finally {
+        setSubmitting(false); // Stop submitting state after request finishes
       }
     },
   });
@@ -116,7 +117,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
       );
 
       formik.setValues({
-        week: existingLog.week,
+        date_logged: existingLog.date_logged,
         direct_Hours: existingLog.direct_Hours,
         indirect_Hours: existingLog.indirect_Hours,
         site: existingLog.site,
@@ -135,28 +136,32 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
             onSubmit={formik.handleSubmit}
             className="flex flex-col items-center space-y-6"
           >
+            {/* Date Logged Field */}
             <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
-              <label htmlFor="week">Week</label>
+              <label htmlFor="date_logged">Date</label>
               <input
                 className="rounded-md px-4 py-2 w-full border-2"
-                type="week"
-                id="week"
-                name="week"
-                value={formik.values.week}
+                type="date"
+                id="date_logged"
+                name="date_logged"
+                value={formik.values.date_logged}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 required
               />
-              {formik.touched.week && formik.errors.week ? (
-                <div className="text-red-500 text-sm">{formik.errors.week}</div>
+              {formik.touched.date_logged && formik.errors.date_logged ? (
+                <div className="text-red-500 text-sm">
+                  {formik.errors.date_logged}
+                </div>
               ) : null}
             </div>
 
+            {/* Direct Hours Field */}
             <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="direct_Hours">Direct Hours</label>
               <input
                 className="rounded-md px-4 py-2 w-full border-2"
-                type="text"
+                type="number"
                 id="direct_Hours"
                 name="direct_Hours"
                 placeholder="Enter Direct hours"
@@ -172,11 +177,12 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
               ) : null}
             </div>
 
+            {/* Indirect Hours Field */}
             <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="indirect_Hours">Indirect Hours</label>
               <input
                 className="rounded-md px-4 py-2 w-full border-2"
-                type="text"
+                type="number"
                 id="indirect_Hours"
                 name="indirect_Hours"
                 placeholder="Enter Indirect hours"
@@ -192,6 +198,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
               ) : null}
             </div>
 
+            {/* Site Field */}
             <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="site">Site</label>
               <input
@@ -210,6 +217,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
               ) : null}
             </div>
 
+            {/* Supervisor Field */}
             <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
               <label htmlFor="supervisor">Supervisor</label>
               <select
@@ -247,12 +255,18 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
               ) : null}
             </div>
 
+            {/* Submit Button */}
             <div className="w-full sm:w-[50%]">
               <button
                 type="submit"
                 className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d] w-full"
+                disabled={formik.isSubmitting}
               >
-                {mode === "update" ? "Update" : "Submit"}
+                {formik.isSubmitting
+                  ? "Submitting..."
+                  : mode === "update"
+                  ? "Update"
+                  : "Submit"}
               </button>
             </div>
           </form>
