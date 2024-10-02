@@ -32,7 +32,7 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
   };
 
   const validationSchema = Yup.object({
-    date_logged: Yup.string().required("Date is required"), // Changed to 'date_logged'
+    date_logged: Yup.string().required("Date is required"),
     supervision_Hours: Yup.number()
       .typeError("Must be a valid number")
       .required("Supervision hours are required")
@@ -49,7 +49,7 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ ...values, user_Id: userID }), // Submit the form data
+          body: JSON.stringify({ ...values, user_Id: userID }),
         });
 
         const result = await response.json();
@@ -91,7 +91,7 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
 
       const result = await response.json();
       console.log("Log updated successfully:", result);
-      refreshLogs(); // Refresh the logs after updating
+      refreshLogs();
       closePopup();
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -115,7 +115,7 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
                   <label htmlFor="date_logged">Date</label>
                   <Field
                     className="rounded-md px-4 py-2 w-full border-2"
-                    type="date" // Changed to 'date'
+                    type="date"
                     id="date_logged"
                     name="date_logged"
                   />
@@ -131,7 +131,7 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
                   <label htmlFor="supervision_Hours">Supervision Hours</label>
                   <Field
                     className="rounded-md px-4 py-2 w-full border-2"
-                    type="number" // Changed to 'number'
+                    type="number" 
                     id="supervision_Hours"
                     name="supervision_Hours"
                     placeholder="Enter supervision hours"

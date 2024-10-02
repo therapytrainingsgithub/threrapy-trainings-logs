@@ -4,9 +4,6 @@ import * as Yup from "yup";
 import { useUserContext } from "@/app/context/userContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
-import { useUserProfileContext } from "@/app/context/userProfileContext";
 
 interface NewClinicalLogProps {
   closePopup: () => void;
@@ -17,9 +14,6 @@ interface NewClinicalLogProps {
     direct_Hours: string;
     indirect_Hours: string;
     site: string;
-    supervisor: string;
-    supervisor_Id?: string;
-    status: string;
   };
   mode?: "create" | "update";
 }
@@ -43,8 +37,6 @@ const validationSchema = Yup.object({
     .positive("Indirect Hours must be positive")
     .integer("Indirect Hours must be an integer"),
   site: Yup.string().required("Site is required"),
-  supervisor: Yup.string().required("Supervisor is required"),
-  supervisor_Id: Yup.string().required("Supervisor ID is required"),
 });
 
 const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
@@ -54,78 +46,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   mode = "create",
 }) => {
   const { userID } = useUserContext();
-  const { allUsers, refreshUsers } = useUserProfileContext();
-  const [allLocalUsers, setAllLocalUsers] = useState<User[]>([]);
-  const [allSupervisors, setAllSupervisors] = useState<any[]>([]);
-  const [supervisors, setSupervisors] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const router = useRouter();
-
-  // Function to navigate to add new supervisor page
-  const goToAddNew = () => {
-    router.push("/addNew");
-  };
-
-  // Fetch all users from user_profiles table
-  const fetchAllUsers = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.from("user_profiles").select("*");
-      if (error) {
-        console.error("Error fetching users:", error);
-        toast.error("Failed to fetch users.");
-      } else {
-        setAllLocalUsers(data);
-      }
-    } catch (error) {
-      console.error("Unexpected error:", error);
-      toast.error("An unexpected error occurred while fetching users.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch all supervisees from the database
-  const fetchAllSupervisors = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.from("supervisee").select("*");
-      if (error) {
-        console.error("Error fetching supervisors:", error);
-        toast.error("Failed to fetch supervisors.");
-      } else {
-        setAllSupervisors(data);
-      }
-    } catch (error) {
-      console.error("Unexpected error:", error);
-      toast.error("An unexpected error occurred while fetching supervisors.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Effect to load users and supervisors on component mount
-  useEffect(() => {
-    refreshUsers(); // Refresh the user list from context
-    fetchAllUsers();
-    fetchAllSupervisors();
-  }, []);
-
-  // Update supervisor list dynamically when allLocalUsers or allUsers change
-  useEffect(() => {
-    if (allSupervisors.length > 0 && allLocalUsers.length > 0) {
-      const filteredSupervisors = allSupervisors.filter(
-        (supervisor: any) => supervisor.supervisee_Id === userID
-      );
-
-      const supervisorsWithNames = allLocalUsers.filter((user) =>
-        filteredSupervisors.some(
-          (supervisor) => supervisor.id === user.id
-        )
-      );
-      setSupervisors(supervisorsWithNames);
-    }
-  }, [allLocalUsers, allUsers, allSupervisors, userID]);
 
   const formik = useFormik({
     initialValues: {
@@ -133,9 +54,6 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
       direct_Hours: existingLog?.direct_Hours || "",
       indirect_Hours: existingLog?.indirect_Hours || "",
       site: existingLog?.site || "",
-      supervisor: existingLog?.supervisor || "",
-      supervisor_Id: existingLog?.supervisor_Id || "",
-      status: existingLog?.status || "pending",
     },
     validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
@@ -143,7 +61,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
       const url =
         mode === "create"
           ? "/api/clinicalHours/post"
-          : `/api/clinicalHours/updateAll/${existingLog?.id}`;
+          : `/api/clinicalHours/update/${existingLog?.id}`;
       const method = mode === "create" ? "POST" : "PUT";
 
       try {
@@ -170,24 +88,6 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
       }
     },
   });
-
-  useEffect(() => {
-    if (existingLog && supervisors.length > 0) {
-      const supervisorData = supervisors.find(
-        (supervisor: any) => supervisor.name === existingLog.supervisor
-      );
-
-      formik.setValues({
-        date_logged: existingLog.date_logged,
-        direct_Hours: existingLog.direct_Hours,
-        indirect_Hours: existingLog.indirect_Hours,
-        site: existingLog.site,
-        supervisor: existingLog.supervisor,
-        supervisor_Id: supervisorData?.id || existingLog.supervisor_Id || "",
-        status: existingLog.status,
-      });
-    }
-  }, [existingLog, supervisors]);
 
   return (
     <main className="py-5 px-4 sm:px-10 space-y-6 sm:space-y-10">
@@ -280,57 +180,6 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
                 <div className="text-red-500 text-sm">{formik.errors.site}</div>
               ) : null}
             </div>
-
-            {/* Supervisor Field */}
-            <div className="flex flex-col space-y-1 w-full sm:w-[50%]">
-              <label htmlFor="supervisor">Supervisor</label>
-              {supervisors.length > 0 ? (
-                <select
-                  name="supervisor"
-                  value={
-                    formik.values.supervisor_Id
-                      ? `${formik.values.supervisor},${formik.values.supervisor_Id}`
-                      : ""
-                  }
-                  onChange={(e) => {
-                    const [supervisorName, supervisorId] =
-                      e.target.value.split(",");
-                    formik.setFieldValue("supervisor", supervisorName);
-                    formik.setFieldValue("supervisor_Id", supervisorId);
-                  }}
-                  onBlur={formik.handleBlur}
-                  className="rounded-md px-4 py-2 w-full border-2"
-                >
-                  <option value="" disabled hidden>
-                    Select Supervisor
-                  </option>
-                  {supervisors.map((supervisor: any) => (
-                    <option
-                      key={supervisor.id}
-                      value={`${supervisor.name},${supervisor.id}`}
-                    >
-                      {supervisor.name}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <p className="text-red-500">No supervisor found</p>
-              )}
-              {formik.touched.supervisor && formik.errors.supervisor ? (
-                <div className="text-red-500 text-sm">
-                  {formik.errors.supervisor}
-                </div>
-              ) : null}
-            </div>
-
-            {/* Button to add new supervisor */}
-            <button
-              type="button"
-              onClick={goToAddNew}
-              className="px-6 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
-            >
-              Add Supervisor
-            </button>
 
             {/* Submit Button */}
             <div className="w-full sm:w-[50%]">

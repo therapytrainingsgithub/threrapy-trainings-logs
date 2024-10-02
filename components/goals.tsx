@@ -7,8 +7,6 @@ import UpdateGoal from "./updateGoal";
 
 const Goals: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-
-  // Use the context hooks to access goals and logs
   const { goals } = useGoalsContext();
   const { clinicalLogs } = useClinicalLogsContext();
   const { supervisionLogs } = useSupervisionLogsContext();
@@ -21,24 +19,17 @@ const Goals: React.FC = () => {
     setIsPopupOpen(false);
   };
 
-  const userClinicalLogs = clinicalLogs.filter(
-    (log) => log.status === "accept"
-  );
-
-  // Access the first goal from the goals array if it exists
   const userGoal = goals && goals.length > 0 ? goals[0] : null;
 
-  // Default to 4000 clinical hours and 100 supervision hours if no goal is set
   const clinicalGoal = userGoal ? userGoal.clinical_Hours : 4000;
   const supervisionGoal = userGoal ? userGoal.supervision_Hours : 100;
 
-  // Aggregate all logged hours
-  const totalDirectClinicalHours = userClinicalLogs.reduce(
+  const totalDirectClinicalHours = clinicalLogs.reduce(
     (total, log) => total + parseFloat(log.direct_Hours || "0"),
     0
   );
 
-  const totalIndirectClinicalHours = userClinicalLogs.reduce(
+  const totalIndirectClinicalHours = clinicalLogs.reduce(
     (total, log) => total + parseFloat(log.indirect_Hours || "0"),
     0
   );
@@ -48,7 +39,6 @@ const Goals: React.FC = () => {
     0
   );
 
-  // Data for Clinical Hours Table
   const dataClinicalHours = [
     {
       "Clinical Goal": clinicalGoal,
@@ -59,7 +49,6 @@ const Goals: React.FC = () => {
     },
   ];
 
-  // Data for Supervision Hours Table
   const dataSupervisionHours = [
     {
       "Supervision Goal": supervisionGoal,

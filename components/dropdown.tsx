@@ -1,16 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 
 interface DropdownProps {
-  status?: string;
   id?: number;
   deleteLog?: (id: number) => void;
   updateLog?: (id: number) => void;
-  PopupContent?: React.FC<{ closePopup: () => void }>; // Ensure PopupContent is a React component
+  PopupContent?: React.FC<{ closePopup: () => void }>;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
   id,
-  status,
   deleteLog,
   updateLog,
   PopupContent,
@@ -49,7 +47,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     if (updateLog && typeof id === "number") {
       updateLog(id);
     }
-    setIsPopupOpen(true); // Open popup when update button is clicked
+    setIsPopupOpen(true);
     closeDropdown();
   };
 
@@ -64,8 +62,6 @@ const Dropdown: React.FC<DropdownProps> = ({
     setIsPopupOpen(false);
   };
 
-  const isDisabled = status === "accept" || status === "decline";
-
   return (
     <div ref={dropdownRef} className="relative inline-block text-left">
       <button onClick={toggleDropdown} className="px-4 py-2">
@@ -79,23 +75,13 @@ const Dropdown: React.FC<DropdownProps> = ({
           <div className="p-1">
             <button
               onClick={handleUpdate}
-              disabled={isDisabled}
-              className={`block px-4 py-2 text-sm w-full text-left ${
-                isDisabled
-                  ? "text-gray-400 cursor-not-allowed opacity-50"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
+              className="block px-4 py-2 text-sm w-full text-left text-gray-700 hover:bg-gray-100"
             >
               Update
             </button>
             <button
               onClick={handleDelete}
-              disabled={isDisabled}
-              className={`block px-4 py-2 text-sm w-full text-left ${
-                isDisabled
-                  ? "text-gray-400 cursor-not-allowed opacity-50"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
+              className= "block px-4 py-2 text-sm w-full text-left text-gray-700 hover:bg-gray-100"
             >
               Delete
             </button>

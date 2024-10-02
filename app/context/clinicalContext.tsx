@@ -9,18 +9,13 @@ interface ClinicalLog {
   indirect_Hours: any;
   supervision_Hours: any;
   site: string;
-  supervisor: string;
-  status: string;
-  supervisor_Id: string;
   date_logged: any
 }
 
 interface ClinicalLogsContextType {
   clinicalLogs: ClinicalLog[];
-  allClinicalLogs: ClinicalLog[];
   setLogs: React.Dispatch<React.SetStateAction<ClinicalLog[]>>;
-  refreshLogs: () => void; // Function to refresh only user-specific logs
-  refreshAllLogs: () => void; // Function to refresh all logs
+  refreshLogs: () => void;
 }
 
 const ClinicalLogsContext = createContext<ClinicalLogsContextType | undefined>(
@@ -32,82 +27,46 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const { userID } = useUserContext();
   const [clinicalLogs, setLogs] = useState<ClinicalLog[]>([]);
-  const [allClinicalLogs, setAllLogs] = useState<ClinicalLog[]>([]);
-  const [loading, setLoading] = useState(false); // Track loading state
+  const [loading, setLoading] = useState(false);
 
-  // Fetch logs specific to the current user
   const fetchClinicalLogs = async () => {
-    if (!userID) return; // Ensure userID exists before making the request
+    if (!userID) return;
     try {
       const response = await fetch(`/api/clinicalHours/fetch/${userID}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Cache-Control": "no-cache, no-store, must-revalidate", // Prevent caching
+          "Cache-Control": "no-cache, no-store, must-revalidate", 
         },
       });
       if (!response.ok) {
         throw new Error("Failed to fetch clinical logs");
       }
       const data: ClinicalLog[] = await response.json();
-      setLogs(data); // Update user-specific logs
+      setLogs(data);
     } catch (error) {
       console.error("Error fetching clinical logs:", error);
     }
   };
 
-  // Fetch all clinical logs (for admin or higher-level users)
-  const fetchAllClinicalLogs = async () => {
-    try {
-      const response = await fetch(`/api/clinicalHours/fetchAll`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-cache, no-store, must-revalidate", // Ensure no caching
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch all clinical logs");
-      }
-
-      const data: ClinicalLog[] = await response.json();
-      setAllLogs(data); // Update all logs
-    } catch (error) {
-      console.error("Error fetching all clinical logs:", error);
-    }
-  };
-
-  // Separate function to refresh only user-specific logs
   const refreshLogs = async () => {
-    setLoading(true); // Set loading state
+    setLoading(true); 
     await fetchClinicalLogs();
-    setLoading(false); // Reset loading state after fetching
+    setLoading(false); 
   };
 
-  // Separate function to refresh all logs
-  const refreshAllLogs = async () => {
-    setLoading(true); // Set loading state
-    await fetchAllClinicalLogs();
-    setLoading(false); // Reset loading state after fetching
-  };
-
-  // Fetch logs when userID changes or component mounts
   useEffect(() => {
     if (userID && !loading) {
-      fetchClinicalLogs(); // Fetch user-specific logs on mount or userID change
-      fetchAllClinicalLogs(); // Fetch all logs on mount
+      fetchClinicalLogs();
     }
-  }, [userID, loading]); // Make sure not to refetch when loading
+  }, [userID, loading]);
 
   return (
     <ClinicalLogsContext.Provider
       value={{
         clinicalLogs,
-        allClinicalLogs,
         setLogs,
         refreshLogs,
-        refreshAllLogs,
       }}
     >
       {children}
@@ -115,7 +74,6 @@ export const ClinicalLogsProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-// Hook to use the clinical logs context
 export const useClinicalLogsContext = () => {
   const context = useContext(ClinicalLogsContext);
   if (context === undefined) {

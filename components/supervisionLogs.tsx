@@ -72,8 +72,6 @@ const SupervisionLogs: React.FC = () => {
     "Supervision Hours",
     "Indirect Hours",
     "Site",
-    "Supervisor",
-    "Status",
     "Action",
   ];
   const data = supervisionLogs.map((log) => {

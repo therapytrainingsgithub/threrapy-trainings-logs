@@ -12,8 +12,6 @@ interface Log {
   direct_Hours?: number;
   indirect_Hours?: number;
   site?: string;
-  supervisor?: string;
-  status?: string;
   supervision_Hours?: number;
 }
 
@@ -28,7 +26,7 @@ const Overview: React.FC = () => {
   const { goals = [] } = useGoalsContext() || {};
   const { clinicalLogs = [] } = useClinicalLogsContext() || {};
   const { supervisionLogs = [] } = useSupervisionLogsContext() || {};
-  const { userID } = useUserContext() || {}; // userID can be undefined initially
+  const { userID } = useUserContext() || {};
 
   useEffect(() => {
     if (!userID) {
@@ -44,21 +42,16 @@ const Overview: React.FC = () => {
     setIsPopupOpen(false);
   };
 
-  const userClinicalLogs = clinicalLogs.filter(
-    (log) => log.user_Id === userID && log.status === "accept"
-  );
-
-  const totalDirectHours = userClinicalLogs.reduce(
+  const totalDirectHours = clinicalLogs.reduce(
     (total, log) => total + (log.direct_Hours || 0),
     0
   );
 
-  const totalIndirectHours = userClinicalLogs.reduce(
+  const totalIndirectHours = clinicalLogs.reduce(
     (total, log) => total + (log.indirect_Hours || 0),
     0
   );
 
-  // Assuming only one global goal per user
   const clinicalGoal = goals[0]?.clinical_Hours || 4000;
   const clinicalRemaining = Math.max(
     clinicalGoal - (totalDirectHours + totalIndirectHours),
@@ -80,30 +73,28 @@ const Overview: React.FC = () => {
     0
   );
 
-  // Data for Clinical Hours PieChart
   const clinicalHoursChart = {
     labels: ["Direct Hours", "Indirect Hours", "Remaining Hours"],
     datasets: [
       {
         data: [totalDirectHours, totalIndirectHours, clinicalRemaining],
         backgroundColor: [
-          "rgba(112, 157, 80)", // Green for direct hours
-          "rgba(211, 211, 211)", // Light grey for indirect hours
-          "rgba(180, 0, 0)", // Red for remaining hours
+          "rgba(112, 157, 80)", 
+          "rgba(211, 211, 211)", 
+          "rgba(180, 0, 0)", 
         ],
       },
     ],
   };
 
-  // Data for Supervision Hours PieChart
   const supervisionHoursChart = {
     labels: ["Supervision Hours", "Remaining Hours"],
     datasets: [
       {
         data: [totalSupervisionHours, supervisionRemaining],
         backgroundColor: [
-          "rgba(112, 157, 80)", // Green for supervision hours
-          "rgba(180, 0, 0)", // Red for remaining hours
+          "rgba(112, 157, 80)",
+          "rgba(180, 0, 0)",
         ],
       },
     ],
@@ -120,15 +111,11 @@ const Overview: React.FC = () => {
         "Direct Hours",
         "Indirect Hours",
         "Site",
-        "Supervisor",
-        "Status",
       ];
       const clinicalLogData = clinicalLogs.map((log) => [
         log.direct_Hours || 0,
         log.indirect_Hours || 0,
         log.site || "N/A",
-        log.supervisor || "N/A",
-        log.status || "N/A",
       ]);
       const clinicalLogWorksheet = XLSX.utils.aoa_to_sheet([
         clinicalTitle,
@@ -185,13 +172,15 @@ const Overview: React.FC = () => {
       </div>
 
       <div className="bg-white p-6 md:p-10 rounded-md border shadow-lg flex flex-col md:flex-row justify-center space-y-4 md:space-y-0">
-        <div className="w-full md:w-1/2">
-          <h3 className="text-lg font-semibold mb-2">Clinical Hours</h3>
+        <div className="w-full md:w-1/2 space-y-3">
+          <h3 className="text-lg font-semibold">Clinical Hours</h3>
           <PieChart data={clinicalHoursChart} />
+          <h1 className="text-center"><span className="font-bold">Goal: </span>{goals[0]?.clinical_Hours}</h1>
         </div>
-        <div className="w-full md:w-1/2">
-          <h3 className="text-lg font-semibold mb-2">Supervision Hours</h3>
+        <div className="w-full md:w-1/2 space-y-3">
+          <h3 className="text-lg font-semibold">Supervision Hours</h3>
           <PieChart data={supervisionHoursChart} />
+          <h1 className="text-center"><span className="font-bold">Goal:</span> {goals[0]?.supervision_Hours}</h1>
         </div>
       </div>
 

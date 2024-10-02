@@ -6,11 +6,7 @@ import Dropdown from "./dropdown";
 
 const ClinicalLogs: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-
   const { clinicalLogs, refreshLogs } = useClinicalLogsContext();
-
-  const capitalizeFirstLetter = (string: string) =>
-    string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 
   const deleteLog = async (id: string | number | undefined): Promise<void> => {
     try {
@@ -40,20 +36,10 @@ const ClinicalLogs: React.FC = () => {
     "Direct Hours",
     "Indirect Hours",
     "Site",
-    "Supervisor",
-    "Status",
     "Action",
   ];
 
   const data = clinicalLogs.map((log) => {
-    const userStatus =
-      log.status === "accept"
-        ? "Accepted"
-        : log.status === "decline"
-        ? "Declined"
-        : log.status === "pending"
-        ? "Pending"
-        : "";
     return {
       "Date Logged": new Date(log.date_logged).toLocaleDateString("en-US", {
         year: "numeric",
@@ -63,11 +49,8 @@ const ClinicalLogs: React.FC = () => {
       "Direct Hours": log.direct_Hours,
       "Indirect Hours": log.indirect_Hours,
       Site: log.site ?? "N/A",
-      Supervisor: log.supervisor ?? "N/A",
-      Status: userStatus,
       Action: (
         <Dropdown
-          status={log.status}
           id={log.id}
           deleteLog={deleteLog}
           PopupContent={({ closePopup }) => (
@@ -80,8 +63,6 @@ const ClinicalLogs: React.FC = () => {
                 direct_Hours: log.direct_Hours,
                 indirect_Hours: log.indirect_Hours,
                 site: log.site,
-                supervisor: log.supervisor,
-                status: log.status,
               }}
               mode="update"
             />

@@ -5,8 +5,7 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import { supabase } from "@/lib/supabase"; // Ensure this is the correct path
-
+import { supabase } from "@/lib/supabase";
 interface UserContextType {
   userID: string | null;
 }

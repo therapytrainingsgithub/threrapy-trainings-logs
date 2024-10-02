@@ -6,14 +6,7 @@ import Header from "@/components/header";
 import Overview from "@/components/overview";
 import SupervisionLogs from "@/components/supervisionLogs";
 import AppProviders from "./context";
-import { useUserProfileContext } from "./context/userProfileContext";
-import SupervisorUsers from "@/components/supervisorUsers";
-import SupervisorRequest from "@/components/supervisorRequest";
-import AdminUsers from "@/components/adminUsers";
-import AdminSupervisor from "@/components/adminSupervisor";
 import { ToastContainer } from "react-toastify";
-import { supabase } from "@/lib/supabase";
-import AdminDashboard from "@/components/adminDashboard";
 
 export default function Home() {
   return (
@@ -26,19 +19,16 @@ export default function Home() {
 
 function HomeContent() {
   const [loading, setLoading] = useState(true);
-  const { userRole } = useUserProfileContext();
 
   useEffect(() => {
-
     const fetchData = async () => {
       try {
-        // Simulate the time it takes to fetch the user role
         await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulating API delay
-        // Assuming the userRole is set after fetching the data
+      
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        setLoading(false); // Stop the loader when data is fetched
+        setLoading(false);
       }
     };
 
@@ -62,20 +52,9 @@ function HomeContent() {
     <>
       <Header />
       <main className="py-5 px-10 space-y-10 bg-[#f5f5f5] font-roboto">
-        {/* user UI */}
-        {userRole === "user" && <Overview />}
-        {userRole === "user" && <ClinicalLogs />}
-        {userRole === "user" && <SupervisionLogs />}
-
-        {/* supervisor UI */}
-        {userRole === "supervisor" && <Overview />}
-        {userRole === "supervisor" && <ClinicalLogs />}
-        {userRole === "supervisor" && <SupervisionLogs />}
-        {userRole === "supervisor" && <SupervisorUsers />}
-        {userRole === "supervisor" && <SupervisorRequest />}
-
-        {/* admin UI */}
-        {userRole === "admin" && <AdminDashboard />}
+        <Overview />
+        <ClinicalLogs />
+        <SupervisionLogs />
       </main>
     </>
   );
