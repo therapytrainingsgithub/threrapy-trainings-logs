@@ -152,7 +152,7 @@ const Overview: React.FC = () => {
   };
 
   const handleExportClick = () => {
-    exportToSpreadsheet(userClinicalLogs, userSupervisionLogs);
+    exportToSpreadsheet(clinicalLogs, userSupervisionLogs);
   };
 
   return (
