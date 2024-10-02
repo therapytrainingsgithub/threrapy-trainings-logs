@@ -126,7 +126,7 @@ const Page = () => {
 
               <div className="mt-4 text-center">
                 Don't have an account?{" "}
-                <Link href="/signup" className="text-blue-500">
+                <Link href="/signup" className="text-[#709d50]">
                   Sign up
                 </Link>
               </div>
