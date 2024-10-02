@@ -39,7 +39,7 @@ export const POST = async (req: NextRequest) => {
 
     // Send an email to the supervisor using Resend
     const emailResponse = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: " noreply@therapytrainings.com",
       to: supervisorEmail,
       subject: "New Clinical Log Submitted",
       html: `
