@@ -56,8 +56,8 @@ const Page = () => {
         </div>
 
         <div className="relative py-8 px-5 rounded-xl flex flex-col items-center space-y-10">
-          <div className="relative z-10 w-[50%]">
-            <h1 className="font-bold text-3xl mb-5">Supervision App</h1>
+          <div className="relative z-10 w-[30%]">
+            <h1 className="font-bold text-3xl mb-5 text-center">Supervision App</h1>
             <div className="w-full">
               <form
                 onSubmit={handleSubmit}
