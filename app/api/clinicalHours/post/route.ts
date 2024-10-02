@@ -39,7 +39,7 @@ export const POST = async (req: NextRequest) => {
 
     // Send an email to the supervisor using Resend
     const emailResponse = await resend.emails.send({
-      from: " noreply@therapytrainings.com",
+      from: "noreply@therapytrainings.com", // Ensure no leading space here
       to: supervisorEmail,
       subject: "New Clinical Log Submitted",
       html: `
