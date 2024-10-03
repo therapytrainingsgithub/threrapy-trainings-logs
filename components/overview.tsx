@@ -5,7 +5,8 @@ import { useSupervisionLogsContext } from "@/app/context/supervisionContext";
 import { useGoalsContext } from "@/app/context/goalsContext";
 import { useUserContext } from "@/app/context/userContext";
 import Goals from "./goals";
-import * as XLSX from "xlsx";
+// import * as XLSX from "xlsx";
+import * as XLSX from "xlsx-js-style";
 
 interface Log {
   user_Id: string;
@@ -99,139 +100,213 @@ const Overview: React.FC = () => {
   };
 
   // Export clinical and supervision logs to Excel
-  const exportToSpreadsheet = (clinicalLogs: Log[], supervisionLogs: Log[]) => {
+  const exportToSpreadsheet = (clinicalLogs: any, supervisionLogs: any) => {
     try {
       const workbook = XLSX.utils.book_new();
-  
+
       const clinicalTitle = [
-        ["Therapy Trainings"],
-        ["Clinical Hours Log Report"],
+        [{ v: "Therapy Trainings", s: { font: { bold: true, sz: 14 } } }],
+        [
+          {
+            v: "Clinical Hours Log Report",
+            s: { font: { bold: true, sz: 12 } },
+          },
+        ],
         [],
       ];
+
       const clinicalLogHeaders = [
-        "Date Logged",
-        "Direct Hours",
-        "Indirect Hours",
-        "Site",
+        {
+          v: "Date Logged",
+          s: { font: { bold: true }, alignment: { horizontal: "center" } },
+        },
+        {
+          v: "Direct Hours",
+          s: { font: { bold: true }, alignment: { horizontal: "center" } },
+        },
+        {
+          v: "Indirect Hours",
+          s: { font: { bold: true }, alignment: { horizontal: "center" } },
+        },
+        {
+          v: "Site",
+          s: { font: { bold: true }, alignment: { horizontal: "center" } },
+        },
       ];
-  
-      const clinicalLogData = clinicalLogs.map((log) => [
+
+      const clinicalLogData = clinicalLogs.map((log: any) => [
         log.date_logged || "N/A",
         log.direct_Hours || 0,
         log.indirect_Hours || 0,
         log.site || "Unknown",
       ]);
-  
+
       const totalDirectHours = clinicalLogs.reduce(
-        (sum, log) => sum + (log.direct_Hours || 0),
+        (sum: any, log: any) => sum + (log.direct_Hours || 0),
         0
       );
       const totalIndirectHours = clinicalLogs.reduce(
-        (sum, log) => sum + (log.indirect_Hours || 0),
+        (sum: any, log: any) => sum + (log.indirect_Hours || 0),
         0
       );
-  
+
       const summarySection = [
         [],
-        ["Goal", 4000],
-        ["Total Hours Logged", totalDirectHours + totalIndirectHours],
-        ["Remaining", 4000 - (totalDirectHours + totalIndirectHours)],
+        [{ v: "Summary", s: { font: { bold: true } } }],
+        [
+          { v: "Goal", s: { font: { bold: true } } },
+          { v: 4000, s: { alignment: { horizontal: "right" } } },
+        ],
+        [
+          { v: "Total Hours Logged", s: { font: { bold: true } } },
+          {
+            v: totalDirectHours + totalIndirectHours,
+            s: { alignment: { horizontal: "right" } },
+          },
+        ],
+        [
+          { v: "Remaining", s: { font: { bold: true } } },
+          {
+            v: 4000 - (totalDirectHours + totalIndirectHours),
+            s: {
+              font: { bold: true },
+              alignment: { horizontal: "right" },
+              border: { top: { style: "thick" }, bottom: { style: "thick" } },
+            },
+          },
+        ],
       ];
-  
+
+      // Remove null by not adding any empty rows or labels.
       const clinicalLogWorksheet = XLSX.utils.aoa_to_sheet([
         ...clinicalTitle,
         clinicalLogHeaders,
         ...clinicalLogData,
         [],
-        ["Total Direct Hours", totalDirectHours],  // "Total" value in B
-        ["Total Indirect Hours", totalIndirectHours], // "Total" value in B
+        [
+          null,
+          {
+            v: totalDirectHours,
+            s: {
+              font: { bold: true },
+              alignment: { horizontal: "right" },
+              border: { top: { style: "thick" }, bottom: { style: "thick" } },
+            },
+          },
+          {
+            v: totalIndirectHours,
+            s: {
+              font: { bold: true },
+              alignment: { horizontal: "right" },
+              border: { top: { style: "thick" }, bottom: { style: "thick" } },
+            },
+          },
+        ],
         ...summarySection,
       ]);
-  
+
       clinicalLogWorksheet["!cols"] = [
-        { wch: 20 },  // Adjusted width for proper spacing
+        { wch: 20 },
         { wch: 15 },
         { wch: 15 },
         { wch: 30 },
       ];
-  
-      clinicalLogWorksheet["A1"].s = { font: { bold: true } };
-      clinicalLogWorksheet["A2"].s = { font: { bold: true } };
-      clinicalLogWorksheet["A4"].s = {
-        font: { bold: true },
-        alignment: { horizontal: "center" },
-      };
-      clinicalLogWorksheet["B4"].s = {
-        font: { bold: true },
-        alignment: { horizontal: "center" },
-      };
-      clinicalLogWorksheet["C4"].s = {
-        font: { bold: true },
-        alignment: { horizontal: "center" },
-      };
-      clinicalLogWorksheet["D4"].s = {
-        font: { bold: true },
-        alignment: { horizontal: "center" },
-      };
-  
+
       XLSX.utils.book_append_sheet(
         workbook,
         clinicalLogWorksheet,
         "Clinical Logs"
       );
-  
+
+      // Supervision logs section
+
       const supervisionTitle = [
-        ["Therapy Trainings"],
-        ["Supervision Hours Log Report"],
+        [{ v: "Therapy Trainings", s: { font: { bold: true, sz: 14 } } }],
+        [
+          {
+            v: "Supervision Hours Log Report",
+            s: { font: { bold: true, sz: 12 } },
+          },
+        ],
         [],
       ];
-      const supervisionLogHeaders = ["Date Logged", "Supervision Hours"];
-  
-      const supervisionLogData = supervisionLogs.map((log) => [
+
+      const supervisionLogHeaders = [
+        {
+          v: "Date Logged",
+          s: { font: { bold: true }, alignment: { horizontal: "center" } },
+        },
+        {
+          v: "Supervision Hours",
+          s: { font: { bold: true }, alignment: { horizontal: "center" } },
+        },
+      ];
+
+      const supervisionLogData = supervisionLogs.map((log: any) => [
         log.date_logged || "N/A",
         log.supervision_Hours || 0,
       ]);
-  
+
       const totalSupervisionHours = supervisionLogs.reduce(
-        (sum, log) => sum + (log.supervision_Hours || 0),
+        (sum: any, log: any) => sum + (log.supervision_Hours || 0),
         0
       );
-  
+
       const supervisionSummarySection = [
         [],
-        ["Goal", 4000],
-        ["Total Hours Logged", totalSupervisionHours],
-        ["Remaining", 4000 - totalSupervisionHours],
+        [{ v: "Summary", s: { font: { bold: true } } }],
+        [
+          { v: "Goal", s: { font: { bold: true } } },
+          { v: 4000, s: { alignment: { horizontal: "right" } } },
+        ],
+        [
+          { v: "Total Hours Logged", s: { font: { bold: true } } },
+          {
+            v: totalSupervisionHours,
+            s: { alignment: { horizontal: "right" } },
+          },
+        ],
+        [
+          { v: "Remaining", s: { font: { bold: true } } },
+          {
+            v: 4000 - totalSupervisionHours,
+            s: {
+              font: { bold: true },
+              alignment: { horizontal: "right" },
+              border: { top: { style: "thick" }, bottom: { style: "thick" } },
+            },
+          },
+        ],
       ];
-  
+
       const supervisionLogWorksheet = XLSX.utils.aoa_to_sheet([
         ...supervisionTitle,
         supervisionLogHeaders,
         ...supervisionLogData,
         [],
-        ["Total Supervision Hours", totalSupervisionHours],
+        [
+          null,
+          {
+            v: totalSupervisionHours,
+            s: {
+              font: { bold: true },
+              alignment: { horizontal: "right" },
+              border: { top: { style: "thick" }, bottom: { style: "thick" } },
+            },
+          },
+        ],
         ...supervisionSummarySection,
       ]);
-  
+
       supervisionLogWorksheet["!cols"] = [{ wch: 20 }, { wch: 15 }];
-  
-      supervisionLogWorksheet["A1"].s = { font: { bold: true } };
-      supervisionLogWorksheet["A2"].s = { font: { bold: true } };
-      supervisionLogWorksheet["A4"].s = {
-        font: { bold: true },
-        alignment: { horizontal: "center" },
-      };
-      supervisionLogWorksheet["B4"].s = {
-        font: { bold: true },
-        alignment: { horizontal: "center" },
-      };
-  
+
       XLSX.utils.book_append_sheet(
         workbook,
         supervisionLogWorksheet,
         "Supervision Logs"
       );
-  
+
+      // Write the Excel file
       XLSX.writeFile(workbook, "logs.xlsx");
     } catch (error) {
       console.error("Error exporting to spreadsheet:", error);
