@@ -17,33 +17,6 @@ const SupervisionLogs: React.FC = () => {
     setIsPopupOpen(false);
   };
 
-  const updateLog = async (
-    id: number,
-    updatedFields: { [key: string]: any }
-  ): Promise<void> => {
-    try {
-      const response = await fetch(`/api/supervisionHours/update/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedFields),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Failed to update log:", errorText);
-        return;
-      }
-
-      const result = await response.json();
-      console.log("Log updated successfully:", result);
-      refreshLogs(); // Refresh the logs after updating
-    } catch (err) {
-      console.error("Unexpected error:", err);
-    }
-  };
-
   const deleteLog = async (id: number): Promise<void> => {
     try {
       const response = await fetch(`/api/supervisionHours/delete/${id}`, {
