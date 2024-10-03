@@ -13,6 +13,7 @@ interface Log {
   indirect_Hours?: number;
   site?: string;
   supervision_Hours?: number;
+  date_logged?: Date;
 }
 
 interface Goal {
@@ -79,9 +80,9 @@ const Overview: React.FC = () => {
       {
         data: [totalDirectHours, totalIndirectHours, clinicalRemaining],
         backgroundColor: [
-          "rgba(112, 157, 80)", 
-          "rgba(211, 211, 211)", 
-          "rgba(180, 0, 0)", 
+          "rgba(112, 157, 80)",
+          "rgba(211, 211, 211)",
+          "rgba(180, 0, 0)",
         ],
       },
     ],
@@ -92,10 +93,7 @@ const Overview: React.FC = () => {
     datasets: [
       {
         data: [totalSupervisionHours, supervisionRemaining],
-        backgroundColor: [
-          "rgba(112, 157, 80)",
-          "rgba(180, 0, 0)",
-        ],
+        backgroundColor: ["rgba(112, 157, 80)", "rgba(180, 0, 0)"],
       },
     ],
   };
@@ -104,47 +102,136 @@ const Overview: React.FC = () => {
   const exportToSpreadsheet = (clinicalLogs: Log[], supervisionLogs: Log[]) => {
     try {
       const workbook = XLSX.utils.book_new();
-
-      // Clinical Logs Sheet
-      const clinicalTitle = [["Clinical Logs"]];
+  
+      const clinicalTitle = [
+        ["Therapy Trainings"],
+        ["Clinical Hours Log Report"],
+        [],
+      ];
       const clinicalLogHeaders = [
+        "Date Logged",
         "Direct Hours",
         "Indirect Hours",
         "Site",
       ];
+  
       const clinicalLogData = clinicalLogs.map((log) => [
+        log.date_logged || "N/A",
         log.direct_Hours || 0,
         log.indirect_Hours || 0,
-        log.site || "N/A",
+        log.site || "Unknown",
       ]);
+  
+      const totalDirectHours = clinicalLogs.reduce(
+        (sum, log) => sum + (log.direct_Hours || 0),
+        0
+      );
+      const totalIndirectHours = clinicalLogs.reduce(
+        (sum, log) => sum + (log.indirect_Hours || 0),
+        0
+      );
+  
+      const summarySection = [
+        [],
+        ["Goal", 4000],
+        ["Total Hours Logged", totalDirectHours + totalIndirectHours],
+        ["Remaining", 4000 - (totalDirectHours + totalIndirectHours)],
+      ];
+  
       const clinicalLogWorksheet = XLSX.utils.aoa_to_sheet([
-        clinicalTitle,
+        ...clinicalTitle,
         clinicalLogHeaders,
         ...clinicalLogData,
+        [],
+        ["Total Direct Hours", totalDirectHours],  // "Total" value in B
+        ["Total Indirect Hours", totalIndirectHours], // "Total" value in B
+        ...summarySection,
       ]);
+  
+      clinicalLogWorksheet["!cols"] = [
+        { wch: 20 },  // Adjusted width for proper spacing
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 30 },
+      ];
+  
+      clinicalLogWorksheet["A1"].s = { font: { bold: true } };
+      clinicalLogWorksheet["A2"].s = { font: { bold: true } };
+      clinicalLogWorksheet["A4"].s = {
+        font: { bold: true },
+        alignment: { horizontal: "center" },
+      };
+      clinicalLogWorksheet["B4"].s = {
+        font: { bold: true },
+        alignment: { horizontal: "center" },
+      };
+      clinicalLogWorksheet["C4"].s = {
+        font: { bold: true },
+        alignment: { horizontal: "center" },
+      };
+      clinicalLogWorksheet["D4"].s = {
+        font: { bold: true },
+        alignment: { horizontal: "center" },
+      };
+  
       XLSX.utils.book_append_sheet(
         workbook,
         clinicalLogWorksheet,
         "Clinical Logs"
       );
-
-      // Supervision Logs Sheet
-      const supervisionTitle = [["Supervision Logs"]];
-      const supervisionLogHeaders = ["Supervision Hours"];
+  
+      const supervisionTitle = [
+        ["Therapy Trainings"],
+        ["Supervision Hours Log Report"],
+        [],
+      ];
+      const supervisionLogHeaders = ["Date Logged", "Supervision Hours"];
+  
       const supervisionLogData = supervisionLogs.map((log) => [
+        log.date_logged || "N/A",
         log.supervision_Hours || 0,
       ]);
+  
+      const totalSupervisionHours = supervisionLogs.reduce(
+        (sum, log) => sum + (log.supervision_Hours || 0),
+        0
+      );
+  
+      const supervisionSummarySection = [
+        [],
+        ["Goal", 4000],
+        ["Total Hours Logged", totalSupervisionHours],
+        ["Remaining", 4000 - totalSupervisionHours],
+      ];
+  
       const supervisionLogWorksheet = XLSX.utils.aoa_to_sheet([
-        supervisionTitle,
+        ...supervisionTitle,
         supervisionLogHeaders,
         ...supervisionLogData,
+        [],
+        ["Total Supervision Hours", totalSupervisionHours],
+        ...supervisionSummarySection,
       ]);
+  
+      supervisionLogWorksheet["!cols"] = [{ wch: 20 }, { wch: 15 }];
+  
+      supervisionLogWorksheet["A1"].s = { font: { bold: true } };
+      supervisionLogWorksheet["A2"].s = { font: { bold: true } };
+      supervisionLogWorksheet["A4"].s = {
+        font: { bold: true },
+        alignment: { horizontal: "center" },
+      };
+      supervisionLogWorksheet["B4"].s = {
+        font: { bold: true },
+        alignment: { horizontal: "center" },
+      };
+  
       XLSX.utils.book_append_sheet(
         workbook,
         supervisionLogWorksheet,
         "Supervision Logs"
       );
-
+  
       XLSX.writeFile(workbook, "logs.xlsx");
     } catch (error) {
       console.error("Error exporting to spreadsheet:", error);
@@ -175,12 +262,18 @@ const Overview: React.FC = () => {
         <div className="w-full md:w-1/2 space-y-3">
           <h3 className="text-lg font-semibold">Clinical Hours</h3>
           <PieChart data={clinicalHoursChart} />
-          <h1 className="text-center"><span className="font-bold">Goal: </span>{goals[0]?.clinical_Hours}</h1>
+          <h1 className="text-center">
+            <span className="font-bold">Goal: </span>
+            {goals[0]?.clinical_Hours}
+          </h1>
         </div>
         <div className="w-full md:w-1/2 space-y-3">
           <h3 className="text-lg font-semibold">Supervision Hours</h3>
           <PieChart data={supervisionHoursChart} />
-          <h1 className="text-center"><span className="font-bold">Goal:</span> {goals[0]?.supervision_Hours}</h1>
+          <h1 className="text-center">
+            <span className="font-bold">Goal:</span>{" "}
+            {goals[0]?.supervision_Hours}
+          </h1>
         </div>
       </div>
 
