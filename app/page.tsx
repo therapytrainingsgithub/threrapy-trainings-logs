@@ -1,12 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import ClinicalLogs from "@/components/clinicalLogs";
-import Header from "@/components/header";
-import Overview from "@/components/overview";
-import SupervisionLogs from "@/components/supervisionLogs";
 import AppProviders from "./context";
 import { ToastContainer } from "react-toastify";
+import SupervisionTracker from "./supervisionTracker/page";
 
 export default function Home() {
   return (
@@ -24,7 +21,6 @@ function HomeContent() {
     const fetchData = async () => {
       try {
         await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulating API delay
-      
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -50,12 +46,7 @@ function HomeContent() {
 
   return (
     <>
-      <Header />
-      <main className="py-5 px-10 space-y-10 bg-[#f5f5f5] font-roboto">
-        <Overview />
-        <ClinicalLogs />
-        <SupervisionLogs />
-      </main>
+      <SupervisionTracker />
     </>
   );
 }

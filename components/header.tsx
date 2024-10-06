@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
 const Header = () => {
@@ -7,6 +7,7 @@ const Header = () => {
   const [loading, setLoading] = useState(false); // State to manage the loader
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const supabase = createClient();
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
