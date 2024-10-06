@@ -43,21 +43,59 @@ export async function signup(formData: FormData) {
   if (!signupData || !signupData.user) {
     return { error: "An error occurred during signup. No user data returned." };
   }
+
+  const userId = signupData.user.id;
+
   try {
+    // Create a new user profile in the 'profiles' table
     const { error: profileError } = await supabase.from("profiles").insert({
-      id: signupData.user.id,
+      id: userId,
       username: username,
       email: email,
     });
 
     if (profileError) {
-      return { error: "An error occurred while creating the user profile" };
+      // If profile creation fails, delete the created user
+      await supabase.auth.admin.deleteUser(userId);
+      return {
+        error:
+          "An error occurred while creating the user profile. User deleted.",
+      };
     }
-  } catch (err) {
+
+    // Insert default goals for the new user in the 'goals' table
+    const { data: goalsData, error: goalsError } = await supabase
+      .from("goals")
+      .insert([
+        {
+          user_Id: userId, // Link the goal to the newly created user
+          clinical_Hours: 4000, // Default clinical hours
+          supervision_Hours: 100, // Default supervision hours
+        },
+      ])
+      .select();
+
+    if (goalsError) {
+      // If goals creation fails, delete both the user and profile
+      await supabase.from("profiles").delete().eq("id", userId);
+      await supabase.auth.admin.deleteUser(userId);
+      return {
+        error:
+          "An error occurred while creating the goals. User and profile deleted.",
+      };
+    }
+
+    // Return success response with the user and goals data
     return {
-      error: "An unexpected error occurred while creating the user profile",
+      message: "User and goals created successfully",
+      user: signupData.user,
+      goals: goalsData,
+    };
+  } catch (err) {
+    // Catch any unexpected errors, and delete the user as a fallback
+    await supabase.auth.admin.deleteUser(userId);
+    return {
+      error: "An unexpected error occurred. User deleted.",
     };
   }
-
-  return { data: signupData };
 }
