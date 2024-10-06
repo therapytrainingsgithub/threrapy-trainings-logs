@@ -9,7 +9,7 @@ import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import Image from "next/image";
-import { toast } from "react-hot-toast"; // Import react-hot-toast
+import { toast } from "react-hot-toast";
 
 function LoginForm() {
   const router = useRouter();
