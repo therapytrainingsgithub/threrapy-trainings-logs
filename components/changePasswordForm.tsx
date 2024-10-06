@@ -1,13 +1,14 @@
 import React from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import "react-toastify/dist/ReactToastify.css";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
 const ChangePasswordForm = () => {
   const router = useRouter();
+  const supabase = createClient();
 
   // Validation schema for password
   const validationSchema = Yup.object().shape({

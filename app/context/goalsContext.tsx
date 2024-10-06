@@ -36,6 +36,7 @@ export const GoalsProvider: React.FC<{ children: React.ReactNode }> = ({
         throw new Error("Failed to fetch goals");
       }
       const data: Goal[] = await response.json();
+      console.log(data)
       setGoals(data);
     } catch (error) {
       console.error("Error fetching goals:", error);

@@ -2,7 +2,7 @@ import { useUserContext } from "@/app/context/userContext";
 import React, { useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import "react-toastify/dist/ReactToastify.css";
 
 interface NewSupervisionLogProps {
@@ -131,7 +131,7 @@ const NewSupervisionLog: React.FC<NewSupervisionLogProps> = ({
                   <label htmlFor="supervision_Hours">Supervision Hours</label>
                   <Field
                     className="rounded-md px-4 py-2 w-full border-2"
-                    type="number" 
+                    type="number"
                     id="supervision_Hours"
                     name="supervision_Hours"
                     placeholder="Enter supervision hours"

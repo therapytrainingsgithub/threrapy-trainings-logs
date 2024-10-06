@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useUserContext } from "@/app/context/userContext";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import "react-toastify/dist/ReactToastify.css";
 
 interface NewClinicalLogProps {

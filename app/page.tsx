@@ -20,7 +20,7 @@ function HomeContent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulating API delay
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {

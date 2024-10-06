@@ -5,7 +5,8 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/utils/supabase/client";
+
 interface UserContextType {
   userID: string | null;
 }
@@ -16,6 +17,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [userID, setUserID] = useState<string | null>(null);
+  const supabase = createClient();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -24,20 +26,34 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         error,
       } = await supabase.auth.getUser();
       if (error || !user) {
-        console.error("Failed to fetch user");
+        console.error("Failed to fetch user", error);
         return;
       }
 
       setUserID(user.id);
     };
 
+    // Listen for auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session?.user) {
+          setUserID(session.user.id);
+        } else {
+          setUserID(null);
+        }
+      }
+    );
+
     fetchUser();
+
+    // Cleanup listener on unmount
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
   return (
-    <UserContext.Provider value={{ userID }}>
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={{ userID }}>{children}</UserContext.Provider>
   );
 };
 
