@@ -65,7 +65,7 @@ const Header = () => {
         <>
           <div className="flex justify-between items-center py-5 px-5">
             <div className="cursor-pointer" onClick={goToHome}>
-              <img src="./images/logo.png" alt="logo" />
+              <img height={80} width={250} src="./images/logo.png" alt="logo" />
             </div>
             <div className="relative" ref={dropdownRef}>
               <img
