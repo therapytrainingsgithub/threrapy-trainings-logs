@@ -44,7 +44,7 @@ function LoginForm() {
         "Thank you for registering! Please check your email to confirm your address and activate your account.",
         {
           position: "top-right",
-          duration: 4000,
+          duration: 60000,
           style: {
             background: "#48bb78", // Success background color (green)
             color: "#fff", // Text color
@@ -92,7 +92,7 @@ function LoginForm() {
     if (!email) {
       toast.error("Please enter your email address first.", {
         position: "top-right",
-        duration: 4000,
+        duration: 30000,
         style: {
           background: "#f56565",
           color: "#fff",
