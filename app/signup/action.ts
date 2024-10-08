@@ -63,36 +63,12 @@ export async function signup(formData: FormData) {
       };
     }
 
-    // Insert default goals for the new user in the 'goals' table
-    const { data: goalsData, error: goalsError } = await supabase
-      .from("goals")
-      .insert([
-        {
-          user_Id: userId, // Link the goal to the newly created user
-          clinical_Hours: 4000, // Default clinical hours
-          supervision_Hours: 100, // Default supervision hours
-        },
-      ])
-      .select();
-
-    if (goalsError) {
-      // If goals creation fails, delete both the user and profile
-      await supabase.from("profiles").delete().eq("id", userId);
-      await supabase.auth.admin.deleteUser(userId);
-      return {
-        error:
-          "An error occurred while creating the goals. User and profile deleted.",
-      };
-    }
-
     // Return success response with the user and goals data
     return {
-      message: "User and goals created successfully",
+      message: "User and Profile created successfully",
       user: signupData.user,
-      goals: goalsData,
     };
   } catch (err) {
-    // Catch any unexpected errors, and delete the user as a fallback
     await supabase.auth.admin.deleteUser(userId);
     return {
       error: "An unexpected error occurred. User deleted.",

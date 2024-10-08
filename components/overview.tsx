@@ -104,6 +104,7 @@ const Overview: React.FC = () => {
     try {
       const workbook = XLSX.utils.book_new();
 
+      // Clinical logs section
       const clinicalTitle = [
         [{ v: "Therapy Trainings", s: { font: { bold: true, sz: 14 } } }],
         [
@@ -175,9 +176,21 @@ const Overview: React.FC = () => {
             },
           },
         ],
+        [],
+        [
+          {
+            v: "Name: ___________________________",
+            s: { font: { bold: true } },
+          },
+        ],
+        [
+          {
+            v: "Signature: ________________________",
+            s: { font: { bold: true } },
+          },
+        ],
       ];
 
-      // Remove null by not adding any empty rows or labels.
       const clinicalLogWorksheet = XLSX.utils.aoa_to_sheet([
         ...clinicalTitle,
         clinicalLogHeaders,
@@ -275,6 +288,19 @@ const Overview: React.FC = () => {
               alignment: { horizontal: "right" },
               border: { top: { style: "thick" }, bottom: { style: "thick" } },
             },
+          },
+        ],
+        [],
+        [
+          {
+            v: "Name: ___________________________",
+            s: { font: { bold: true } },
+          },
+        ],
+        [
+          {
+            v: "Signature: ________________________",
+            s: { font: { bold: true } },
           },
         ],
       ];

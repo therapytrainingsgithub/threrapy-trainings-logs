@@ -21,8 +21,8 @@ const Goals: React.FC = () => {
 
   const userGoal = goals && goals.length > 0 ? goals[0] : null;
 
-  const clinicalGoal = userGoal ? userGoal.clinical_Hours : 4000;
-  const supervisionGoal = userGoal ? userGoal.supervision_Hours : 100;
+  const clinicalGoal = userGoal ? userGoal.clinical_Hours : 0;
+  const supervisionGoal = userGoal ? userGoal.supervision_Hours : 0;
 
   const totalDirectClinicalHours = clinicalLogs.reduce(
     (total, log) => total + parseFloat(log.direct_Hours || "0"),
