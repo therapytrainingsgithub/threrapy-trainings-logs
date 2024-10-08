@@ -25,13 +25,22 @@ const UpdateGoal: React.FC<NewGoalsProps> = ({
   clinicalGoal,
 }) => {
   const { userID } = useUserContext();
-  const { refreshGoals } = useGoalsContext();
+  const { goals, refreshGoals } = useGoalsContext();
 
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     try {
-      // Call the API to update the goals
-      const response = await fetch(`/api/goals/update/${userID}`, {
-        method: "PUT",
+      let method = "POST"; // Default to POST (create)
+      let url = `/api/goals/post`; // Default to POST URL
+
+      if (goals.length > 0) {
+        // If goals already exist, switch to PUT (update)
+        method = "PUT";
+        url = `/api/goals/update/${userID}`; // Use the specific goal ID for update
+      }
+
+      // Make the API request with the appropriate method (PUT or POST)
+      const response = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
@@ -41,14 +50,21 @@ const UpdateGoal: React.FC<NewGoalsProps> = ({
       const result = await response.json();
 
       if (response.ok) {
+        // Refresh the goals in the context after successful update/creation
         refreshGoals();
-        toast.success("Goals updated successfully!"); // Success message
+        toast.success(
+          `Goals ${method === "POST" ? "created" : "updated"} successfully!`
+        );
         closePopup();
       } else {
-        toast.error(`Failed to update goals: ${result.error}`); // Error message
+        toast.error(
+          `Failed to ${method === "POST" ? "create" : "update"} goals: ${
+            result.error
+          }`
+        );
       }
     } catch (err) {
-      toast.error("Unexpected error occurred. Please try again."); // Error message
+      toast.error("Unexpected error occurred. Please try again.");
       console.error("Unexpected error:", err);
     } finally {
       setSubmitting(false);
