@@ -365,7 +365,7 @@ const Overview: React.FC = () => {
           <PieChart data={clinicalHoursChart} />
           <h1 className="text-center">
             <span className="font-bold">Goal: </span>
-            {goals[0]?.clinical_Hours}
+            {goals[0]?.clinical_Hours ? goals[0]?.clinical_Hours : 0}
           </h1>
         </div>
         <div className="w-full md:w-1/2 space-y-3">
@@ -373,7 +373,7 @@ const Overview: React.FC = () => {
           <PieChart data={supervisionHoursChart} />
           <h1 className="text-center">
             <span className="font-bold">Goal:</span>{" "}
-            {goals[0]?.supervision_Hours}
+            {goals[0]?.supervision_Hours ? goals[0]?.supervision_Hours : 0}
           </h1>
         </div>
       </div>
