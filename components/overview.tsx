@@ -54,7 +54,7 @@ const Overview: React.FC = () => {
     0
   );
 
-  const clinicalGoal = goals[0]?.clinical_Hours || 4000;
+  const clinicalGoal = goals[0]?.clinical_Hours || 0;
   const clinicalRemaining = Math.max(
     clinicalGoal - (totalDirectHours + totalIndirectHours),
     0
@@ -69,7 +69,7 @@ const Overview: React.FC = () => {
     0
   );
 
-  const supervisionGoal = goals[0]?.supervision_Hours || 100;
+  const supervisionGoal = goals[0]?.supervision_Hours || 0;
   const supervisionRemaining = Math.max(
     supervisionGoal - totalSupervisionHours,
     0
@@ -156,7 +156,7 @@ const Overview: React.FC = () => {
         [{ v: "Summary", s: { font: { bold: true } } }],
         [
           { v: "Goal", s: { font: { bold: true } } },
-          { v: 4000, s: { alignment: { horizontal: "right" } } },
+          { v: clinicalGoal, s: { alignment: { horizontal: "right" } } },
         ],
         [
           { v: "Total Hours Logged", s: { font: { bold: true } } },
@@ -168,7 +168,7 @@ const Overview: React.FC = () => {
         [
           { v: "Remaining", s: { font: { bold: true } } },
           {
-            v: 4000 - (totalDirectHours + totalIndirectHours),
+            v: clinicalGoal - (totalDirectHours + totalIndirectHours),
             s: {
               font: { bold: true },
               alignment: { horizontal: "right" },
@@ -270,7 +270,7 @@ const Overview: React.FC = () => {
         [{ v: "Summary", s: { font: { bold: true } } }],
         [
           { v: "Goal", s: { font: { bold: true } } },
-          { v: 4000, s: { alignment: { horizontal: "right" } } },
+          { v: supervisionGoal, s: { alignment: { horizontal: "right" } } },
         ],
         [
           { v: "Total Hours Logged", s: { font: { bold: true } } },
@@ -282,7 +282,7 @@ const Overview: React.FC = () => {
         [
           { v: "Remaining", s: { font: { bold: true } } },
           {
-            v: 4000 - totalSupervisionHours,
+            v: supervisionGoal - totalSupervisionHours,
             s: {
               font: { bold: true },
               alignment: { horizontal: "right" },
