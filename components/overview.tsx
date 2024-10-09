@@ -179,13 +179,13 @@ const Overview: React.FC = () => {
         [],
         [
           {
-            v: "Name: ___________________________",
+            v: "Supervisor Name: ___________________________",
             s: { font: { bold: true } },
           },
         ],
         [
           {
-            v: "Signature: ________________________",
+            v: "Supervisor Signature: ________________________",
             s: { font: { bold: true } },
           },
         ],
