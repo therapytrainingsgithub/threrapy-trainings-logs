@@ -47,7 +47,12 @@ const SupervisionLogs: React.FC = () => {
     "Site",
     "Action",
   ];
-  const data = supervisionLogs.map((log) => {
+
+  const sortedLogs = supervisionLogs.sort((a, b) => {
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
+  const data = sortedLogs.map((log) => {
     const dateLoggedEst = new Date(
       new Date(log.date_logged).toLocaleString("en-US", {
         timeZone: "America/New_York",

@@ -39,7 +39,14 @@ const ClinicalLogs: React.FC = () => {
     "Action",
   ];
 
-  const data = clinicalLogs.map((log) => {
+  // Sort clinicalLogs by date_logged in descending order (newest first)
+  const sortedLogs = clinicalLogs.sort((a, b) => {
+    return (
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  });
+
+  const data = sortedLogs.map((log) => {
     const dateLoggedEst = new Date(
       new Date(log.date_logged).toLocaleString("en-US", {
         timeZone: "America/New_York",
