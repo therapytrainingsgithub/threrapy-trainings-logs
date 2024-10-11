@@ -48,9 +48,14 @@ const SupervisionLogs: React.FC = () => {
     "Action",
   ];
   const data = supervisionLogs.map((log) => {
+    const dateLoggedEst = new Date(
+      new Date(log.date_logged).toLocaleString("en-US", {
+        timeZone: "America/New_York",
+      })
+    );
 
     return {
-      "Date Logged": new Date(log.date_logged).toLocaleDateString("en-US", {
+      "Date Logged": dateLoggedEst.toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -80,9 +85,7 @@ const SupervisionLogs: React.FC = () => {
   return (
     <main className="space-y-5 p-4 md:p-10">
       <div className="flex justify-between items-center flex-wrap">
-        <h1 className="text-3xl mb-4 md:mb-0 font-bold">
-          Supervision Hours
-        </h1>
+        <h1 className="text-3xl mb-4 md:mb-0 font-bold">Supervision Hours</h1>
         <button
           className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d]"
           onClick={openPopup}
