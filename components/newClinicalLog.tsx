@@ -24,33 +24,6 @@ interface User {
   role: string;
 }
 
-const validationSchema = Yup.object({
-  date_logged: Yup.string().required("Date is required"),
-  direct_Hours: Yup.number()
-    .typeError("Direct Hours must be a number")
-    .integer("Direct Hours must be an integer")
-    .min(0, "Direct Hours must be at least 0")
-    .nullable(),
-  indirect_Hours: Yup.number()
-    .typeError("Indirect Hours must be a number")
-    .integer("Indirect Hours must be an integer")
-    .min(0, "Indirect Hours must be at least 0")
-    .nullable(),
-  site: Yup.string().required("Site is required"),
-}).test(
-  "one-must-be-positive",
-  "Either Direct Hours or Indirect Hours must be greater than zero, but not both",
-  function (value) {
-    const { direct_Hours, indirect_Hours } = value;
-
-    if (direct_Hours === 0 && indirect_Hours === 0) {
-      return false; // At least one must be greater than zero
-    }
-
-    return true; // Valid if one is zero and the other is positive
-  }
-);
-
 const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   closePopup,
   refreshLogs,
@@ -59,6 +32,36 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
 }) => {
   const { userID } = useUserContext();
   const [loading, setLoading] = useState<boolean>(false);
+
+  const validationSchema = Yup.object({
+    date_logged: Yup.string().required("Date is required"),
+    direct_Hours: Yup.number()
+      .typeError("Direct Hours must be a number")
+      .integer("Direct Hours must be an integer")
+      .min(0, "Direct Hours must be at least 0")
+      .nullable()
+      .default(0), // Default to 0 if empty
+    indirect_Hours: Yup.number()
+      .typeError("Indirect Hours must be a number")
+      .integer("Indirect Hours must be an integer")
+      .min(0, "Indirect Hours must be at least 0")
+      .nullable()
+      .default(0), // Default to 0 if empty
+    site: Yup.string().required("Site is required"),
+  }).test(
+    "one-must-be-positive",
+    "Either Direct Hours or Indirect Hours must be filled.",
+    function (value) {
+      const { direct_Hours, indirect_Hours } = value;
+      if ((direct_Hours || 0) === 0 && (indirect_Hours || 0) === 0) {
+        return this.createError({
+          path: "direct_Hours",
+          message: "Either Direct Hours or Indirect Hours must be filled.",
+        });
+      }
+      return true; // Validation passes if at least one is non-zero
+    }
+  );
 
   const formik = useFormik({
     initialValues: {
@@ -70,6 +73,14 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
     validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
       setSubmitting(true);
+
+      // Ensure empty fields for hours are treated as 0
+      const updatedValues = {
+        ...values,
+        direct_Hours: values.direct_Hours || 0,
+        indirect_Hours: values.indirect_Hours || 0,
+      };
+
       const url =
         mode === "create"
           ? "/api/clinicalHours/post"
@@ -82,7 +93,7 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ ...values, user_Id: userID }),
+          body: JSON.stringify({ ...updatedValues, user_Id: userID }),
         });
 
         if (!response.ok) {
@@ -168,6 +179,11 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
               {formik.touched.indirect_Hours && formik.errors.indirect_Hours ? (
                 <div className="text-red-500 text-sm">
                   {formik.errors.indirect_Hours}
+                </div>
+              ) : null}
+              {formik.touched.direct_Hours && formik.errors.direct_Hours ? (
+                <div className="text-red-500 text-sm">
+                  {formik.errors.direct_Hours}
                 </div>
               ) : null}
             </div>
