@@ -40,8 +40,14 @@ const ClinicalLogs: React.FC = () => {
   ];
 
   const data = clinicalLogs.map((log) => {
+    const dateLoggedEst = new Date(
+      new Date(log.date_logged).toLocaleString("en-US", {
+        timeZone: "America/New_York",
+      })
+    );
+
     return {
-      "Date Logged": new Date(log.date_logged).toLocaleDateString("en-US", {
+      "Date Logged": dateLoggedEst.toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",

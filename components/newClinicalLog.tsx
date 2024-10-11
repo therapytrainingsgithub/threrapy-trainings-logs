@@ -28,16 +28,28 @@ const validationSchema = Yup.object({
   date_logged: Yup.string().required("Date is required"),
   direct_Hours: Yup.number()
     .typeError("Direct Hours must be a number")
-    .required("Direct Hours is required")
-    .positive("Direct Hours must be positive")
-    .integer("Direct Hours must be an integer"),
+    .integer("Direct Hours must be an integer")
+    .min(0, "Direct Hours must be at least 0")
+    .nullable(),
   indirect_Hours: Yup.number()
     .typeError("Indirect Hours must be a number")
-    .required("Indirect Hours is required")
-    .positive("Indirect Hours must be positive")
-    .integer("Indirect Hours must be an integer"),
+    .integer("Indirect Hours must be an integer")
+    .min(0, "Indirect Hours must be at least 0")
+    .nullable(),
   site: Yup.string().required("Site is required"),
-});
+}).test(
+  "one-must-be-positive",
+  "Either Direct Hours or Indirect Hours must be greater than zero, but not both",
+  function (value) {
+    const { direct_Hours, indirect_Hours } = value;
+
+    if (direct_Hours === 0 && indirect_Hours === 0) {
+      return false; // At least one must be greater than zero
+    }
+
+    return true; // Valid if one is zero and the other is positive
+  }
+);
 
 const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   closePopup,
@@ -51,8 +63,8 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
   const formik = useFormik({
     initialValues: {
       date_logged: existingLog?.date_logged || "",
-      direct_Hours: existingLog?.direct_Hours || "",
-      indirect_Hours: existingLog?.indirect_Hours || "",
+      direct_Hours: existingLog?.direct_Hours || 0,
+      indirect_Hours: existingLog?.indirect_Hours || 0,
       site: existingLog?.site || "",
     },
     validationSchema,
@@ -132,7 +144,6 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
                 value={formik.values.direct_Hours}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                required
               />
               {formik.touched.direct_Hours && formik.errors.direct_Hours ? (
                 <div className="text-red-500 text-sm">
@@ -153,7 +164,6 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
                 value={formik.values.indirect_Hours}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                required
               />
               {formik.touched.indirect_Hours && formik.errors.indirect_Hours ? (
                 <div className="text-red-500 text-sm">
