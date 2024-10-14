@@ -99,6 +99,18 @@ const Overview: React.FC = () => {
     ],
   };
 
+  function convertUTCtoLocalTime(utcTime: any) {
+    const utcDate = new Date(utcTime);
+
+    const localTime = new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(utcDate);
+
+    return localTime;
+  }
+
   // Export clinical and supervision logs to Excel
   const exportToSpreadsheet = (clinicalLogs: any, supervisionLogs: any) => {
     try {
@@ -136,7 +148,7 @@ const Overview: React.FC = () => {
       ];
 
       const clinicalLogData = clinicalLogs.map((log: any) => [
-        log.date_logged || "N/A",
+        convertUTCtoLocalTime(log.date_logged) || "N/A",
         log.direct_Hours || 0,
         log.indirect_Hours || 0,
         log.site || "Unknown",
@@ -256,7 +268,7 @@ const Overview: React.FC = () => {
       ];
 
       const supervisionLogData = supervisionLogs.map((log: any) => [
-        log.date_logged || "N/A",
+        convertUTCtoLocalTime(log.date_logged) || "N/A",
         log.supervision_Hours || 0,
       ]);
 

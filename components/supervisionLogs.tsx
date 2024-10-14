@@ -48,23 +48,27 @@ const SupervisionLogs: React.FC = () => {
     "Action",
   ];
 
+  function convertUTCtoLocalTime(utcTime: any) {
+    const utcDate = new Date(utcTime);
+
+    const localTime = new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    }).format(utcDate);
+
+    return localTime;
+  }
+
   const sortedLogs = supervisionLogs.sort((a, b) => {
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    return (
+      new Date(b.date_logged).getTime() - new Date(a.date_logged).getTime()
+    );
   });
 
   const data = sortedLogs.map((log) => {
-    const dateLoggedEst = new Date(
-      new Date(log.date_logged).toLocaleString("en-US", {
-        timeZone: "America/New_York",
-      })
-    );
-
     return {
-      "Date Logged": dateLoggedEst.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }),
+      "Date Logged": convertUTCtoLocalTime(log.date_logged),
       "Supervision Hours": log.supervision_Hours,
       Action: (
         <Dropdown
@@ -76,7 +80,7 @@ const SupervisionLogs: React.FC = () => {
               mode="update"
               existingLog={{
                 id: log.id,
-                date_logged: log.date_logged,
+                date_logged: convertUTCtoLocalTime(log.date_logged),
                 supervision_Hours: log.supervision_Hours.toString(), // Convert to string
               }}
               closePopup={closePopup} // Pass closePopup function

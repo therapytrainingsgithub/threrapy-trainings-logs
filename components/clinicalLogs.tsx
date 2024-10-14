@@ -42,23 +42,25 @@ const ClinicalLogs: React.FC = () => {
   // Sort clinicalLogs by date_logged in descending order (newest first)
   const sortedLogs = clinicalLogs.sort((a, b) => {
     return (
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      new Date(b.date_logged).getTime() - new Date(a.date_logged).getTime()
     );
   });
 
-  const data = sortedLogs.map((log) => {
-    const dateLoggedEst = new Date(
-      new Date(log.date_logged).toLocaleString("en-US", {
-        timeZone: "America/New_York",
-      })
-    );
+  function convertUTCtoLocalTime(utcTime: any) {
+    const utcDate = new Date(utcTime);
 
+    const localTime = new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    }).format(utcDate);
+
+    return localTime;
+  }
+
+  const data = sortedLogs.map((log) => {
     return {
-      "Date Logged": dateLoggedEst.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }),
+      "Date Logged": convertUTCtoLocalTime(log.date_logged),
       "Direct Hours": log.direct_Hours,
       "Indirect Hours": log.indirect_Hours,
       Site: log.site ?? "N/A",
@@ -71,7 +73,7 @@ const ClinicalLogs: React.FC = () => {
               closePopup={closePopup}
               refreshLogs={refreshLogs}
               existingLog={{
-                date_logged: log.date_logged,
+                date_logged: convertUTCtoLocalTime(log.date_logged),
                 id: log.id,
                 direct_Hours: log.direct_Hours,
                 indirect_Hours: log.indirect_Hours,
