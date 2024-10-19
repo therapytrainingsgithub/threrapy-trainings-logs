@@ -5,7 +5,8 @@ import Link from "next/dist/client/link";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [loading, setLoading] = useState(false); // State to manage the loader
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const supabase = createClient();
@@ -25,7 +26,6 @@ const Header = () => {
     }
   };
 
-  // Close the dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -42,6 +42,23 @@ const Header = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dropdownRef]);
+
+  useEffect(() => {
+    const fetchUserEmail = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error) {
+        console.log("Error fetching user session:", error.message);
+      } else if (session && session.user) {
+        setUserEmail(session.user.email ?? null);
+      }
+    };
+
+    fetchUserEmail();
+  }, [supabase]);
 
   const goToSettings = () => {
     router.push("/settings");
@@ -65,7 +82,11 @@ const Header = () => {
       ) : (
         <>
           <div className="flex justify-between items-center py-5 px-5">
-          <Link href="https://www.therapytrainings.com" target="_blank" rel="noopener noreferrer">
+            <Link
+              href="https://www.therapytrainings.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img
                 height={80}
                 width={250}
@@ -82,21 +103,26 @@ const Header = () => {
                 onClick={toggleDropdown}
               />
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
-                  <div className="py-1">
-                    <button
-                      onClick={goToSettings}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-200"
-                    >
-                      Edit Profile
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-200"
-                    >
-                      Logout
-                    </button>
-                  </div>
+                <div className="absolute right-0 mt-2 min-w-[10rem] max-w-[16rem] bg-white rounded-md shadow-lg z-50">
+                  <p
+                    className="cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-200 truncate"
+                    title={userEmail ?? undefined}
+                  >
+                    {userEmail ? userEmail : "User"}
+                  </p>
+
+                  <button
+                    onClick={goToSettings}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-200"
+                  >
+                    Edit Profile
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
                 </div>
               )}
             </div>
