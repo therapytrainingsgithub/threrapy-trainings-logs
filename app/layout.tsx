@@ -2,9 +2,9 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {
-  title: "Supervision App",
+  title: "Clinical Supervision Tracker",
   description:
-    "A Supervision App which is an extension of Therapy Training.",
+    "Streamline your clinical supervision hours with our HIPAA-compliant tracking system. Easily log sessions, generate reports, and maintain accurate records for licensure requirements.",
 };
 interface RootLayoutProps {
   children: React.ReactNode;
