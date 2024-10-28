@@ -2,7 +2,7 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {
-  title: "Clinical Supervision Tracker",
+  title: "Clinical Supervision App by Therapy Trainings®",
   description:
     "Streamline your clinical supervision hours with our HIPAA-compliant tracking system. Easily log sessions, generate reports, and maintain accurate records for licensure requirements.",
 };
