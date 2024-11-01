@@ -74,9 +74,19 @@ const NewClinicalLog: React.FC<NewClinicalLogProps> = ({
     onSubmit: async (values, { setSubmitting }) => {
       setSubmitting(true);
 
+      // Get user-selected date
+      const selectedDate = values.date_logged;
+
+      // Get current time in UTC as `HH:mm:ss`
+      const currentTime = new Date().toISOString().split("T")[1]; // Extracts `HH:mm:ss.sssZ`
+
+      // Combine date and time to form a full UTC timestamp
+      const combinedTimestamp = `${selectedDate}T${currentTime}`;
+
       // Ensure empty fields for hours are treated as 0
       const updatedValues = {
         ...values,
+        date_logged: combinedTimestamp, // Use the combined date and time
         direct_Hours: values.direct_Hours || 0,
         indirect_Hours: values.indirect_Hours || 0,
       };
